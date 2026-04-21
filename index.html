@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timesheet</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root{
+    --bg:#0a0f16;
+    --panel:#0f1722;
+    --panel-2:#131d2b;
+    --line:#263445;
+    --line-2:#33465c;
+    --text:#e7edf5;
+    --muted:#9fb0c3;
+    --accent:#2d6cdf;
+    --accent-2:#1e4fa8;
+    --success:#1f9d55;
+}
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(180deg, #081019 0%, #0a0f16 100%);
+    color:var(--text);
+    padding:16px;
+}
+
+.container{
+    max-width:1000px;
+    margin:0 auto;
+}
+
+.app-shell{
+    background:rgba(15,23,34,.92);
+    border:1px solid var(--line);
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+    border-radius:14px;
+    padding:18px;
+}
+
+h1{
+    text-align:center;
+    letter-spacing:3px;
+    font-size:42px;
+    margin-bottom:18px;
+    font-weight:800;
+}
+
+.header-box{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+    margin-bottom:16px;
+}
+
+.field label{
+    display:block;
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:6px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    font-weight:700;
+}
+
+.top-input{
+    width:100%;
+    height:44px;
+    border:1px solid var(--line-2);
+    background:#0c1420;
+    color:var(--text);
+    border-radius:10px;
+    padding:0 12px;
+    outline:none;
+    transition:border-color .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+
+.top-input:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(45,108,223,.18);
+}
+
+.table-wrap{
+    overflow-x:auto;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#0c1420;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+}
+
+thead th{
+    background:linear-gradient(180deg, #162131 0%, #121b28 100%);
+    color:#eef4fb;
+    font-size:14px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+    padding:14px 10px;
+    border-bottom:1px solid var(--line-2);
+    border-right:1px solid var(--line);
+    white-space:nowrap;
+}
+
+thead th:last-child{
+    border-right:none;
+}
+
+tbody td{
+    padding:8px;
+    border-top:1px solid var(--line);
+    border-right:1px solid var(--line);
+    background:#0d1622;
+    vertical-align:middle;
+}
+
+tbody td:last-child{
+    border-right:none;
+}
+
+tbody tr:nth-child(even) td{
+    background:#0f1927;
+}
+
+.row-input{
+    width:100%;
+    height:38px;
+    border:1px solid #314357;
+    background:#0b121c;
+    color:var(--text);
+    border-radius:8px;
+    padding:0 10px;
+    outline:none;
+    font-size:14px;
+    min-width:0;
+}
+
+.row-input:focus{
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(45,108,223,.14);
+}
+
+.hours-cell{
+    height:38px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid #314357;
+    background:#0b121c;
+    border-radius:8px;
+    font-weight:800;
+    color:#ffffff;
+}
+
+.actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:14px;
+}
+
+button{
+    height:46px;
+    border:none;
+    border-radius:10px;
+    color:#fff;
+    font-weight:800;
+    letter-spacing:.4px;
+    cursor:pointer;
+    transition:transform .12s ease, opacity .18s ease, box-shadow .18s ease;
+}
+
+button:hover{
+    transform:translateY(-1px);
+}
+
+button:active{
+    transform:translateY(0);
+}
+
+.btn-add{
+    background:linear-gradient(180deg, var(--accent) 0%, var(--accent-2) 100%);
+    box-shadow:0 8px 20px rgba(45,108,223,.22);
+}
+
+.btn-pdf{
+    background:linear-gradient(180deg, #1d8f52 0%, #16673b 100%);
+    box-shadow:0 8px 20px rgba(31,157,85,.22);
+}
+
+.footer-bar{
+    margin-top:16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    padding:14px 16px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#0c1420;
+}
+
+.total{
+    font-size:24px;
+    font-weight:900;
+    letter-spacing:1px;
+}
+
+.total span{
+    color:#ffffff;
+}
+
+.status{
+    color:var(--muted);
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.fade-in{
+    animation:fadeIn .22s ease;
+}
+
+@keyframes fadeIn{
+    from{opacity:0; transform:translateY(4px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
+.flash{
+    animation:flashCell .28s ease;
+}
+
+@keyframes flashCell{
+    0%{box-shadow:0 0 0 0 rgba(45,108,223,0);}
+    30%{box-shadow:0 0 0 4px rgba(45,108,223,.25);}
+    100%{box-shadow:0 0 0 0 rgba(45,108,223,0);}
+}
+
+@media (max-width: 760px){
+    h1{
+        font-size:32px;
+    }
+
+    .header-box{
+        grid-template-columns:1fr;
+    }
+
+    .actions{
+        grid-template-columns:1fr;
+    }
+
+    thead th{
+        font-size:12px;
+        padding:12px 8px;
+    }
+
+    .row-input,
+    .hours-cell{
+        height:36px;
+        font-size:13px;
+    }
+
+    tbody td{
+        padding:6px;
+    }
+
+    .total{
+        font-size:20px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <div class="app-shell">
+        <h1>TIMESHEET</h1>
+
+        <div class="header-box">
+            <div class="field">
+                <label for="name">Name</label>
+                <input id="name" class="top-input" type="text" placeholder="Enter name">
+            </div>
+            <div class="field">
+                <label for="company">Company / Contract</label>
+                <input id="company" class="top-input" type="text" placeholder="Enter company or contract">
+            </div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width:20%;">Date</th>
+                        <th style="width:17%;">Time In</th>
+                        <th style="width:17%;">Time Out</th>
+                        <th style="width:12%;">Hours</th>
+                        <th style="width:34%;">Detail</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+            </table>
+        </div>
+
+        <div class="actions">
+            <button class="btn-add" onclick="addRow()">Add Entry</button>
+            <button class="btn-pdf" onclick="generatePDF()">Generate PDF</button>
+        </div>
+
+        <div class="footer-bar">
+            <div class="total">TOTAL HOURS: <span id="total">0.0</span></div>
+            <div class="status" id="statusText">Ready</div>
+        </div>
+    </div>
+</div>
+
+<script>
+function formatHourDisplay(value){
+    return Number(value).toFixed(1);
+}
+
+function calcHours(timeIn, timeOut){
+    if(!timeIn || !timeOut) return null;
+
+    const start = new Date("1970-01-01T" + timeIn);
+    const end = new Date("1970-01-01T" + timeOut);
+
+    if(isNaN(start.getTime()) || isNaN(end.getTime())) return null;
+
+    if(end < start){
+        end.setDate(end.getDate() + 1);
+    }
+
+    const diff = (end - start) / (1000 * 60 * 60);
+    return diff;
+}
+
+function updateStatus(message){
+    document.getElementById("statusText").textContent = message;
+}
+
+function updateRow(row){
+    const timeIn = row.querySelector(".time-in").value;
+    const timeOut = row.querySelector(".time-out").value;
+    const hoursBox = row.querySelector(".hours-cell");
+
+    const hours = calcHours(timeIn, timeOut);
+
+    if(hours === null){
+        hoursBox.textContent = "0.0";
+    } else {
+        hoursBox.textContent = formatHourDisplay(hours);
+        hoursBox.classList.remove("flash");
+        void hoursBox.offsetWidth;
+        hoursBox.classList.add("flash");
+    }
+
+    calcTotal();
+    updateStatus("Updated");
+}
+
+function calcTotal(){
+    let total = 0;
+    document.querySelectorAll(".hours-cell").forEach(cell => {
+        total += parseFloat(cell.textContent) || 0;
+    });
+    document.getElementById("total").textContent = total.toFixed(1);
+}
+
+function addRow(data = {}){
+    const tbody = document.getElementById("tbody");
+    const row = document.createElement("tr");
+    row.className = "fade-in";
+
+    row.innerHTML = `
+        <td><input class="row-input date-input" type="date" value="${data.date || ''}"></td>
+        <td><input class="row-input time-in" type="time" value="${data.timeIn || ''}"></td>
+        <td><input class="row-input time-out" type="time" value="${data.timeOut || ''}"></td>
+        <td><div class="hours-cell">0.0</div></td>
+        <td><input class="row-input detail-input" type="text" placeholder="Location / Detail" value="${data.detail || ''}"></td>
+    `;
+
+    tbody.appendChild(row);
+
+    row.querySelectorAll("input").forEach(input => {
+        input.addEventListener("input", () => updateRow(row));
+        input.addEventListener("change", () => updateRow(row));
+    });
+
+    updateRow(row);
+    updateStatus("Entry added");
+}
+
+function formatDateForPdf(dateValue){
+    if(!dateValue) return "-";
+    const [year, month, day] = dateValue.split("-");
+    if(!year || !month || !day) return dateValue;
+    return `${month}/${day}/${year}`;
+}
+
+function formatTimeForPdf(timeValue){
+    if(!timeValue) return "-";
+    const [hourStr, minute] = timeValue.split(":");
+    let hour = parseInt(hourStr, 10);
+    const suffix = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12;
+    if(hour === 0) hour = 12;
+    return `${hour}:${minute} ${suffix}`;
+}
+
+function drawCell(doc, x, y, w, h, text, align = "left"){
+    doc.rect(x, y, w, h);
+    const pad = 3;
+    let textX = x + pad;
+
+    if(align === "center"){
+        textX = x + (w / 2);
+    } else if(align === "right"){
+        textX = x + w - pad;
+    }
+
+    doc.text(String(text), textX, y + 6.5, { align });
+}
+
+function generatePDF(){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "letter" });
+
+    const name = document.getElementById("name").value || "-";
+    const company = document.getElementById("company").value || "-";
+    const rows = Array.from(document.querySelectorAll("#tbody tr"));
+
+    let y = 18;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.text("TIMESHEET", 105, y, { align: "center" });
+
+    y += 12;
+
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Name: ${name}`, 14, y);
+    y += 7;
+    doc.text(`Company / Contract: ${company}`, 14, y);
+
+    y += 10;
+
+    const colX = [14, 48, 82, 116, 140];
+    const colW = [34, 34, 34, 24, 56];
+    const rowH = 10;
+
+    doc.setFont("helvetica", "bold");
+    drawCell(doc, colX[0], y, colW[0], rowH, "Date");
+    drawCell(doc, colX[1], y, colW[1], rowH, "Time In");
+    drawCell(doc, colX[2], y, colW[2], rowH, "Time Out");
+    drawCell(doc, colX[3], y, colW[3], rowH, "Hours", "center");
+    drawCell(doc, colX[4], y, colW[4], rowH, "Detail");
+
+    y += rowH;
+    doc.setFont("helvetica", "normal");
+
+    rows.forEach((row) => {
+        if(y > 255){
+            doc.addPage();
+            y = 18;
+
+            doc.setFont("helvetica", "bold");
+            drawCell(doc, colX[0], y, colW[0], rowH, "Date");
+            drawCell(doc, colX[1], y, colW[1], rowH, "Time In");
+            drawCell(doc, colX[2], y, colW[2], rowH, "Time Out");
+            drawCell(doc, colX[3], y, colW[3], rowH, "Hours", "center");
+            drawCell(doc, colX[4], y, colW[4], rowH, "Detail");
+            y += rowH;
+            doc.setFont("helvetica", "normal");
+        }
+
+        const dateVal = formatDateForPdf(row.querySelector(".date-input").value);
+        const timeInVal = formatTimeForPdf(row.querySelector(".time-in").value);
+        const timeOutVal = formatTimeForPdf(row.querySelector(".time-out").value);
+        const hoursVal = row.querySelector(".hours-cell").textContent || "0.0";
+        const detailVal = row.querySelector(".detail-input").value || "-";
+
+        drawCell(doc, colX[0], y, colW[0], rowH, dateVal);
+        drawCell(doc, colX[1], y, colW[1], rowH, timeInVal);
+        drawCell(doc, colX[2], y, colW[2], rowH, timeOutVal);
+        drawCell(doc, colX[3], y, colW[3], rowH, hoursVal, "center");
+        drawCell(doc, colX[4], y, colW[4], rowH, detailVal);
+
+        y += rowH;
+    });
+
+    y += 8;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.text(`TOTAL HOURS: ${document.getElementById("total").textContent}`, 14, y);
+
+    doc.save("timesheet.pdf");
+    updateStatus("PDF generated");
+}
+
+addRow();
+</script>
+</body>
+</html>
