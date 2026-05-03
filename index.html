@@ -2,381 +2,212 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>Mini LCD Shooter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>LCD Shooter Mobile</title>
+
 <style>
-  body {
-    margin: 0;
-    background: #111;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: monospace;
-  }
+body {
+  margin: 0;
+  background: #0a0a0a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-family: monospace;
+  color: #ccc;
+}
 
-  .device {
-    padding: 22px;
-    background: linear-gradient(145deg, #8d8f8d, #d0d2ce, #686a68);
-    border-radius: 28px;
-    box-shadow:
-      inset 0 0 12px #fff8,
-      inset 0 0 35px #0008,
-      0 20px 50px #000;
-  }
+/* Device frame */
+.device {
+  padding: 16px;
+  background: linear-gradient(145deg, #8a8c8a, #d8dad6, #5e605e);
+  border-radius: 22px;
+  box-shadow:
+    inset 0 0 10px #fff6,
+    inset 0 0 25px #0007,
+    0 15px 40px #000;
+}
 
-  .screen-wrap {
-    background: #050505;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow:
-      inset 0 0 25px #000,
-      0 0 8px #222;
-  }
+/* Screen */
+.screen-wrap {
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px #000;
+}
 
-  canvas {
-    width: 760px;
-    height: 430px;
-    image-rendering: pixelated;
-    display: block;
-    filter: contrast(1.2) brightness(1.05) blur(.25px);
-  }
+canvas {
+  width: 92vw;
+  max-width: 520px;
+  height: auto;
+  image-rendering: pixelated;
+  display: block;
 
-  .hint {
-    color: #aaa;
-    text-align: center;
-    margin-top: 14px;
-    font-size: 14px;
-  }
+  /* 🔥 cleaner contrast */
+  filter: contrast(1.6) brightness(1.2);
+}
+
+/* Controls */
+.controls {
+  margin-top: 18px;
+  display: flex;
+  gap: 20px;
+}
+
+.pad {
+  display: grid;
+  grid-template-columns: 60px 60px 60px;
+  grid-template-rows: 60px 60px 60px;
+  gap: 6px;
+}
+
+.btn {
+  background: #1f1f1f;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  user-select: none;
+  touch-action: none;
+}
+
+.btn:active {
+  background: #444;
+}
+
+.shoot {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  font-size: 20px;
+  background: #222;
+}
+
+.shoot:active {
+  background: #555;
+}
 </style>
 </head>
 <body>
 
-<div>
-  <div class="device">
-    <div class="screen-wrap">
-      <canvas id="game" width="190" height="108"></canvas>
-    </div>
+<div class="device">
+  <div class="screen-wrap">
+    <canvas id="game" width="190" height="108"></canvas>
   </div>
-  <div class="hint">Move: WASD / Arrows | Shoot: Space | Restart: R</div>
+</div>
+
+<div class="controls">
+  <div class="pad">
+    <div></div>
+    <div class="btn" id="up">▲</div>
+    <div></div>
+
+    <div class="btn" id="left">◀</div>
+    <div></div>
+    <div class="btn" id="right">▶</div>
+
+    <div></div>
+    <div class="btn" id="down">▼</div>
+    <div></div>
+  </div>
+
+  <div class="btn shoot" id="shoot">FIRE</div>
 </div>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-
 ctx.imageSmoothingEnabled = false;
 
-const W = canvas.width;
-const H = canvas.height;
-
 let keys = {};
-let frame = 0;
-let score = 580;
-let lives = 3;
-let wave = 5;
 let gameOver = false;
 
-const white = "#d8d8d8";
-const black = "#000000";
+function bindButton(id, key) {
+  const el = document.getElementById(id);
 
-const player = {
-  x: 14,
-  y: 52,
-  w: 14,
-  h: 12,
-  speed: 1.3,
-  cooldown: 0
-};
+  el.addEventListener("touchstart", e => {
+    e.preventDefault();
+    keys[key] = true;
+  });
 
-const boss = {
-  x: 145,
-  y: 47,
-  w: 34,
-  h: 38,
-  hp: 12,
-  dir: 1
-};
+  el.addEventListener("touchend", () => keys[key] = false);
+}
 
+bindButton("up", "up");
+bindButton("down", "down");
+bindButton("left", "left");
+bindButton("right", "right");
+
+document.getElementById("shoot").addEventListener("touchstart", e => {
+  e.preventDefault();
+  shoot();
+});
+
+/* --- GAME --- */
+let player = { x: 10, y: 50, w: 10, h: 6, cd: 0 };
 let bullets = [];
 let enemyShots = [];
-let particles = [];
-
-document.addEventListener("keydown", e => {
-  keys[e.key.toLowerCase()] = true;
-  if (e.key.toLowerCase() === "r") restart();
-});
-
-document.addEventListener("keyup", e => {
-  keys[e.key.toLowerCase()] = false;
-});
-
-canvas.addEventListener("pointerdown", () => shoot());
-
-function restart() {
-  score = 580;
-  lives = 3;
-  wave = 5;
-  player.x = 14;
-  player.y = 52;
-  boss.x = 145;
-  boss.y = 47;
-  boss.hp = 12;
-  bullets = [];
-  enemyShots = [];
-  particles = [];
-  gameOver = false;
-}
-
-function rect(a, b) {
-  return (
-    a.x < b.x + b.w &&
-    a.x + a.w > b.x &&
-    a.y < b.y + b.h &&
-    a.y + a.h > b.y
-  );
-}
+let lives = 3;
+let score = 580;
 
 function shoot() {
-  if (player.cooldown <= 0 && !gameOver) {
-    bullets.push({
-      x: player.x + 13,
-      y: player.y + 5,
-      w: 6,
-      h: 2,
-      vx: 2.8
-    });
-    player.cooldown = 14;
+  if (player.cd <= 0 && !gameOver) {
+    bullets.push({ x: player.x + 10, y: player.y + 2, vx: 3 });
+    player.cd = 12;
   }
 }
 
 function update() {
   if (gameOver) return;
 
-  frame++;
+  if (keys["up"]) player.y -= 1.5;
+  if (keys["down"]) player.y += 1.5;
+  if (keys["left"]) player.x -= 1.5;
+  if (keys["right"]) player.x += 1.5;
 
-  if (keys["arrowup"] || keys["w"]) player.y -= player.speed;
-  if (keys["arrowdown"] || keys["s"]) player.y += player.speed;
-  if (keys["arrowleft"] || keys["a"]) player.x -= player.speed;
-  if (keys["arrowright"] || keys["d"]) player.x += player.speed;
-  if (keys[" "]) shoot();
+  player.y = Math.max(10, Math.min(90, player.y));
+  player.x = Math.max(5, Math.min(80, player.x));
 
-  player.x = Math.max(3, Math.min(55, player.x));
-  player.y = Math.max(25, Math.min(86, player.y));
-
-  if (player.cooldown > 0) player.cooldown--;
-
-  boss.y += Math.sin(frame / 18) * 0.35;
-
-  if (frame % 55 === 0) {
-    enemyShots.push({
-      x: boss.x - 8,
-      y: boss.y + 19,
-      w: 8,
-      h: 3,
-      vx: -1.4,
-      vy: Math.sin(frame / 20) * 0.4
-    });
-  }
+  if (player.cd > 0) player.cd--;
 
   bullets.forEach(b => b.x += b.vx);
-  bullets = bullets.filter(b => b.x < W);
-
-  enemyShots.forEach(s => {
-    s.x += s.vx;
-    s.y += s.vy;
-  });
-  enemyShots = enemyShots.filter(s => s.x > -20);
-
-  bullets.forEach(b => {
-    if (rect(b, boss)) {
-      b.dead = true;
-      boss.hp--;
-      score += 20;
-      burst(b.x, b.y);
-      if (boss.hp <= 0) {
-        score += 500;
-        wave++;
-        boss.hp = 12 + wave;
-        boss.y = 38 + Math.random() * 26;
-        burst(boss.x + 12, boss.y + 18, 18);
-      }
-    }
-  });
-
-  bullets = bullets.filter(b => !b.dead);
-
-  enemyShots.forEach(s => {
-    if (rect(s, player)) {
-      s.dead = true;
-      lives--;
-      burst(player.x + 6, player.y + 6, 12);
-      if (lives <= 0) gameOver = true;
-    }
-  });
-
-  enemyShots = enemyShots.filter(s => !s.dead);
-
-  particles.forEach(p => {
-    p.x += p.vx;
-    p.y += p.vy;
-    p.life--;
-  });
-  particles = particles.filter(p => p.life > 0);
+  bullets = bullets.filter(b => b.x < 200);
 }
 
-function burst(x, y, n = 7) {
-  for (let i = 0; i < n; i++) {
-    particles.push({
-      x,
-      y,
-      vx: Math.random() * 3 - 1.5,
-      vy: Math.random() * 3 - 1.5,
-      life: 12 + Math.random() * 10
-    });
-  }
-}
-
-function px(x, y, w = 1, h = 1) {
-  ctx.fillRect(Math.round(x), Math.round(y), w, h);
-}
-
-function drawHeart(x, y) {
-  ctx.fillStyle = white;
-  px(x + 1, y, 2, 1);
-  px(x + 5, y, 2, 1);
-  px(x, y + 1, 8, 2);
-  px(x + 1, y + 3, 6, 1);
-  px(x + 2, y + 4, 4, 1);
-  px(x + 3, y + 5, 2, 1);
-}
-
-function drawFlag(x, y) {
-  ctx.fillStyle = white;
-  px(x, y, 2, 10);
-  px(x + 2, y, 7, 2);
-  px(x + 2, y + 2, 5, 2);
-  px(x + 2, y + 4, 3, 2);
-}
-
-function drawPlayer() {
-  ctx.fillStyle = white;
-
-  let x = Math.round(player.x);
-  let y = Math.round(player.y);
-
-  px(x + 1, y + 1, 6, 2);
-  px(x, y + 3, 10, 2);
-  px(x + 2, y + 5, 11, 2);
-  px(x + 5, y + 7, 7, 2);
-  px(x + 1, y + 8, 4, 2);
-  px(x + 7, y + 9, 3, 3);
-
-  px(x + 11, y + 4, 6, 2);
-  px(x + 16, y + 5, 2, 1);
-
-  px(x - 2, y + 4, 2, 4);
-  px(x - 4, y + 3, 2, 2);
-  px(x - 4, y + 8, 2, 2);
-}
-
-function drawBossHand() {
-  ctx.fillStyle = white;
-  let x = Math.round(boss.x);
-  let y = Math.round(boss.y);
-
-  px(x + 8, y + 3, 18, 2);
-  px(x + 5, y + 5, 22, 2);
-  px(x + 3, y + 7, 7, 3);
-  px(x + 11, y + 7, 6, 3);
-  px(x + 19, y + 7, 6, 3);
-
-  px(x + 1, y + 11, 24, 3);
-  px(x + 5, y + 14, 22, 3);
-  px(x + 9, y + 17, 18, 3);
-
-  px(x + 12, y + 20, 13, 3);
-  px(x + 14, y + 23, 10, 3);
-  px(x + 11, y + 26, 9, 2);
-
-  px(x + 4, y + 28, 16, 2);
-  px(x + 1, y + 30, 5, 2);
-  px(x + 19, y + 30, 6, 2);
-
-  px(x - 7, y + 35, 18, 2);
-  px(x + 19, y + 35, 13, 2);
-
-  ctx.fillStyle = black;
-  px(x + 9, y + 9, 3, 2);
-  px(x + 17, y + 9, 3, 2);
-  px(x + 13, y + 16, 5, 2);
-}
-
-function drawHUD() {
-  ctx.fillStyle = white;
-
-  for (let i = 0; i < lives; i++) {
-    drawHeart(7 + i * 10, 8);
-  }
-
-  drawFlag(82, 6);
-
-  ctx.font = "10px monospace";
-  ctx.fillText(String(wave).padStart(2, "0"), 96, 15);
-  ctx.fillText(String(score).padStart(5, "0"), 132, 15);
-}
-
-function drawSteppedShots() {
-  ctx.fillStyle = white;
-  enemyShots.forEach(s => {
-    px(s.x, s.y, s.w, s.h);
-  });
-
-  bullets.forEach(b => {
-    px(b.x, b.y, b.w, b.h);
-  });
-}
-
-function drawParticles() {
-  ctx.fillStyle = white;
-  particles.forEach(p => px(p.x, p.y, 1, 1));
-}
-
-function drawScreenNoise() {
-  ctx.fillStyle = "rgba(255,255,255,0.035)";
-  for (let y = 0; y < H; y += 3) {
-    ctx.fillRect(0, y, W, 1);
-  }
-
-  ctx.fillStyle = "rgba(255,255,255,0.025)";
-  for (let i = 0; i < 20; i++) {
-    px(Math.random() * W, Math.random() * H, 1, 1);
-  }
-}
-
-function drawGameOver() {
-  ctx.fillStyle = white;
-  ctx.font = "12px monospace";
-  ctx.fillText("GAME OVER", 66, 54);
-  ctx.font = "7px monospace";
-  ctx.fillText("PRESS R", 80, 66);
+function px(x,y,w=1,h=1){
+  ctx.fillRect(x|0,y|0,w,h);
 }
 
 function draw() {
-  ctx.fillStyle = black;
-  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0,0,190,108);
 
-  drawHUD();
-  drawPlayer();
-  drawBossHand();
-  drawSteppedShots();
-  drawParticles();
+  ctx.fillStyle = "#fff";
 
-  if (gameOver) drawGameOver();
+  /* player */
+  px(player.x, player.y, 10, 3);
+  px(player.x+6, player.y+2, 8, 2);
 
-  drawScreenNoise();
+  /* bullets */
+  bullets.forEach(b => px(b.x, b.y, 4, 1));
+
+  /* HUD */
+  for (let i=0;i<lives;i++){
+    px(5+i*8,5,5,3);
+  }
+
+  ctx.font="8px monospace";
+  ctx.fillText(score,130,10);
+
+  if (gameOver){
+    ctx.fillText("GAME OVER",60,60);
+  }
 }
 
-function loop() {
+function loop(){
   update();
   draw();
   requestAnimationFrame(loop);
