@@ -1,299 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Timesheet</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
+<meta charset="UTF-8" />
+<title>Mini LCD Shooter</title>
 <style>
-:root{
-    --bg:#0a0f16;
-    --panel:#0f1722;
-    --panel-2:#131d2b;
-    --line:#263445;
-    --line-2:#33465c;
-    --text:#e7edf5;
-    --muted:#9fb0c3;
-    --accent:#2d6cdf;
-    --accent-2:#1e4fa8;
-    --success:#1f9d55;
-}
+  body {
+    margin: 0;
+    background: #111;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: monospace;
+  }
 
-*{box-sizing:border-box;margin:0;padding:0;}
+  .device {
+    padding: 22px;
+    background: linear-gradient(145deg, #8d8f8d, #d0d2ce, #686a68);
+    border-radius: 28px;
+    box-shadow:
+      inset 0 0 12px #fff8,
+      inset 0 0 35px #0008,
+      0 20px 50px #000;
+  }
 
-body{
-    font-family: Arial, Helvetica, sans-serif;
-    background: linear-gradient(180deg, #081019 0%, #0a0f16 100%);
-    color:var(--text);
-    padding:16px;
-}
+  .screen-wrap {
+    background: #050505;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow:
+      inset 0 0 25px #000,
+      0 0 8px #222;
+  }
 
-.container{max-width:1000px;margin:0 auto;}
+  canvas {
+    width: 760px;
+    height: 430px;
+    image-rendering: pixelated;
+    display: block;
+    filter: contrast(1.2) brightness(1.05) blur(.25px);
+  }
 
-.app-shell{
-    background:rgba(15,23,34,.92);
-    border:1px solid var(--line);
-    box-shadow:0 10px 30px rgba(0,0,0,.35);
-    border-radius:14px;
-    padding:18px;
-}
-
-h1{
-    text-align:center;
-    letter-spacing:3px;
-    font-size:42px;
-    margin-bottom:18px;
-    font-weight:800;
-}
-
-.header-box{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:14px;
-    margin-bottom:16px;
-}
-
-.field label{
-    display:block;
-    font-size:13px;
-    color:var(--muted);
-    margin-bottom:6px;
-    text-transform:uppercase;
-    letter-spacing:1px;
-    font-weight:700;
-}
-
-.top-input{
-    width:100%;
-    height:44px;
-    border:1px solid var(--line-2);
-    background:#0c1420;
-    color:var(--text);
-    border-radius:10px;
-    padding:0 12px;
-    outline:none;
-}
-
-.table-wrap{
-    overflow-x:auto;
-    border:1px solid var(--line);
-    border-radius:12px;
-    background:#0c1420;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    table-layout:fixed;
-}
-
-thead th{
-    background:linear-gradient(180deg, #162131 0%, #121b28 100%);
-    font-size:14px;
-    font-weight:800;
-    padding:14px 10px;
-    border-bottom:1px solid var(--line-2);
-    border-right:1px solid var(--line);
-}
-
-tbody td{
-    padding:8px;
-    border-top:1px solid var(--line);
-    border-right:1px solid var(--line);
-}
-
-.row-input{
-    width:100%;
-    height:38px;
-    border:1px solid #314357;
-    background:#0b121c;
-    color:var(--text);
-    border-radius:8px;
-    padding:0 10px;
-}
-
-.hours-cell{
-    height:38px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border:1px solid #314357;
-    background:#0b121c;
-    border-radius:8px;
-    font-weight:800;
-}
-
-.actions{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:12px;
-    margin-top:14px;
-}
-
-button{
-    height:46px;
-    border:none;
-    border-radius:10px;
-    color:#fff;
-    font-weight:800;
-    cursor:pointer;
-}
-
-.btn-add{background:linear-gradient(180deg, var(--accent), var(--accent-2));}
-.btn-pdf{background:linear-gradient(180deg, #1d8f52, #16673b);}
-
-.footer-bar{
-    margin-top:16px;
-    display:flex;
-    justify-content:space-between;
-    padding:14px;
-    border:1px solid var(--line);
-    border-radius:12px;
-}
-
-.total{font-size:24px;font-weight:900;}
+  .hint {
+    color: #aaa;
+    text-align: center;
+    margin-top: 14px;
+    font-size: 14px;
+  }
 </style>
 </head>
-
 <body>
 
-<div class="container">
-<div class="app-shell">
-
-<h1>TIMESHEET</h1>
-
-<div class="header-box">
-    <div class="field">
-        <label>Name</label>
-        <input id="name" class="top-input">
+<div>
+  <div class="device">
+    <div class="screen-wrap">
+      <canvas id="game" width="190" height="108"></canvas>
     </div>
-    <div class="field">
-        <label>Company / Contract</label>
-        <input id="company" class="top-input">
-    </div>
-</div>
-
-<div class="table-wrap">
-<table>
-<thead>
-<tr>
-<th>Date</th>
-<th>Time In</th>
-<th>Time Out</th>
-<th>Hours</th>
-<th>Detail</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-</div>
-
-<div class="actions">
-<button class="btn-add" onclick="addRow()">Add Entry</button>
-<button class="btn-pdf" onclick="generatePDF()">Generate PDF</button>
-</div>
-
-<div class="footer-bar">
-<div class="total">TOTAL HOURS: <span id="total">0.0</span></div>
-</div>
-
-</div>
+  </div>
+  <div class="hint">Move: WASD / Arrows | Shoot: Space | Restart: R</div>
 </div>
 
 <script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-// ✅ FIXED CALCULATION
-function calcHours(timeIn, timeOut){
-    if(!timeIn || !timeOut) return null;
+ctx.imageSmoothingEnabled = false;
 
-    const [inH, inM] = timeIn.split(":").map(Number);
-    const [outH, outM] = timeOut.split(":").map(Number);
+const W = canvas.width;
+const H = canvas.height;
 
-    let start = inH * 60 + inM;
-    let end = outH * 60 + outM;
+let keys = {};
+let frame = 0;
+let score = 580;
+let lives = 3;
+let wave = 5;
+let gameOver = false;
 
-    if(end < start){
-        end += 1440;
+const white = "#d8d8d8";
+const black = "#000000";
+
+const player = {
+  x: 14,
+  y: 52,
+  w: 14,
+  h: 12,
+  speed: 1.3,
+  cooldown: 0
+};
+
+const boss = {
+  x: 145,
+  y: 47,
+  w: 34,
+  h: 38,
+  hp: 12,
+  dir: 1
+};
+
+let bullets = [];
+let enemyShots = [];
+let particles = [];
+
+document.addEventListener("keydown", e => {
+  keys[e.key.toLowerCase()] = true;
+  if (e.key.toLowerCase() === "r") restart();
+});
+
+document.addEventListener("keyup", e => {
+  keys[e.key.toLowerCase()] = false;
+});
+
+canvas.addEventListener("pointerdown", () => shoot());
+
+function restart() {
+  score = 580;
+  lives = 3;
+  wave = 5;
+  player.x = 14;
+  player.y = 52;
+  boss.x = 145;
+  boss.y = 47;
+  boss.hp = 12;
+  bullets = [];
+  enemyShots = [];
+  particles = [];
+  gameOver = false;
+}
+
+function rect(a, b) {
+  return (
+    a.x < b.x + b.w &&
+    a.x + a.w > b.x &&
+    a.y < b.y + b.h &&
+    a.y + a.h > b.y
+  );
+}
+
+function shoot() {
+  if (player.cooldown <= 0 && !gameOver) {
+    bullets.push({
+      x: player.x + 13,
+      y: player.y + 5,
+      w: 6,
+      h: 2,
+      vx: 2.8
+    });
+    player.cooldown = 14;
+  }
+}
+
+function update() {
+  if (gameOver) return;
+
+  frame++;
+
+  if (keys["arrowup"] || keys["w"]) player.y -= player.speed;
+  if (keys["arrowdown"] || keys["s"]) player.y += player.speed;
+  if (keys["arrowleft"] || keys["a"]) player.x -= player.speed;
+  if (keys["arrowright"] || keys["d"]) player.x += player.speed;
+  if (keys[" "]) shoot();
+
+  player.x = Math.max(3, Math.min(55, player.x));
+  player.y = Math.max(25, Math.min(86, player.y));
+
+  if (player.cooldown > 0) player.cooldown--;
+
+  boss.y += Math.sin(frame / 18) * 0.35;
+
+  if (frame % 55 === 0) {
+    enemyShots.push({
+      x: boss.x - 8,
+      y: boss.y + 19,
+      w: 8,
+      h: 3,
+      vx: -1.4,
+      vy: Math.sin(frame / 20) * 0.4
+    });
+  }
+
+  bullets.forEach(b => b.x += b.vx);
+  bullets = bullets.filter(b => b.x < W);
+
+  enemyShots.forEach(s => {
+    s.x += s.vx;
+    s.y += s.vy;
+  });
+  enemyShots = enemyShots.filter(s => s.x > -20);
+
+  bullets.forEach(b => {
+    if (rect(b, boss)) {
+      b.dead = true;
+      boss.hp--;
+      score += 20;
+      burst(b.x, b.y);
+      if (boss.hp <= 0) {
+        score += 500;
+        wave++;
+        boss.hp = 12 + wave;
+        boss.y = 38 + Math.random() * 26;
+        burst(boss.x + 12, boss.y + 18, 18);
+      }
     }
+  });
 
-    return Math.round(((end - start) / 60) * 10) / 10;
+  bullets = bullets.filter(b => !b.dead);
+
+  enemyShots.forEach(s => {
+    if (rect(s, player)) {
+      s.dead = true;
+      lives--;
+      burst(player.x + 6, player.y + 6, 12);
+      if (lives <= 0) gameOver = true;
+    }
+  });
+
+  enemyShots = enemyShots.filter(s => !s.dead);
+
+  particles.forEach(p => {
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+  });
+  particles = particles.filter(p => p.life > 0);
 }
 
-// ✅ FORCE UPDATE
-function updateRow(row){
-    const timeIn = row.querySelector(".time-in").value;
-    const timeOut = row.querySelector(".time-out").value;
-
-    const hours = calcHours(timeIn, timeOut);
-
-    row.querySelector(".hours-cell").textContent =
-        hours === null ? "0.0" : hours.toFixed(1);
-
-    calcTotal();
-}
-
-function calcTotal(){
-    let total = 0;
-    document.querySelectorAll(".hours-cell").forEach(cell=>{
-        total += parseFloat(cell.textContent)||0;
+function burst(x, y, n = 7) {
+  for (let i = 0; i < n; i++) {
+    particles.push({
+      x,
+      y,
+      vx: Math.random() * 3 - 1.5,
+      vy: Math.random() * 3 - 1.5,
+      life: 12 + Math.random() * 10
     });
-    document.getElementById("total").textContent = total.toFixed(1);
+  }
 }
 
-// ✅ CRITICAL FIX — DIRECT INPUT TRIGGER
-function addRow(){
-    const row = document.createElement("tr");
-
-    row.innerHTML = `
-        <td><input class="row-input" type="date"></td>
-
-        <td>
-            <input class="row-input time-in" type="time"
-            oninput="updateRow(this.closest('tr'))">
-        </td>
-
-        <td>
-            <input class="row-input time-out" type="time"
-            oninput="updateRow(this.closest('tr'))">
-        </td>
-
-        <td><div class="hours-cell">0.0</div></td>
-
-        <td><input class="row-input" type="text"></td>
-    `;
-
-    document.getElementById("tbody").appendChild(row);
+function px(x, y, w = 1, h = 1) {
+  ctx.fillRect(Math.round(x), Math.round(y), w, h);
 }
 
-function generatePDF(){
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-
-    let y = 20;
-
-    doc.text("TIMESHEET",90,y);
-    y+=10;
-
-    doc.text("Name: "+document.getElementById("name").value,10,y);
-    y+=6;
-    doc.text("Company: "+document.getElementById("company").value,10,y);
-    y+=10;
-
-    document.querySelectorAll("#tbody tr").forEach(row=>{
-        let h=row.querySelector(".hours-cell").textContent;
-        doc.text("Hours: "+h,10,y);
-        y+=6;
-    });
-
-    doc.text("TOTAL: "+document.getElementById("total").textContent,10,y+10);
-
-    doc.save("timesheet.pdf");
+function drawHeart(x, y) {
+  ctx.fillStyle = white;
+  px(x + 1, y, 2, 1);
+  px(x + 5, y, 2, 1);
+  px(x, y + 1, 8, 2);
+  px(x + 1, y + 3, 6, 1);
+  px(x + 2, y + 4, 4, 1);
+  px(x + 3, y + 5, 2, 1);
 }
 
-// INIT
-addRow();
+function drawFlag(x, y) {
+  ctx.fillStyle = white;
+  px(x, y, 2, 10);
+  px(x + 2, y, 7, 2);
+  px(x + 2, y + 2, 5, 2);
+  px(x + 2, y + 4, 3, 2);
+}
 
+function drawPlayer() {
+  ctx.fillStyle = white;
+
+  let x = Math.round(player.x);
+  let y = Math.round(player.y);
+
+  px(x + 1, y + 1, 6, 2);
+  px(x, y + 3, 10, 2);
+  px(x + 2, y + 5, 11, 2);
+  px(x + 5, y + 7, 7, 2);
+  px(x + 1, y + 8, 4, 2);
+  px(x + 7, y + 9, 3, 3);
+
+  px(x + 11, y + 4, 6, 2);
+  px(x + 16, y + 5, 2, 1);
+
+  px(x - 2, y + 4, 2, 4);
+  px(x - 4, y + 3, 2, 2);
+  px(x - 4, y + 8, 2, 2);
+}
+
+function drawBossHand() {
+  ctx.fillStyle = white;
+  let x = Math.round(boss.x);
+  let y = Math.round(boss.y);
+
+  px(x + 8, y + 3, 18, 2);
+  px(x + 5, y + 5, 22, 2);
+  px(x + 3, y + 7, 7, 3);
+  px(x + 11, y + 7, 6, 3);
+  px(x + 19, y + 7, 6, 3);
+
+  px(x + 1, y + 11, 24, 3);
+  px(x + 5, y + 14, 22, 3);
+  px(x + 9, y + 17, 18, 3);
+
+  px(x + 12, y + 20, 13, 3);
+  px(x + 14, y + 23, 10, 3);
+  px(x + 11, y + 26, 9, 2);
+
+  px(x + 4, y + 28, 16, 2);
+  px(x + 1, y + 30, 5, 2);
+  px(x + 19, y + 30, 6, 2);
+
+  px(x - 7, y + 35, 18, 2);
+  px(x + 19, y + 35, 13, 2);
+
+  ctx.fillStyle = black;
+  px(x + 9, y + 9, 3, 2);
+  px(x + 17, y + 9, 3, 2);
+  px(x + 13, y + 16, 5, 2);
+}
+
+function drawHUD() {
+  ctx.fillStyle = white;
+
+  for (let i = 0; i < lives; i++) {
+    drawHeart(7 + i * 10, 8);
+  }
+
+  drawFlag(82, 6);
+
+  ctx.font = "10px monospace";
+  ctx.fillText(String(wave).padStart(2, "0"), 96, 15);
+  ctx.fillText(String(score).padStart(5, "0"), 132, 15);
+}
+
+function drawSteppedShots() {
+  ctx.fillStyle = white;
+  enemyShots.forEach(s => {
+    px(s.x, s.y, s.w, s.h);
+  });
+
+  bullets.forEach(b => {
+    px(b.x, b.y, b.w, b.h);
+  });
+}
+
+function drawParticles() {
+  ctx.fillStyle = white;
+  particles.forEach(p => px(p.x, p.y, 1, 1));
+}
+
+function drawScreenNoise() {
+  ctx.fillStyle = "rgba(255,255,255,0.035)";
+  for (let y = 0; y < H; y += 3) {
+    ctx.fillRect(0, y, W, 1);
+  }
+
+  ctx.fillStyle = "rgba(255,255,255,0.025)";
+  for (let i = 0; i < 20; i++) {
+    px(Math.random() * W, Math.random() * H, 1, 1);
+  }
+}
+
+function drawGameOver() {
+  ctx.fillStyle = white;
+  ctx.font = "12px monospace";
+  ctx.fillText("GAME OVER", 66, 54);
+  ctx.font = "7px monospace";
+  ctx.fillText("PRESS R", 80, 66);
+}
+
+function draw() {
+  ctx.fillStyle = black;
+  ctx.fillRect(0, 0, W, H);
+
+  drawHUD();
+  drawPlayer();
+  drawBossHand();
+  drawSteppedShots();
+  drawParticles();
+
+  if (gameOver) drawGameOver();
+
+  drawScreenNoise();
+}
+
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+loop();
 </script>
 
 </body>
