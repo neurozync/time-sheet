@@ -1,699 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Alien Pocket Pet</title>
 
 <style>
-:root{
-  --shell:#bebfb7;
-  --shell-dark:#6e706b;
-  --screen:#10140f;
-  --pixel:#d9ffd0;
-  --pixel-dim:#7aa16f;
-  --btn:#2b2b2b;
-}
-
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color: transparent;
-}
-
-html,body{
+body{
   margin:0;
-  min-height:100%;
-  background:radial-gradient(circle at 50% 20%, #333 0%, #111 48%, #050505 100%);
-  font-family: monospace;
-  color:#eee;
-  touch-action: manipulation;
-  overflow:hidden;
-}
-
-.wrap{
-  min-height:100vh;
+  background:#0b0b0b;
+  font-family:monospace;
   display:flex;
-  flex-direction:column;
-  align-items:center;
   justify-content:center;
-  gap:12px;
-  padding:14px;
+  align-items:center;
+  height:100vh;
+  color:#fff;
 }
 
+/* DEVICE */
 .device{
-  width:min(96vw,430px);
-  background:linear-gradient(145deg,#dedfd7 0%,#aaaCA4 42%,#73756f 100%);
-  border-radius:42px 42px 54px 54px;
-  padding:22px 18px 20px;
-  box-shadow:
-    inset 0 6px 15px rgba(255,255,255,.55),
-    inset 0 -16px 34px rgba(0,0,0,.38),
-    0 26px 55px rgba(0,0,0,.65);
-  border:2px solid #777a73;
+  width:360px;
+  background:linear-gradient(#d9dbd4,#8c8f88);
+  border-radius:28px;
+  padding:18px;
+  box-shadow:0 20px 40px #000;
 }
 
-.brand{
+.title{
   text-align:center;
-  color:#454742;
-  font-weight:900;
-  letter-spacing:2px;
-  font-size:14px;
+  color:#333;
+  font-weight:bold;
+  letter-spacing:3px;
   margin-bottom:10px;
-  text-shadow:0 1px rgba(255,255,255,.55);
 }
 
-.screen-shell{
-  background:#232821;
-  border-radius:22px;
-  padding:12px;
-  box-shadow:inset 0 0 18px rgba(0,0,0,.9);
-}
-
+/* SCREEN */
 .screen{
-  position:relative;
-  background:#050805;
+  background:#000;
   border-radius:12px;
-  overflow:hidden;
-  border:4px solid #111;
+  padding:6px;
+  box-shadow:inset 0 0 15px #000;
 }
 
 canvas{
-  display:block;
   width:100%;
-  height:auto;
   image-rendering:pixelated;
-  filter:contrast(1.28) brightness(1.12);
+  display:block;
+  filter:contrast(1.6) brightness(1.2);
 }
 
+/* ICON BAR */
 .icons{
-  display:grid;
-  grid-template-columns:repeat(8,1fr);
-  gap:5px;
-  margin-top:10px;
+  display:flex;
+  justify-content:space-between;
+  margin-top:8px;
 }
 
 .icon{
-  border:1px solid #575a53;
-  color:#21231f;
-  background:#aeb1a8;
-  border-radius:8px;
-  min-height:32px;
+  width:32px;
+  height:28px;
+  background:#b8bbb2;
+  border:1px solid #5c5f58;
+  border-radius:6px;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:17px;
   font-weight:bold;
-  user-select:none;
 }
 
 .icon.active{
-  background:#151a13;
-  color:var(--pixel);
-  box-shadow:0 0 0 2px rgba(217,255,208,.25);
+  background:#0d140d;
+  color:#cfffba;
 }
 
+/* BUTTONS */
 .controls{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr 1fr;
-  gap:11px;
-  margin-top:16px;
+  display:flex;
+  gap:10px;
+  margin-top:12px;
 }
 
 button{
-  border:0;
-  border-radius:15px;
-  min-height:56px;
-  background:linear-gradient(#3a3a3a,#161616);
-  color:#f4f4f4;
-  font-weight:900;
-  font-size:18px;
-  box-shadow:0 5px 0 #050505, inset 0 2px rgba(255,255,255,.16);
-  touch-action:none;
+  flex:1;
+  height:50px;
+  border:none;
+  border-radius:12px;
+  background:linear-gradient(#333,#000);
+  color:#fff;
+  font-weight:bold;
+  box-shadow:0 5px 0 #000;
 }
 
 button:active{
   transform:translateY(4px);
-  box-shadow:0 1px 0 #050505;
-}
-
-.status{
-  width:min(96vw,430px);
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:8px;
-  font-size:11px;
-}
-
-.stat{
-  background:#111;
-  border:1px solid #333;
-  border-radius:10px;
-  padding:7px;
-  text-align:center;
-}
-
-.bar{
-  height:7px;
-  background:#333;
-  border-radius:99px;
-  overflow:hidden;
-  margin-top:4px;
-}
-
-.fill{
-  height:100%;
-  background:#d9ffd0;
-  width:50%;
-}
-
-.small{
-  font-size:11px;
-  color:#aaa;
-  text-align:center;
-  max-width:420px;
-}
-
-@media (max-height:740px){
-  .device{
-    width:min(88vw,360px);
-    padding:16px 14px;
-  }
-
-  button{
-    min-height:48px;
-  }
-
-  .icons{
-    display:none;
-  }
-
-  .status{
-    display:none;
-  }
+  box-shadow:0 1px 0 #000;
 }
 </style>
 </head>
 
 <body>
-<div class="wrap">
 
-  <div class="device">
-    <div class="brand">ALIEN POCKET PET</div>
+<div class="device">
 
-    <div class="screen-shell">
-      <div class="screen">
-        <canvas id="lcd" width="160" height="96"></canvas>
-      </div>
-    </div>
+<div class="title">ALIEN POCKET PET</div>
 
-    <div class="icons" id="icons"></div>
+<div class="screen">
+<canvas id="game" width="160" height="96"></canvas>
+</div>
 
-    <div class="controls">
-      <button id="left">◀</button>
-      <button id="mode">MODE</button>
-      <button id="enter">ENTER</button>
-      <button id="right">▶</button>
-    </div>
-  </div>
+<div class="icons" id="icons"></div>
 
-  <div class="status" id="status"></div>
-
-  <div class="small">
-    Tap MODE or arrows to choose an icon. Tap ENTER to use it.
-  </div>
+<div class="controls">
+<button id="left">◀</button>
+<button id="mode">MODE</button>
+<button id="enter">ENTER</button>
+<button id="right">▶</button>
+</div>
 
 </div>
 
 <script>
-const canvas = document.getElementById("lcd");
-const ctx = canvas.getContext("2d");
-ctx.imageSmoothingEnabled = false;
+const ctx = game.getContext("2d");
+ctx.imageSmoothingEnabled=false;
 
-const P = "#d9ffd0";
-const D = "#7aa16f";
-const B = "#050805";
+const P="#d9ffd0";
+const B="#000";
 
-const actions = [
-  {key:"food", label:"FOOD", icon:"F"},
-  {key:"snack", label:"SNACK", icon:"★"},
-  {key:"game", label:"PLAY", icon:"P"},
-  {key:"clean", label:"CLEAN", icon:"C"},
-  {key:"sleep", label:"SLEEP", icon:"Z"},
-  {key:"doctor", label:"MED", icon:"+"},
-  {key:"discipline", label:"DISC", icon:"!"},
-  {key:"stats", label:"STAT", icon:"?"}
-];
+const actions=["F","★","P","C","Z","+","!","?"];
+let selected=0;
 
-let selected = 0;
-let scene = "idle";
-let msg = "A NEW LIFE FORM!";
-let msgTimer = 160;
-let frame = 0;
-let sleeping = false;
-let dead = false;
-let lastTick = Date.now();
-
-let pet = {
-  age:0,
-  weight:7,
-  hunger:72,
-  happy:72,
-  health:86,
-  discipline:45,
-  energy:80,
-  clean:82,
-  score:500,
-  sick:false,
-  poop:0,
-  evolution:0
-};
-
-const iconsEl = document.getElementById("icons");
+const iconsDiv=document.getElementById("icons");
 
 actions.forEach((a,i)=>{
-  const div=document.createElement("div");
-  div.className="icon";
-  div.textContent=a.icon;
-  div.onclick=()=>{
-    selected=i;
-    renderIcons();
-    modeMessage();
-  };
-  iconsEl.appendChild(div);
+  let d=document.createElement("div");
+  d.className="icon";
+  d.textContent=a;
+  d.onclick=()=>{selected=i;updateIcons();}
+  iconsDiv.appendChild(d);
 });
 
-function renderIcons(){
-  [...iconsEl.children].forEach((el,i)=>{
-    el.classList.toggle("active", i===selected);
+function updateIcons(){
+  [...iconsDiv.children].forEach((e,i)=>{
+    e.classList.toggle("active",i===selected);
   });
 }
+updateIcons();
 
-renderIcons();
-
-function bind(id, fn){
-  const el=document.getElementById(id);
-  ["pointerdown","touchstart"].forEach(ev=>{
-    el.addEventListener(ev,e=>{
-      e.preventDefault();
-      fn();
-    });
-  });
+/* SOUND */
+const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+function beep(f=800,t=0.05){
+  let o=audioCtx.createOscillator();
+  let g=audioCtx.createGain();
+  o.connect(g);
+  g.connect(audioCtx.destination);
+  o.frequency.value=f;
+  o.type="square";
+  g.gain.value=0.08;
+  o.start();
+  o.stop(audioCtx.currentTime+t);
 }
 
-bind("left",()=>{
-  selected=(selected+actions.length-1)%actions.length;
-  renderIcons();
-  modeMessage();
-});
+/* PET */
+let pet={
+  hunger:80,
+  happy:80,
+  health:90,
+  energy:80,
+  clean:80
+};
 
-bind("right",()=>{
-  selected=(selected+1)%actions.length;
-  renderIcons();
-  modeMessage();
-});
+let poop=false;
+let sleeping=false;
+let dead=false;
 
-bind("mode",()=>{
-  selected=(selected+1)%actions.length;
-  renderIcons();
-  modeMessage();
-});
+/* INPUT */
+left.onclick=()=>{selected=(selected+7)%8;updateIcons();beep();}
+right.onclick=()=>{selected=(selected+1)%8;updateIcons();beep();}
+mode.onclick=()=>{selected=(selected+1)%8;updateIcons();beep();}
 
-bind("enter",()=>{
-  doAction(actions[selected].key);
-});
+enter.onclick=()=>{
+  beep(1000,0.05);
 
-function modeMessage(){
-  msg = actions[selected].label;
-  msgTimer = 55;
-}
-
-function clamp(v){
-  return Math.max(0,Math.min(100,v));
-}
-
-function say(t,n=95){
-  msg=t;
-  msgTimer=n;
-}
-
-function doAction(key){
   if(dead){
     reset();
     return;
   }
 
-  scene = key;
-
-  switch(key){
-    case "food":
-      pet.hunger += 22;
-      pet.weight += 1;
-      pet.happy += 2;
-      say("ALIEN FED");
-      break;
-
-    case "snack":
-      pet.hunger += 10;
-      pet.happy += 13;
-      pet.health -= 3;
-      pet.weight += 1;
-      say("COSMIC SNACK");
-      break;
-
-    case "game":
-      if(pet.energy < 18){
-        say("TOO TIRED");
-        break;
-      }
-      pet.happy += 18;
-      pet.energy -= 13;
-      pet.hunger -= 7;
-      pet.score += 25;
-      say(Math.random()>.35 ? "YOU WON!" : "ALIEN WON!");
-      break;
-
-    case "clean":
-      pet.clean = 100;
-      pet.poop = 0;
-      pet.health += 6;
-      say("CLEANED UP");
-      break;
-
-    case "sleep":
-      sleeping = !sleeping;
-      say(sleeping ? "LIGHTS OUT" : "WAKE UP");
-      break;
-
-    case "doctor":
-      if(pet.sick || pet.health < 55){
-        pet.sick=false;
-        pet.health += 25;
-        pet.happy -= 4;
-        say("MEDICATED");
-      } else {
-        say("NO SICKNESS");
-      }
-      break;
-
-    case "discipline":
-      pet.discipline += 18;
-      pet.happy -= 5;
-      say("SCOLDED");
-      break;
-
-    case "stats":
-      scene="stats";
-      say("STATUS",70);
-      break;
+  switch(selected){
+    case 0: pet.hunger+=15; break;
+    case 1: pet.happy+=10; break;
+    case 2: pet.happy+=15; pet.energy-=10; break;
+    case 3: pet.clean=100; poop=false; break;
+    case 4: sleeping=!sleeping; break;
+    case 5: pet.health+=20; break;
+    case 6: pet.happy-=5; break;
+    case 7: break;
   }
+  clamp();
+};
 
-  normalize();
-  updateStatus();
-}
-
-function normalize(){
-  for(const k of ["hunger","happy","health","discipline","energy","clean"]){
-    pet[k]=clamp(pet[k]);
-  }
-
-  pet.score = Math.max(0, Math.round(
-    (pet.hunger+pet.happy+pet.health+pet.energy+pet.clean+pet.discipline)/6*10
-  ));
-
-  if(pet.health <= 0 || (pet.hunger <= 0 && pet.happy <= 0)){
-    dead=true;
-    sleeping=false;
-    say("ALIEN ASCENDED");
+function clamp(){
+  for(let k in pet){
+    pet[k]=Math.max(0,Math.min(100,pet[k]));
   }
 }
 
-function decay(){
+/* DECAY LOOP */
+setInterval(()=>{
   if(dead) return;
 
-  pet.age += 1/96;
+  pet.hunger-=2;
+  pet.happy-=1;
+  pet.clean-=1;
+  pet.energy-=1;
 
-  if(sleeping){
-    pet.energy += 5;
-    pet.hunger -= 1.8;
-    pet.clean -= .7;
-    pet.happy -= .5;
-  } else {
-    pet.hunger -= 2.8;
-    pet.happy -= 1.8;
-    pet.energy -= 1.6;
-    pet.clean -= 1.1;
-  }
+  if(Math.random()<0.2) poop=true;
 
-  if(Math.random() < .28){
-    pet.poop = Math.min(3, pet.poop+1);
-  }
+  if(poop) pet.health-=2;
+  if(pet.hunger<20) pet.health-=2;
 
-  if(pet.poop>0){
-    pet.clean -= pet.poop*1.7;
-  }
+  if(pet.health<=0) dead=true;
 
-  if(pet.hunger<30 || pet.clean<30 || pet.energy<20){
-    pet.health -= 2.3;
-  }
+  clamp();
+},4000);
 
-  if(pet.happy<25){
-    pet.health -= .7;
-  }
-
-  if(Math.random()<.04 && pet.clean<55){
-    pet.sick=true;
-  }
-
-  if(pet.sick){
-    pet.health -= 2.2;
-  }
-
-  if(pet.age>2 && pet.evolution<1){
-    pet.evolution=1;
-    say("ALIEN GREW!");
-  }
-
-  if(pet.age>5 && pet.evolution<2){
-    pet.evolution=2;
-    say("BIG BRAIN MODE");
-  }
-
-  normalize();
-  updateStatus();
+/* DRAW */
+function px(x,y,w=1,h=1){
+  ctx.fillRect(x,y,w,h);
 }
 
-function updateStatus(){
-  const s=document.getElementById("status");
-  s.innerHTML="";
+function drawPet(){
+  ctx.fillStyle=P;
 
-  const stats=[
-    ["HUNGER",pet.hunger],
-    ["HAPPY",pet.happy],
-    ["HEALTH",pet.health],
-    ["ENERGY",pet.energy],
-    ["CLEAN",pet.clean],
-    ["DISC",pet.discipline],
-    ["AGE",Math.floor(pet.age)],
-    ["SCORE",pet.score/10]
-  ];
-
-  stats.forEach(([n,v])=>{
-    const d=document.createElement("div");
-    d.className="stat";
-    d.innerHTML = `
-      ${n}
-      <div class="bar">
-        <div class="fill" style="width:${Math.min(100,Math.max(0,v))}%"></div>
-      </div>
-    `;
-    s.appendChild(d);
-  });
-}
-
-updateStatus();
-
-function reset(){
-  pet={
-    age:0,
-    weight:7,
-    hunger:72,
-    happy:72,
-    health:86,
-    discipline:45,
-    energy:80,
-    clean:82,
-    score:500,
-    sick:false,
-    poop:0,
-    evolution:0
-  };
-
-  selected=0;
-  scene="idle";
-  msg="A NEW LIFE FORM!";
-  msgTimer=160;
-  sleeping=false;
-  dead=false;
-
-  renderIcons();
-  updateStatus();
-}
-
-function px(x,y,w=1,h=1,c=P){
-  ctx.fillStyle=c;
-  ctx.fillRect(Math.round(x),Math.round(y),w,h);
-}
-
-function text(t,x,y,size=7,c=P){
-  ctx.fillStyle=c;
-  ctx.font=`${size}px monospace`;
-  ctx.fillText(t,x,y);
-}
-
-function heart(x,y){
-  px(x+1,y,2,1);
-  px(x+5,y,2,1);
-  px(x,y+1,8,2);
-  px(x+1,y+3,6,1);
-  px(x+2,y+4,4,1);
-  px(x+3,y+5,2,1);
-}
-
-function drawAlien(x,y){
-  const bob = sleeping ? 0 : Math.sin(frame/12)*1.2;
-  y += bob;
-
-  const big = pet.evolution;
-  const headW = 22 + big*3;
-
-  px(x+8,y,headW-4,2);
-  px(x+4,y+2,headW+4,2);
-  px(x+2,y+4,headW+8,5);
-  px(x,y+9,headW+12,5);
-  px(x+2,y+14,headW+8,4);
-  px(x+6,y+18,headW,3);
-  px(x+10,y+21,headW-8,2);
-
-  px(x+8,y+25,headW-4,8);
-  px(x+5,y+28,5,2);
-  px(x+headW+11,y+28,5,2);
-
-  px(x+11,y+33,3,6);
-  px(x+headW-1,y+33,3,6);
-
-  px(x+7,y+39,8,2);
-  px(x+headW-5,y+39,8,2);
+  px(70,40,20,10);
+  px(65,50,30,10);
+  px(75,60,10,15);
 
   ctx.fillStyle=B;
-
-  if(sleeping){
-    px(x+8,y+10,6,1,B);
-    px(x+headW-2,y+10,6,1,B);
-    text("Z",x+headW+18,y-2,7,P);
-    text("Z",x+headW+24,y-8,6,P);
-  } else {
-    px(x+7,y+8,8,5,B);
-    px(x+headW-1,y+8,8,5,B);
-    px(x+11,y+16,headW-8,1,B);
-  }
-
-  if(pet.sick){
-    text("+",x-6,y+6,8,P);
-  }
-}
-
-function drawPoop(){
-  for(let i=0;i<pet.poop;i++){
-    let x=107+i*12;
-    let y=74;
-
-    px(x+3,y,4,1);
-    px(x+1,y+1,8,2);
-    px(x,y+3,10,3);
-  }
-}
-
-function drawIconsLCD(){
-  actions.forEach((a,i)=>{
-    const x = 5 + i*19;
-    const y = 4;
-
-    if(i===selected){
-      px(x-2,y-2,14,12,D);
-    }
-
-    text(a.icon,x,y+8,8,i===selected ? B : P);
-  });
-}
-
-function drawStatsScreen(){
-  text("AGE "+Math.floor(pet.age)+"  WT "+pet.weight,12,31);
-  text("HUN "+Math.round(pet.hunger),12,43);
-  text("HAP "+Math.round(pet.happy),82,43);
-  text("HEL "+Math.round(pet.health),12,55);
-  text("DIS "+Math.round(pet.discipline),82,55);
-  text("SCORE "+pet.score,42,75);
-}
-
-function drawBackground(){
-  ctx.fillStyle=B;
-  ctx.fillRect(0,0,160,96);
-
-  drawIconsLCD();
-
-  px(0,16,160,1,D);
-  px(0,84,160,1,D);
-
-  for(let y=0;y<96;y+=3){
-    px(0,y,160,1,"rgba(217,255,208,.045)");
-  }
+  px(72,45,5,3);
+  px(83,45,5,3);
 }
 
 function draw(){
-  frame++;
+  ctx.fillStyle=B;
+  ctx.fillRect(0,0,160,96);
 
-  const now=Date.now();
-
-  if(now-lastTick>5000){
-    decay();
-    lastTick=now;
-  }
-
-  if(msgTimer>0){
-    msgTimer--;
-  }
-
-  drawBackground();
-
-  if(scene==="stats"){
-    drawStatsScreen();
-  } else if(dead){
-    text("GAME OVER",48,42,9);
-    text("TAP ENTER",49,57,7);
-    px(74,61,4,7);
-    px(69,67,14,2);
-    px(66,69,20,2);
+  if(dead){
+    ctx.fillStyle=P;
+    ctx.fillText("GAME OVER",40,50);
   } else {
-    drawAlien(57,34);
-    drawPoop();
+    drawPet();
 
-    if(pet.hunger<28 || pet.happy<28 || pet.health<40 || pet.energy<22 || pet.clean<28){
-      px(137,21,12,10);
-      text("!",141,29,8,B);
+    if(poop){
+      ctx.fillStyle=P;
+      px(110,70,8,4);
     }
 
-    for(let i=0;i<Math.min(3,Math.round(pet.happy/34));i++){
-      heart(8+i*10,87);
+    if(pet.hunger<25 || pet.clean<25){
+      ctx.fillStyle=P;
+      ctx.fillText("!",140,20);
     }
   }
-
-  text(sleeping ? "SLEEP" : (msgTimer>0 ? msg : "ALIEN PET"),8,94,7);
-  text(String(pet.score).padStart(4,"0"),128,94,7);
 
   requestAnimationFrame(draw);
 }
 
+function reset(){
+  pet={hunger:80,happy:80,health:90,energy:80,clean:80};
+  poop=false;
+  dead=false;
+}
+
 draw();
 </script>
+
 </body>
 </html>
