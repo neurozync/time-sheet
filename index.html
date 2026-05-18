@@ -2,126 +2,233 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Matrix Puzzle Room</title>
+<title>Matrix Terminal</title>
 
 <style>
-    body {
-        margin: 0;
-        overflow: hidden;
-        background: black;
-        font-family: monospace;
-        color: #00ff66;
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    overflow:hidden;
+    background:black;
+    font-family:monospace;
+    color:#00ff66;
+}
+
+canvas{
+    position:fixed;
+    top:0;
+    left:0;
+    z-index:0;
+}
+
+#ui{
+    position:relative;
+    z-index:5;
+    width:100vw;
+    height:100vh;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.grid{
+    width:1200px;
+    max-width:95vw;
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+    gap:30px;
+}
+
+.panel{
+
+    min-height:260px;
+
+    border:2px solid #00ff66;
+
+    background:rgba(0,0,0,0.82);
+
+    box-shadow:
+    0 0 10px #00ff66,
+    0 0 30px rgba(0,255,100,0.4);
+
+    padding:25px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+
+    transition:0.3s;
+}
+
+.panel:hover{
+    transform:translateY(-4px);
+    box-shadow:
+    0 0 20px #00ff66,
+    0 0 50px rgba(0,255,100,0.7);
+}
+
+.title{
+    text-align:center;
+    font-size:20px;
+    margin-bottom:20px;
+    letter-spacing:2px;
+}
+
+.text{
+    font-size:15px;
+    line-height:1.6;
+    color:#8affb2;
+}
+
+button{
+    margin-top:15px;
+    width:100%;
+    padding:12px;
+
+    background:black;
+    color:#00ff66;
+
+    border:1px solid #00ff66;
+
+    cursor:pointer;
+
+    font-family:monospace;
+    font-size:15px;
+}
+
+button:hover{
+    background:#00ff66;
+    color:black;
+}
+
+input{
+    width:100%;
+    padding:12px;
+
+    background:black;
+    color:#00ff66;
+
+    border:1px solid #00ff66;
+
+    margin-top:15px;
+
+    font-size:16px;
+}
+
+#topbar{
+    position:fixed;
+    top:0;
+    left:0;
+
+    width:100%;
+
+    z-index:10;
+
+    display:flex;
+    justify-content:space-between;
+
+    padding:15px 30px;
+
+    background:rgba(0,0,0,0.5);
+
+    border-bottom:1px solid #00ff66;
+}
+
+#inventory{
+    color:#8affb2;
+}
+
+#mission{
+    color:#00ff66;
+}
+
+.modal{
+
+    position:fixed;
+
+    top:50%;
+    left:50%;
+
+    transform:translate(-50%,-50%);
+
+    width:700px;
+    max-width:90vw;
+
+    background:black;
+
+    border:2px solid #00ff66;
+
+    padding:40px;
+
+    z-index:50;
+
+    display:none;
+
+    box-shadow:
+    0 0 30px #00ff66,
+    0 0 80px rgba(0,255,100,0.6);
+
+}
+
+.modal h1{
+    margin-bottom:25px;
+}
+
+.modal p{
+    line-height:1.8;
+    color:#8affb2;
+}
+
+.successFlash{
+    animation:flash 0.4s infinite alternate;
+}
+
+@keyframes flash{
+    from{
+        filter:brightness(1);
     }
 
-    canvas {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 0;
+    to{
+        filter:brightness(2);
+    }
+}
+
+.log{
+    margin-top:10px;
+    font-size:14px;
+    color:#8affb2;
+}
+
+.locked{
+    opacity:0.35;
+    pointer-events:none;
+}
+
+@media(max-width:900px){
+
+    .grid{
+        grid-template-columns:1fr;
     }
 
-    .screen {
-        position: relative;
-        z-index: 2;
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 25px;
+    body{
+        overflow:auto;
     }
 
-    .panel {
-        width: 220px;
-        height: 160px;
-        border: 2px solid #00ff66;
-        box-shadow: 0 0 20px #00ff66;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        cursor: pointer;
-        background: rgba(0, 20, 0, 0.75);
-        transition: transform 0.4s, box-shadow 0.4s;
-        padding: 15px;
+    #ui{
+        padding:120px 0;
+        height:auto;
     }
 
-    .panel:hover {
-        transform: scale(1.08);
-        box-shadow: 0 0 35px #00ff66;
-    }
+}
 
-    .zoomed {
-        position: fixed;
-        width: 70vw;
-        height: 70vh;
-        top: 15vh;
-        left: 15vw;
-        z-index: 5;
-        transform: scale(1);
-        background: rgba(0, 0, 0, 0.95);
-    }
-
-    .hidden {
-        display: none;
-    }
-
-    input {
-        background: black;
-        color: #00ff66;
-        border: 1px solid #00ff66;
-        padding: 10px;
-        font-size: 18px;
-        text-align: center;
-    }
-
-    button {
-        margin-top: 15px;
-        background: black;
-        color: #00ff66;
-        border: 1px solid #00ff66;
-        padding: 10px 20px;
-        cursor: pointer;
-        font-family: monospace;
-    }
-
-    button:hover {
-        background: #00ff66;
-        color: black;
-    }
-
-    .success {
-        animation: pulse 0.25s infinite alternate;
-    }
-
-    @keyframes pulse {
-        from { box-shadow: 0 0 20px #00ff66; }
-        to { box-shadow: 0 0 80px #00ff66; }
-    }
-
-    .modal {
-        position: fixed;
-        z-index: 10;
-        top: 20%;
-        left: 25%;
-        width: 50%;
-        min-height: 250px;
-        background: black;
-        border: 3px solid #00ff66;
-        box-shadow: 0 0 50px #00ff66;
-        padding: 30px;
-        text-align: center;
-    }
-
-    .modal h1 {
-        color: #00ff66;
-    }
-
-    .reward {
-        color: white;
-        font-size: 20px;
-        margin-top: 25px;
-    }
 </style>
 </head>
 
@@ -129,138 +236,367 @@
 
 <canvas id="matrix"></canvas>
 
-<div class="screen">
+<div id="topbar">
 
-    <div class="panel" onclick="zoomPanel(this)">
-        ACCESS NODE 01<br><br>
-        “The answer hides in plain sight.”
-    </div>
+<div id="mission">
+MISSION: ACCESS THE CORE
+</div>
 
-    <div class="panel" onclick="zoomPanel(this)">
-        ACCESS NODE 02<br><br>
-        Clue: Follow the green code.
-    </div>
-
-    <div class="panel" onclick="zoomPanel(this)">
-        ACCESS NODE 03<br><br>
-        Enter the password:<br><br>
-        <input id="answer" placeholder="Type answer">
-        <br>
-        <button onclick="checkAnswer(event)">Submit</button>
-    </div>
+<div id="inventory">
+KEYS: 0 / 3
+</div>
 
 </div>
 
-<div id="rewardModal" class="modal hidden">
-    <h1>ACCESS GRANTED</h1>
-    <p>System unlocked.</p>
+<div id="ui">
 
-    <div class="reward">
-        Reward Information:<br><br>
-        <strong>The safe code is: 7-2-9-4</strong><br><br>
-        Proceed to the next objective.
-    </div>
+<div class="grid">
 
-    <button onclick="closeReward()">Close</button>
+<div class="panel">
+<div>
+
+<div class="title">NODE 01</div>
+
+<div class="text">
+Decrypt the first access word.
+<br><br>
+Hint:
+"The truth is hidden inside the system."
+</div>
+
+<input id="answer1" placeholder="Enter code">
+
+<button onclick="solveNode1()">
+ACCESS
+</button>
+
+<div class="log" id="log1"></div>
+
+</div>
+</div>
+
+<div class="panel">
+<div>
+
+<div class="title">NODE 02</div>
+
+<div class="text">
+Only unlocked after Node 01.
+<br><br>
+Hint:
+Follow the green signal.
+</div>
+
+<input id="answer2" placeholder="Enter code">
+
+<button id="btn2" onclick="solveNode2()" disabled>
+LOCKED
+</button>
+
+<div class="log" id="log2"></div>
+
+</div>
+</div>
+
+<div class="panel">
+<div>
+
+<div class="title">NODE 03</div>
+
+<div class="text">
+Final system authentication.
+<br><br>
+Requires all keys.
+</div>
+
+<input id="answer3" placeholder="Enter final code">
+
+<button id="btn3" onclick="solveNode3()" disabled>
+LOCKED
+</button>
+
+<div class="log" id="log3"></div>
+
+</div>
+</div>
+
+</div>
+
+</div>
+
+<div class="modal" id="rewardModal">
+
+<h1>ACCESS GRANTED</h1>
+
+<p>
+
+Core successfully breached.
+<br><br>
+
+Encrypted archive unlocked.
+<br><br>
+
+Reward:
+<br><br>
+
+SAFE CODE: 7-2-9-4
+<br><br>
+
+NEXT LOCATION:
+SECTOR 12
+
+</p>
+
+<br>
+
+<button onclick="closeModal()">
+CLOSE
+</button>
+
 </div>
 
 <script>
-/* MATRIX RAIN BACKGROUND */
+
+/* =========================
+MATRIX RAIN
+========================= */
+
 const canvas = document.getElementById("matrix");
 const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-const letters = "アカサタナハマヤラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const fontSize = 16;
-const columns = canvas.width / fontSize;
+const chars =
+"アカサタナハマヤラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+const size = 16;
+
+const columns = canvas.width / size;
 
 const drops = [];
-for (let i = 0; i < columns; i++) {
-    drops[i] = 1;
+
+for(let i=0;i<columns;i++){
+    drops[i]=1;
 }
 
-function drawMatrix() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+function matrix(){
 
-    ctx.fillStyle = "#00ff66";
-    ctx.font = fontSize + "px monospace";
+    ctx.fillStyle="rgba(0,0,0,0.08)";
+    ctx.fillRect(0,0,canvas.width,canvas.height);
 
-    for (let i = 0; i < drops.length; i++) {
-        const text = letters[Math.floor(Math.random() * letters.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+    ctx.fillStyle="#00ff66";
+    ctx.font=size+"px monospace";
 
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-            drops[i] = 0;
+    for(let i=0;i<drops.length;i++){
+
+        const text =
+        chars[Math.floor(Math.random()*chars.length)];
+
+        ctx.fillText(
+            text,
+            i*size,
+            drops[i]*size
+        );
+
+        if(
+            drops[i]*size > canvas.height
+            &&
+            Math.random()>0.975
+        ){
+            drops[i]=0;
         }
 
         drops[i]++;
     }
 }
 
-setInterval(drawMatrix, 35);
+setInterval(matrix,35);
 
-/* BASIC SOUND EFFECTS */
-function playBeep(freq = 440, duration = 120) {
-    const audioCtx = new AudioContext();
-    const oscillator = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
+/* =========================
+AUDIO
+========================= */
 
-    oscillator.connect(gain);
-    gain.connect(audioCtx.destination);
+function beep(freq=440,duration=120){
 
-    oscillator.frequency.value = freq;
-    oscillator.type = "square";
+    const audio =
+    new AudioContext();
 
-    oscillator.start();
+    const osc =
+    audio.createOscillator();
+
+    const gain =
+    audio.createGain();
+
+    osc.connect(gain);
+    gain.connect(audio.destination);
+
+    osc.type="square";
+    osc.frequency.value=freq;
+
+    osc.start();
 
     gain.gain.exponentialRampToValueAtTime(
         0.00001,
-        audioCtx.currentTime + duration / 1000
+        audio.currentTime + duration/1000
     );
 
-    setTimeout(() => {
-        oscillator.stop();
-    }, duration);
+    setTimeout(()=>{
+        osc.stop();
+    },duration);
+
 }
 
-/* CLICK TO ZOOM */
-function zoomPanel(panel) {
-    playBeep(520, 100);
+/* =========================
+GAME STATE
+========================= */
 
-    document.querySelectorAll(".panel").forEach(p => {
-        if (p !== panel) p.classList.remove("zoomed");
-    });
+let keys = 0;
 
-    panel.classList.toggle("zoomed");
+function updateInventory(){
+
+    document.getElementById("inventory")
+    .innerHTML =
+    `KEYS: ${keys} / 3`;
+
 }
 
-/* PUZZLE LOGIC */
-function checkAnswer(event) {
-    event.stopPropagation();
+/* =========================
+NODE 1
+========================= */
 
-    const input = document.getElementById("answer").value.trim().toLowerCase();
+function solveNode1(){
 
-    if (input === "matrix") {
-        playBeep(900, 300);
+    const val =
+    document.getElementById("answer1")
+    .value
+    .trim()
+    .toLowerCase();
 
-        document.body.classList.add("success");
+    if(val==="matrix"){
 
-        setTimeout(() => {
-            document.getElementById("rewardModal").classList.remove("hidden");
-        }, 900);
+        beep(800,200);
 
-    } else {
-        playBeep(160, 300);
-        alert("ACCESS DENIED");
+        document.getElementById("log1")
+        .innerHTML =
+        "ACCESS ACCEPTED";
+
+        keys++;
+
+        updateInventory();
+
+        const btn2 =
+        document.getElementById("btn2");
+
+        btn2.disabled=false;
+        btn2.innerHTML="ACCESS";
+
+    }else{
+
+        beep(120,300);
+
+        document.getElementById("log1")
+        .innerHTML =
+        "ACCESS DENIED";
+
     }
+
 }
 
-function closeReward() {
-    document.getElementById("rewardModal").classList.add("hidden");
+/* =========================
+NODE 2
+========================= */
+
+function solveNode2(){
+
+    const val =
+    document.getElementById("answer2")
+    .value
+    .trim()
+    .toLowerCase();
+
+    if(val==="signal"){
+
+        beep(1000,200);
+
+        document.getElementById("log2")
+        .innerHTML =
+        "SECOND KEY FOUND";
+
+        keys++;
+
+        updateInventory();
+
+        const btn3 =
+        document.getElementById("btn3");
+
+        btn3.disabled=false;
+        btn3.innerHTML="ACCESS";
+
+    }else{
+
+        beep(100,300);
+
+        document.getElementById("log2")
+        .innerHTML =
+        "INVALID SIGNAL";
+
+    }
+
 }
+
+/* =========================
+NODE 3
+========================= */
+
+function solveNode3(){
+
+    const val =
+    document.getElementById("answer3")
+    .value
+    .trim()
+    .toLowerCase();
+
+    if(val==="zion"){
+
+        beep(1500,400);
+
+        keys++;
+
+        updateInventory();
+
+        document.body.classList.add(
+            "successFlash"
+        );
+
+        setTimeout(()=>{
+
+            document
+            .getElementById("rewardModal")
+            .style.display="block";
+
+        },1200);
+
+    }else{
+
+        beep(90,400);
+
+        document.getElementById("log3")
+        .innerHTML =
+        "CORE REJECTED";
+
+    }
+
+}
+
+function closeModal(){
+
+    document
+    .getElementById("rewardModal")
+    .style.display="none";
+
+}
+
 </script>
 
 </body>
