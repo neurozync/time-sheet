@@ -1,272 +1,517 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Tim's 90s Pokémon Shrine</title>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="description" content="Pokémon Trainer Network - 2001 Pokémon Fan Portal">
+<meta name="keywords" content="pokemon, pokemon gold, pokemon silver, pokemon crystal, pikachu, gameboy">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      background: url("https://www.transparenttextures.com/patterns/stardust.png"), #000080;
-      color: yellow;
-      font-family: "Comic Sans MS", Arial, sans-serif;
-      cursor: crosshair;
-    }
+<title>Pokémon Trainer Network :: 2001 Fan Portal</title>
 
-    a {
-      color: #00ffff;
-      font-weight: bold;
-    }
+<style>
 
-    a:visited {
-      color: #ff00ff;
-    }
+body{
+    margin:0;
+    padding:0;
+    background:#0a2f6f url('https://www.transparenttextures.com/patterns/stardust.png');
+    font-family:Verdana, Arial, sans-serif;
+    color:#111;
+}
 
-    .page {
-      width: 900px;
-      margin: auto;
-      background: #000000;
-      border: 6px ridge #ff0000;
-      padding: 10px;
-    }
+table{
+    border-collapse:collapse;
+}
 
-    .header {
-      text-align: center;
-      background: linear-gradient(to right, red, orange, yellow);
-      color: blue;
-      border: 5px double white;
-      padding: 15px;
-    }
+a{
+    color:#0033cc;
+    text-decoration:none;
+    font-weight:bold;
+}
 
-    .blink {
-      animation: blink 0.7s infinite;
-    }
+a:hover{
+    color:#cc0000;
+    text-decoration:underline;
+}
 
-    @keyframes blink {
-      50% { opacity: 0; }
-    }
+#container{
+    width:980px;
+    margin:20px auto;
+    background:#ffffff;
+    border:3px solid #111;
+    box-shadow:0 0 20px #000;
+}
 
-    marquee {
-      background: #ff0000;
-      color: white;
-      font-size: 22px;
-      border: 3px solid yellow;
-      padding: 5px;
-    }
+#top-banner{
+    height:220px;
+    background:url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1400&auto=format&fit=crop') center/cover;
+    position:relative;
+    border-bottom:5px solid #ffcc00;
+}
 
-    .layout {
-      display: table;
-      width: 100%;
-    }
+#overlay{
+    background:rgba(0,0,0,0.55);
+    height:100%;
+    width:100%;
+}
 
-    .sidebar {
-      display: table-cell;
-      width: 220px;
-      background: #330066;
-      border: 4px groove #00ffff;
-      padding: 10px;
-      vertical-align: top;
-    }
+#site-title{
+    position:absolute;
+    bottom:20px;
+    left:30px;
+    color:white;
+}
 
-    .content {
-      display: table-cell;
-      background: #001144;
-      border: 4px groove #ffff00;
-      padding: 15px;
-      vertical-align: top;
-    }
+#site-title h1{
+    margin:0;
+    font-size:52px;
+    text-shadow:3px 3px 5px black;
+}
 
-    .box {
-      background: #111111;
-      border: 4px ridge #ffcc00;
-      padding: 10px;
-      margin-bottom: 15px;
-    }
+#site-title h3{
+    margin:0;
+    color:#ffcc00;
+}
 
-    .pokemon-card {
-      display: inline-block;
-      width: 145px;
-      background: #ffff99;
-      color: black;
-      border: 4px outset red;
-      margin: 8px;
-      padding: 8px;
-      text-align: center;
-      font-weight: bold;
-    }
+#navbar{
+    background:#cc0000;
+    padding:12px;
+    text-align:center;
+    border-bottom:4px solid #ffcc00;
+}
 
-    .pokemon-card img {
-      width: 96px;
-      height: 96px;
-      image-rendering: pixelated;
-    }
+#navbar a{
+    color:white;
+    margin:0 18px;
+    font-size:14px;
+}
 
-    .counter {
-      background: black;
-      color: lime;
-      border: 3px inset gray;
-      font-family: monospace;
-      font-size: 24px;
-      padding: 5px;
-      display: inline-block;
-    }
+#main{
+    display:flex;
+}
 
-    .footer {
-      text-align: center;
-      border-top: 5px dotted yellow;
-      margin-top: 20px;
-      padding-top: 10px;
-      font-size: 14px;
-    }
+#sidebar{
+    width:240px;
+    background:#f2f2f2;
+    border-right:2px solid #ccc;
+    padding:15px;
+}
 
-    button {
-      background: red;
-      color: white;
-      border: 4px outset yellow;
-      font-size: 18px;
-      font-family: "Comic Sans MS";
-      padding: 8px;
-      cursor: pointer;
-    }
-  </style>
+.sidebox{
+    background:white;
+    border:2px solid #003399;
+    margin-bottom:18px;
+}
+
+.sidebox h3{
+    margin:0;
+    background:#003399;
+    color:white;
+    padding:8px;
+    font-size:15px;
+}
+
+.sidebox .content{
+    padding:10px;
+    font-size:13px;
+}
+
+.counter{
+    font-family:Courier New;
+    background:black;
+    color:#00ff00;
+    padding:8px;
+    text-align:center;
+    font-size:24px;
+    border:3px inset gray;
+}
+
+#content{
+    flex:1;
+    padding:20px;
+    background:#ffffff;
+}
+
+.news-box{
+    border:2px solid #003399;
+    margin-bottom:20px;
+    background:#fafafa;
+}
+
+.news-header{
+    background:#003399;
+    color:white;
+    padding:10px;
+    font-size:18px;
+}
+
+.news-content{
+    padding:15px;
+    line-height:1.6;
+}
+
+.pokemon-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-top:20px;
+}
+
+.card{
+    background:#fff8d6;
+    border:3px solid #ffcc00;
+    text-align:center;
+    padding:10px;
+    box-shadow:3px 3px 6px rgba(0,0,0,0.2);
+}
+
+.card img{
+    width:120px;
+    height:120px;
+    image-rendering:pixelated;
+}
+
+.card h4{
+    margin:8px 0 4px 0;
+}
+
+.gallery-banner{
+    width:100%;
+    border:3px solid #003399;
+    margin-bottom:20px;
+}
+
+.forum-table{
+    width:100%;
+    border:2px solid #003399;
+    margin-top:20px;
+}
+
+.forum-table th{
+    background:#003399;
+    color:white;
+    padding:10px;
+}
+
+.forum-table td{
+    padding:10px;
+    border-top:1px solid #ccc;
+    background:#f7f7f7;
+}
+
+.footer{
+    background:#111;
+    color:white;
+    text-align:center;
+    padding:20px;
+    font-size:12px;
+    border-top:5px solid #ffcc00;
+}
+
+.blink{
+    animation:blink 1s infinite;
+}
+
+@keyframes blink{
+    50%{opacity:0;}
+}
+
+.marquee{
+    background:#ffcc00;
+    color:#111;
+    font-weight:bold;
+    padding:8px;
+    border-bottom:2px solid #000;
+}
+
+</style>
 </head>
 
 <body>
 
-<audio id="bgmusic" loop>
-  <source src="pokemon-theme.mp3" type="audio/mpeg">
+<!-- MIDI BACKGROUND MUSIC -->
+<!-- PLACE YOUR OWN LEGALLY OWNED FILE IN SAME FOLDER -->
+<bgsound src="pokemon-theme.mid" loop="infinite">
+
+<audio autoplay loop>
+    <source src="pokemon-theme.mid" type="audio/midi">
 </audio>
 
-<div class="page">
+<div id="container">
 
-  <div class="header">
-    <h1>⚡ TIM'S 1999 POKÉMON FAN SHRINE ⚡</h1>
-    <h2 class="blink">WELCOME TRAINERS!!!</h2>
-    <button onclick="document.getElementById('bgmusic').play()">▶ Play Background Music</button>
-  </div>
+    <div id="top-banner">
+        <div id="overlay"></div>
 
-  <marquee behavior="alternate" scrollamount="8">
-    GOTTA CATCH 'EM ALL!!! 🔥 WATER ⚡ GRASS 🐉 PSYCHIC
-  </marquee>
-
-  <br>
-
-  <div class="layout">
-
-    <div class="sidebar">
-      <div class="box">
-        <h3>🌐 Navigation</h3>
-        <p><a href="#home">Home</a></p>
-        <p><a href="#starters">Starter Pokémon</a></p>
-        <p><a href="#badges">Gym Badges</a></p>
-        <p><a href="#guestbook">Guestbook</a></p>
-      </div>
-
-      <div class="box">
-        <h3>👁 Visitor Counter</h3>
-        <div class="counter">000151</div>
-      </div>
-
-      <div class="box">
-        <h3>🔥 Site Status</h3>
-        <p>Best viewed in Netscape Navigator.</p>
-        <p>Resolution: 800x600</p>
-        <p class="blink">UNDER CONSTRUCTION</p>
-      </div>
-
-      <div class="box">
-        <h3>🏆 Trainer Rank</h3>
-        <p>Certified PokéManiac</p>
-        <p>Badge Count: 8</p>
-      </div>
+        <div id="site-title">
+            <h1>Pokémon Trainer Network</h1>
+            <h3>Ultimate Fan Portal :: Est. 2001</h3>
+        </div>
     </div>
 
-    <div class="content" id="home">
+    <div class="marquee">
+        <marquee scrollamount="6">
+            Pokémon Crystal Version OUT NOW! • Trade Pokémon Online! • New Johto Strategy Guides Added • Pokémon Stadium 2 Coverage Live!
+        </marquee>
+    </div>
 
-      <div class="box">
-        <h2>🔥 Welcome to the Ultimate Pokémon Zone 🔥</h2>
-        <p>
-          This website is dedicated to all true Pokémon trainers from the golden age of Game Boy,
-          link cables, trading cards, Saturday morning cartoons, and playground rumors.
-        </p>
-        <p>
-          Enter this shrine with honor. Train hard. Battle harder. Catch everything.
-        </p>
-      </div>
+    <div id="navbar">
+        <a href="https://pokemon.com" target="_blank">Official Pokémon</a>
+        <a href="https://bulbapedia.bulbagarden.net" target="_blank">Pokédex</a>
+        <a href="https://archives.bulbagarden.net" target="_blank">Anime Gallery</a>
+        <a href="https://www.serebii.net" target="_blank">Game Guides</a>
+        <a href="https://pokemonshowdown.com" target="_blank">Battle Simulator</a>
+        <a href="https://archive.org" target="_blank">Classic Web</a>
+    </div>
 
-      <div class="box" id="starters">
-        <h2>⭐ Starter Pokémon Gallery ⭐</h2>
+    <div id="main">
 
-        <div class="pokemon-card">
-          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png">
-          <p>Bulbasaur</p>
-          <p>Grass/Poison</p>
+        <div id="sidebar">
+
+            <div class="sidebox">
+                <h3>Trainer Login</h3>
+
+                <div class="content">
+                    Username:<br>
+                    <input type="text" style="width:95%;"><br><br>
+
+                    Password:<br>
+                    <input type="password" style="width:95%;"><br><br>
+
+                    <button>Login</button>
+                </div>
+            </div>
+
+            <div class="sidebox">
+                <h3>Visitor Counter</h3>
+
+                <div class="content">
+                    <div class="counter">
+                        00151987
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebox">
+                <h3>Top Pokémon</h3>
+
+                <div class="content">
+                    ⚡ Pikachu<br><br>
+                    🔥 Charizard<br><br>
+                    💧 Blastoise<br><br>
+                    🌿 Venusaur<br><br>
+                    👻 Gengar<br><br>
+                    🐉 Dragonite
+                </div>
+            </div>
+
+            <div class="sidebox">
+                <h3>Site Status</h3>
+
+                <div class="content">
+                    Best Viewed In:<br><br>
+
+                    ✔ Internet Explorer 6<br>
+                    ✔ Netscape Navigator<br>
+                    ✔ 1024x768 Resolution<br><br>
+
+                    <span class="blink">
+                        NEW CONTENT DAILY
+                    </span>
+                </div>
+            </div>
+
+            <div class="sidebox">
+                <h3>Gameboy Poll</h3>
+
+                <div class="content">
+                    Favorite Version?<br><br>
+
+                    <input type="radio"> Red<br>
+                    <input type="radio"> Blue<br>
+                    <input type="radio"> Gold<br>
+                    <input type="radio"> Silver<br>
+                    <input type="radio"> Crystal<br><br>
+
+                    <button>Vote</button>
+                </div>
+            </div>
+
         </div>
 
-        <div class="pokemon-card">
-          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png">
-          <p>Charmander</p>
-          <p>Fire</p>
+        <div id="content">
+
+            <img class="gallery-banner" src="https://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season01/season01_ep01_ss01.jpg">
+
+            <div class="news-box">
+
+                <div class="news-header">
+                    Welcome Trainers
+                </div>
+
+                <div class="news-content">
+
+                    Welcome to Pokémon Trainer Network — one of the biggest fan-made Pokémon portals online in 2001.
+
+                    Here you'll find:
+
+                    <ul>
+                        <li>Johto walkthroughs</li>
+                        <li>Legendary Pokémon secrets</li>
+                        <li>Anime screenshots</li>
+                        <li>Pokémon Crystal strategies</li>
+                        <li>Pokédex information</li>
+                        <li>Trading tips and rumors</li>
+                    </ul>
+
+                    The Pokémon world never stops evolving. Train hard. Battle smart. Catch everything.
+                </div>
+
+            </div>
+
+            <div class="news-box">
+
+                <div class="news-header">
+                    Featured Pokémon
+                </div>
+
+                <div class="news-content">
+
+                    <div class="pokemon-grid">
+
+                        <div class="card">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png">
+                            <h4>Pikachu</h4>
+                            Electric Type
+                        </div>
+
+                        <div class="card">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png">
+                            <h4>Charizard</h4>
+                            Fire/Flying
+                        </div>
+
+                        <div class="card">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png">
+                            <h4>Blastoise</h4>
+                            Water Type
+                        </div>
+
+                        <div class="card">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png">
+                            <h4>Venusaur</h4>
+                            Grass/Poison
+                        </div>
+
+                        <div class="card">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png">
+                            <h4>Gengar</h4>
+                            Ghost Type
+                        </div>
+
+                        <div class="card">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png">
+                            <h4>Dragonite</h4>
+                            Dragon/Flying
+                        </div>
+
+                        <div class="card">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png">
+                            <h4>Mewtwo</h4>
+                            Psychic Type
+                        </div>
+
+                        <div class="card">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/249.png">
+                            <h4>Lugia</h4>
+                            Psychic/Flying
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="news-box">
+
+                <div class="news-header">
+                    Trainer Forums
+                </div>
+
+                <div class="news-content">
+
+                    <table class="forum-table">
+
+                        <tr>
+                            <th>Forum</th>
+                            <th>Topics</th>
+                            <th>Posts</th>
+                        </tr>
+
+                        <tr>
+                            <td>Pokémon Crystal Walkthroughs</td>
+                            <td>458</td>
+                            <td>7,192</td>
+                        </tr>
+
+                        <tr>
+                            <td>Trading Card Game</td>
+                            <td>382</td>
+                            <td>5,020</td>
+                        </tr>
+
+                        <tr>
+                            <td>Anime Discussion</td>
+                            <td>911</td>
+                            <td>12,830</td>
+                        </tr>
+
+                        <tr>
+                            <td>Legendary Pokémon Rumors</td>
+                            <td>198</td>
+                            <td>3,117</td>
+                        </tr>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <div class="news-box">
+
+                <div class="news-header">
+                    Anime Screenshot Gallery
+                </div>
+
+                <div class="news-content">
+
+                    <img src="https://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season01/season01_ep01_ss02.jpg" width="48%">
+
+                    <img src="https://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season01/season01_ep01_ss03.jpg" width="48%">
+
+                    <br><br>
+
+                    <img src="https://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season01/season01_ep01_ss04.jpg" width="48%">
+
+                    <img src="https://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season01/season01_ep01_ss05.jpg" width="48%">
+
+                </div>
+
+            </div>
+
         </div>
-
-        <div class="pokemon-card">
-          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png">
-          <p>Squirtle</p>
-          <p>Water</p>
-        </div>
-
-        <div class="pokemon-card">
-          <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png">
-          <p>Pikachu</p>
-          <p>Electric</p>
-        </div>
-      </div>
-
-      <div class="box" id="badges">
-        <h2>🏅 Kanto Gym Badge Wall 🏅</h2>
-        <p>◈ Boulder Badge</p>
-        <p>◈ Cascade Badge</p>
-        <p>◈ Thunder Badge</p>
-        <p>◈ Rainbow Badge</p>
-        <p>◈ Soul Badge</p>
-        <p>◈ Marsh Badge</p>
-        <p>◈ Volcano Badge</p>
-        <p>◈ Earth Badge</p>
-      </div>
-
-      <div class="box">
-        <h2>💾 Trainer Tips</h2>
-        <ul>
-          <li>Always save before battling a Legendary Pokémon.</li>
-          <li>Bring Ultra Balls. A lot of them.</li>
-          <li>Do not waste your Master Ball.</li>
-          <li>Train your whole team, not just your starter.</li>
-        </ul>
-      </div>
-
-      <div class="box" id="guestbook">
-        <h2>📜 Sign My Guestbook</h2>
-        <form>
-          Trainer Name:<br>
-          <input type="text" size="40"><br><br>
-
-          Favorite Pokémon:<br>
-          <input type="text" size="40"><br><br>
-
-          Message:<br>
-          <textarea rows="5" cols="50"></textarea><br><br>
-
-          <input type="submit" value="Sign Guestbook">
-        </form>
-      </div>
 
     </div>
-  </div>
 
-  <div class="footer">
-    <p>© 1999 Tim's Pokémon Shrine</p>
-    <p class="blink">THIS SITE IS ALWAYS UNDER CONSTRUCTION</p>
-    <p>Made with HTML, attitude, and dial-up energy.</p>
-  </div>
+    <div class="footer">
+
+        © 2001 Pokémon Trainer Network<br><br>
+
+        Pokémon © Nintendo / Game Freak / Creatures Inc.<br><br>
+
+        This is a fan-made retro tribute website inspired by early 2000s Pokémon fan portals.
+
+    </div>
 
 </div>
 
