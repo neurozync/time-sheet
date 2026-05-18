@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Matrix Terminal</title>
 
 <style>
@@ -19,6 +21,10 @@ body{
     color:#00ff66;
 }
 
+/* =========================
+MATRIX CANVAS
+========================= */
+
 canvas{
     position:fixed;
     top:0;
@@ -26,30 +32,84 @@ canvas{
     z-index:0;
 }
 
+/* =========================
+TOP BAR
+========================= */
+
+#topbar{
+
+    position:fixed;
+
+    top:0;
+    left:0;
+
+    width:100%;
+
+    z-index:20;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:15px 30px;
+
+    background:rgba(0,0,0,0.55);
+
+    border-bottom:1px solid #00ff66;
+
+    backdrop-filter:blur(5px);
+
+}
+
+#mission{
+    font-size:18px;
+    letter-spacing:2px;
+}
+
+#inventory{
+    color:#8affb2;
+}
+
+/* =========================
+MAIN UI
+========================= */
+
 #ui{
+
     position:relative;
     z-index:5;
+
     width:100vw;
     height:100vh;
 
     display:flex;
     justify-content:center;
     align-items:center;
+
+    padding-top:80px;
+
 }
 
 .grid{
+
     width:1200px;
     max-width:95vw;
 
     display:grid;
 
     grid-template-columns:repeat(3,1fr);
+
     gap:30px;
+
 }
+
+/* =========================
+PANELS
+========================= */
 
 .panel{
 
-    min-height:260px;
+    min-height:320px;
 
     border:2px solid #00ff66;
 
@@ -57,98 +117,115 @@ canvas{
 
     box-shadow:
     0 0 10px #00ff66,
-    0 0 30px rgba(0,255,100,0.4);
+    0 0 40px rgba(0,255,100,0.4);
 
-    padding:25px;
+    padding:30px;
 
     display:flex;
     flex-direction:column;
     justify-content:space-between;
 
     transition:0.3s;
+
 }
 
 .panel:hover{
+
     transform:translateY(-4px);
+
     box-shadow:
     0 0 20px #00ff66,
-    0 0 50px rgba(0,255,100,0.7);
+    0 0 60px rgba(0,255,100,0.7);
+
 }
 
 .title{
+
     text-align:center;
-    font-size:20px;
-    margin-bottom:20px;
-    letter-spacing:2px;
+
+    font-size:22px;
+
+    letter-spacing:3px;
+
+    margin-bottom:25px;
+
 }
 
 .text{
-    font-size:15px;
-    line-height:1.6;
+
+    line-height:1.8;
+
     color:#8affb2;
-}
 
-button{
-    margin-top:15px;
-    width:100%;
-    padding:12px;
-
-    background:black;
-    color:#00ff66;
-
-    border:1px solid #00ff66;
-
-    cursor:pointer;
-
-    font-family:monospace;
     font-size:15px;
-}
 
-button:hover{
-    background:#00ff66;
-    color:black;
 }
 
 input{
+
     width:100%;
-    padding:12px;
+
+    padding:14px;
+
+    margin-top:25px;
 
     background:black;
+
     color:#00ff66;
 
     border:1px solid #00ff66;
 
-    margin-top:15px;
-
     font-size:16px;
+
+    font-family:monospace;
+
 }
 
-#topbar{
-    position:fixed;
-    top:0;
-    left:0;
+button{
 
     width:100%;
 
-    z-index:10;
+    padding:14px;
 
-    display:flex;
-    justify-content:space-between;
+    margin-top:18px;
 
-    padding:15px 30px;
+    background:black;
 
-    background:rgba(0,0,0,0.5);
-
-    border-bottom:1px solid #00ff66;
-}
-
-#inventory{
-    color:#8affb2;
-}
-
-#mission{
     color:#00ff66;
+
+    border:1px solid #00ff66;
+
+    font-family:monospace;
+
+    cursor:pointer;
+
+    transition:0.3s;
+
+    font-size:15px;
+
 }
+
+button:hover{
+
+    background:#00ff66;
+
+    color:black;
+
+}
+
+.log{
+
+    margin-top:15px;
+
+    color:#8affb2;
+
+    min-height:25px;
+
+}
+
+/* =========================
+MODAL
+========================= */
 
 .modal{
 
@@ -159,39 +236,91 @@ input{
 
     transform:translate(-50%,-50%);
 
-    width:700px;
-    max-width:90vw;
+    width:750px;
+    max-width:92vw;
 
     background:black;
 
     border:2px solid #00ff66;
 
-    padding:40px;
+    padding:50px;
 
-    z-index:50;
+    z-index:200;
 
     display:none;
 
     box-shadow:
     0 0 30px #00ff66,
-    0 0 80px rgba(0,255,100,0.6);
+    0 0 100px rgba(0,255,100,0.6);
 
 }
 
 .modal h1{
-    margin-bottom:25px;
+
+    margin-bottom:30px;
+
+    text-align:center;
+
+    letter-spacing:4px;
+
 }
 
 .modal p{
-    line-height:1.8;
+
+    line-height:2;
+
     color:#8affb2;
+
+    font-size:18px;
+
 }
 
+/* =========================
+DISTORTION
+========================= */
+
+@keyframes distort{
+
+    0%{
+        transform:translate(0px,0px) skew(0deg);
+        filter:hue-rotate(0deg);
+    }
+
+    20%{
+        transform:translate(-2px,1px) skew(1deg);
+    }
+
+    40%{
+        transform:translate(2px,-1px) skew(-1deg);
+    }
+
+    60%{
+        transform:translate(-1px,2px) skew(1deg);
+    }
+
+    80%{
+        transform:translate(1px,-2px) skew(-1deg);
+    }
+
+    100%{
+        transform:translate(0px,0px);
+        filter:hue-rotate(10deg);
+    }
+
+}
+
+/* =========================
+FLASH
+========================= */
+
 .successFlash{
-    animation:flash 0.4s infinite alternate;
+
+    animation:flash 0.2s infinite alternate;
+
 }
 
 @keyframes flash{
+
     from{
         filter:brightness(1);
     }
@@ -199,32 +328,26 @@ input{
     to{
         filter:brightness(2);
     }
+
 }
 
-.log{
-    margin-top:10px;
-    font-size:14px;
-    color:#8affb2;
-}
+/* =========================
+RESPONSIVE
+========================= */
 
-.locked{
-    opacity:0.35;
-    pointer-events:none;
-}
-
-@media(max-width:900px){
-
-    .grid{
-        grid-template-columns:1fr;
-    }
+@media(max-width:950px){
 
     body{
         overflow:auto;
     }
 
     #ui{
-        padding:120px 0;
         height:auto;
+        padding:120px 0;
+    }
+
+    .grid{
+        grid-template-columns:1fr;
     }
 
 }
@@ -236,143 +359,190 @@ input{
 
 <canvas id="matrix"></canvas>
 
+<!-- =========================
+TOP BAR
+========================= -->
+
 <div id="topbar">
 
-<div id="mission">
-MISSION: ACCESS THE CORE
+    <div id="mission">
+        MISSION: ACCESS THE CORE
+    </div>
+
+    <div id="inventory">
+        KEYS: 0 / 3
+    </div>
+
 </div>
 
-<div id="inventory">
-KEYS: 0 / 3
-</div>
-
-</div>
+<!-- =========================
+MAIN UI
+========================= -->
 
 <div id="ui">
 
 <div class="grid">
 
-<div class="panel">
-<div>
+    <!-- NODE 1 -->
 
-<div class="title">NODE 01</div>
+    <div class="panel">
 
-<div class="text">
-Decrypt the first access word.
-<br><br>
-Hint:
-"The truth is hidden inside the system."
+        <div>
+
+            <div class="title">
+                NODE 01
+            </div>
+
+            <div class="text">
+
+                Decrypt the first system key.
+                <br><br>
+
+                Hint:
+                "The simulation itself."
+
+            </div>
+
+            <input id="answer1" placeholder="Enter code">
+
+            <button onclick="solveNode1()">
+                ACCESS
+            </button>
+
+            <div class="log" id="log1"></div>
+
+        </div>
+
+    </div>
+
+    <!-- NODE 2 -->
+
+    <div class="panel">
+
+        <div>
+
+            <div class="title">
+                NODE 02
+            </div>
+
+            <div class="text">
+
+                Follow the transmission.
+                <br><br>
+
+                Hint:
+                "The green pulse."
+
+            </div>
+
+            <input id="answer2" placeholder="Enter code">
+
+            <button id="btn2" disabled onclick="solveNode2()">
+                LOCKED
+            </button>
+
+            <div class="log" id="log2"></div>
+
+        </div>
+
+    </div>
+
+    <!-- NODE 3 -->
+
+    <div class="panel">
+
+        <div>
+
+            <div class="title">
+                NODE 03
+            </div>
+
+            <div class="text">
+
+                Final authentication layer.
+                <br><br>
+
+                Requires previous keys.
+
+            </div>
+
+            <input id="answer3" placeholder="Enter code">
+
+            <button id="btn3" disabled onclick="solveNode3()">
+                LOCKED
+            </button>
+
+            <div class="log" id="log3"></div>
+
+        </div>
+
+    </div>
+
 </div>
 
-<input id="answer1" placeholder="Enter code">
-
-<button onclick="solveNode1()">
-ACCESS
-</button>
-
-<div class="log" id="log1"></div>
-
-</div>
 </div>
 
-<div class="panel">
-<div>
-
-<div class="title">NODE 02</div>
-
-<div class="text">
-Only unlocked after Node 01.
-<br><br>
-Hint:
-Follow the green signal.
-</div>
-
-<input id="answer2" placeholder="Enter code">
-
-<button id="btn2" onclick="solveNode2()" disabled>
-LOCKED
-</button>
-
-<div class="log" id="log2"></div>
-
-</div>
-</div>
-
-<div class="panel">
-<div>
-
-<div class="title">NODE 03</div>
-
-<div class="text">
-Final system authentication.
-<br><br>
-Requires all keys.
-</div>
-
-<input id="answer3" placeholder="Enter final code">
-
-<button id="btn3" onclick="solveNode3()" disabled>
-LOCKED
-</button>
-
-<div class="log" id="log3"></div>
-
-</div>
-</div>
-
-</div>
-
-</div>
+<!-- =========================
+FINAL MODAL
+========================= -->
 
 <div class="modal" id="rewardModal">
 
-<h1>ACCESS GRANTED</h1>
+    <h1>
+        ACCESS COMPLETE
+    </h1>
 
-<p>
+    <p>
 
-Core successfully breached.
-<br><br>
+        You successfully passed the system verification.
+        <br><br>
 
-Encrypted archive unlocked.
-<br><br>
+        These are the answers you seek.
+        <br><br>
 
-Reward:
-<br><br>
+        SAFE CODE:
+        7 - 2 - 9 - 4
+        <br><br>
 
-SAFE CODE: 7-2-9-4
-<br><br>
+        NEXT LOCATION:
+        SECTOR 12
+        <br><br>
 
-NEXT LOCATION:
-SECTOR 12
+        TRANSMISSION ENDED.
 
-</p>
+    </p>
 
-<br>
-
-<button onclick="closeModal()">
-CLOSE
-</button>
+    <button onclick="closeModal()">
+        CLOSE
+    </button>
 
 </div>
 
 <script>
 
 /* =========================
-MATRIX RAIN
+MATRIX BACKGROUND
 ========================= */
 
-const canvas = document.getElementById("matrix");
-const ctx = canvas.getContext("2d");
+const canvas =
+document.getElementById("matrix");
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+const ctx =
+canvas.getContext("2d");
+
+canvas.width =
+window.innerWidth;
+
+canvas.height =
+window.innerHeight;
 
 const chars =
 "アカサタナハマヤラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 const size = 16;
 
-const columns = canvas.width / size;
+const columns =
+canvas.width / size;
 
 const drops = [];
 
@@ -382,16 +552,30 @@ for(let i=0;i<columns;i++){
 
 function matrix(){
 
-    ctx.fillStyle="rgba(0,0,0,0.08)";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle =
+    "rgba(0,0,0,0.08)";
 
-    ctx.fillStyle="#00ff66";
-    ctx.font=size+"px monospace";
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    ctx.fillStyle =
+    "#00ff66";
+
+    ctx.font =
+    size + "px monospace";
 
     for(let i=0;i<drops.length;i++){
 
         const text =
-        chars[Math.floor(Math.random()*chars.length)];
+        chars[
+            Math.floor(
+                Math.random()*chars.length
+            )
+        ];
 
         ctx.fillText(
             text,
@@ -409,6 +593,7 @@ function matrix(){
 
         drops[i]++;
     }
+
 }
 
 setInterval(matrix,35);
@@ -429,9 +614,13 @@ function beep(freq=440,duration=120){
     audio.createGain();
 
     osc.connect(gain);
-    gain.connect(audio.destination);
+
+    gain.connect(
+        audio.destination
+    );
 
     osc.type="square";
+
     osc.frequency.value=freq;
 
     osc.start();
@@ -463,6 +652,7 @@ function updateInventory(){
 
 /* =========================
 NODE 1
+ANSWER: matrix
 ========================= */
 
 function solveNode1(){
@@ -489,6 +679,7 @@ function solveNode1(){
         document.getElementById("btn2");
 
         btn2.disabled=false;
+
         btn2.innerHTML="ACCESS";
 
     }else{
@@ -505,6 +696,7 @@ function solveNode1(){
 
 /* =========================
 NODE 2
+ANSWER: signal
 ========================= */
 
 function solveNode2(){
@@ -531,6 +723,7 @@ function solveNode2(){
         document.getElementById("btn3");
 
         btn3.disabled=false;
+
         btn3.innerHTML="ACCESS";
 
     }else{
@@ -547,6 +740,7 @@ function solveNode2(){
 
 /* =========================
 NODE 3
+ANSWER: zion
 ========================= */
 
 function solveNode3(){
@@ -569,11 +763,13 @@ function solveNode3(){
             "successFlash"
         );
 
+        document.getElementById("log3")
+        .innerHTML =
+        "CORE ACCESS ACCEPTED";
+
         setTimeout(()=>{
 
-            document
-            .getElementById("rewardModal")
-            .style.display="block";
+            startDistortion();
 
         },1200);
 
@@ -589,11 +785,159 @@ function solveNode3(){
 
 }
 
+/* =========================
+DISTORTION
+========================= */
+
+function startDistortion(){
+
+    document.body.style.animation =
+    "distort 0.08s infinite";
+
+    beep(300,1000);
+
+    const overlay =
+    document.createElement("div");
+
+    overlay.id="finalQuestion";
+
+    overlay.innerHTML = `
+
+    <div style="
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.93);
+    z-index:150;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    ">
+
+        <div style="
+        width:750px;
+        max-width:92vw;
+        border:2px solid #00ff66;
+        background:black;
+        padding:50px;
+        box-shadow:
+        0 0 30px #00ff66,
+        0 0 90px rgba(0,255,100,0.6);
+        ">
+
+            <h1 style="
+            text-align:center;
+            margin-bottom:30px;
+            letter-spacing:4px;
+            ">
+            SYSTEM INSTABILITY DETECTED
+            </h1>
+
+            <p style="
+            line-height:2;
+            color:#8affb2;
+            font-size:18px;
+            ">
+
+            Final authentication required.
+            <br><br>
+
+            What is the name of the city
+            where humanity made its final stand?
+
+            </p>
+
+            <input
+            id="finalAnswer"
+            placeholder="Final answer"
+            style="
+            width:100%;
+            padding:15px;
+            margin-top:30px;
+            background:black;
+            color:#00ff66;
+            border:1px solid #00ff66;
+            font-size:18px;
+            ">
+
+            <button
+            onclick="completeGame()"
+            style="
+            width:100%;
+            padding:15px;
+            margin-top:20px;
+            background:black;
+            color:#00ff66;
+            border:1px solid #00ff66;
+            font-size:18px;
+            cursor:pointer;
+            ">
+            VERIFY
+            </button>
+
+        </div>
+
+    </div>
+
+    `;
+
+    document.body.appendChild(
+        overlay
+    );
+
+}
+
+/* =========================
+FINAL QUESTION
+ANSWER: zion
+========================= */
+
+function completeGame(){
+
+    const val =
+    document.getElementById("finalAnswer")
+    .value
+    .trim()
+    .toLowerCase();
+
+    if(val==="zion"){
+
+        beep(1800,600);
+
+        document.body.style.animation="";
+
+        document.getElementById(
+            "finalQuestion"
+        ).remove();
+
+        setTimeout(()=>{
+
+            document.getElementById(
+                "rewardModal"
+            ).style.display="block";
+
+        },1000);
+
+    }else{
+
+        beep(90,400);
+
+        alert(
+            "FINAL AUTHENTICATION FAILED"
+        );
+
+    }
+
+}
+
+/* =========================
+CLOSE MODAL
+========================= */
+
 function closeModal(){
 
-    document
-    .getElementById("rewardModal")
-    .style.display="none";
+    document.getElementById(
+        "rewardModal"
+    ).style.display="none";
 
 }
 
