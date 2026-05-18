@@ -1,399 +1,267 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Wizard vs Dragon DOS Game</title>
+<meta charset="UTF-8">
+<title>Matrix Puzzle Room</title>
+
 <style>
-body{
-  margin:0;
-  background:#020302;
-  color:#33ff66;
-  font-family:"Courier New",monospace;
-  overflow:hidden;
-}
-#game{
-  width:100vw;
-  height:100vh;
-  border:3px solid #33ff66;
-  box-sizing:border-box;
-  position:relative;
-  background:
-    linear-gradient(rgba(51,255,102,.05) 50%,rgba(0,0,0,.1) 50%),
-    #020302;
-  background-size:100% 4px;
-}
-#hud{
-  height:70px;
-  padding:8px;
-  border-bottom:2px dashed #33ff66;
-  font-size:14px;
-}
-.barBox{
-  border:1px solid #33ff66;
-  height:14px;
-  margin:4px 0;
-}
-.bar{
-  height:100%;
-  width:100%;
-}
-#wizBar{background:#44ddff;}
-#dragBar{background:#ff4444;}
-#arena{
-  position:absolute;
-  top:70px;
-  bottom:140px;
-  left:0;
-  right:0;
-  overflow:hidden;
-}
-.sprite{
-  position:absolute;
-  white-space:pre;
-  font-weight:bold;
-  line-height:.95;
-  text-shadow:0 0 10px currentColor;
-}
-#wizard{
-  color:#44ddff;
-  left:25px;
-  bottom:35px;
-  font-size:22px;
-}
-#dragon{
-  color:#ff4444;
-  right:20px;
-  bottom:35px;
-  font-size:20px;
-  animation:float .8s infinite alternate;
-}
-@keyframes float{
-  from{transform:translateY(0);}
-  to{transform:translateY(-8px);}
-}
-#ground{
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:0;
-  height:35px;
-  border-top:2px dashed #33ff66;
-}
-.projectile{
-  position:absolute;
-  font-size:26px;
-  font-weight:bold;
-  text-shadow:0 0 10px currentColor;
-}
-.bolt{color:#ffd34d;}
-.fire{color:#ff7a22;}
-#log{
-  position:absolute;
-  bottom:90px;
-  height:50px;
-  left:0;
-  right:0;
-  border-top:1px solid #33ff66;
-  border-bottom:1px solid #33ff66;
-  padding:6px;
-  font-size:13px;
-}
-#controls{
-  position:absolute;
-  bottom:0;
-  left:0;
-  right:0;
-  height:90px;
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr 1fr;
-  gap:6px;
-  padding:6px;
-}
-button{
-  background:#041404;
-  color:#33ff66;
-  border:2px solid #33ff66;
-  font-family:"Courier New",monospace;
-  font-weight:bold;
-  font-size:14px;
-}
-button:active{
-  background:#33ff66;
-  color:#001500;
-}
-#start,#gameOver{
-  position:absolute;
-  inset:0;
-  background:rgba(0,0,0,.94);
-  display:grid;
-  place-items:center;
-  text-align:center;
-  z-index:5;
-}
-.panel{
-  border:2px solid #33ff66;
-  padding:20px;
-  width:85%;
-}
-h1{
-  color:#ffd34d;
-}
-.hidden{
-  display:none!important;
-}
+    body {
+        margin: 0;
+        overflow: hidden;
+        background: black;
+        font-family: monospace;
+        color: #00ff66;
+    }
+
+    canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 0;
+    }
+
+    .screen {
+        position: relative;
+        z-index: 2;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 25px;
+    }
+
+    .panel {
+        width: 220px;
+        height: 160px;
+        border: 2px solid #00ff66;
+        box-shadow: 0 0 20px #00ff66;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        background: rgba(0, 20, 0, 0.75);
+        transition: transform 0.4s, box-shadow 0.4s;
+        padding: 15px;
+    }
+
+    .panel:hover {
+        transform: scale(1.08);
+        box-shadow: 0 0 35px #00ff66;
+    }
+
+    .zoomed {
+        position: fixed;
+        width: 70vw;
+        height: 70vh;
+        top: 15vh;
+        left: 15vw;
+        z-index: 5;
+        transform: scale(1);
+        background: rgba(0, 0, 0, 0.95);
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    input {
+        background: black;
+        color: #00ff66;
+        border: 1px solid #00ff66;
+        padding: 10px;
+        font-size: 18px;
+        text-align: center;
+    }
+
+    button {
+        margin-top: 15px;
+        background: black;
+        color: #00ff66;
+        border: 1px solid #00ff66;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-family: monospace;
+    }
+
+    button:hover {
+        background: #00ff66;
+        color: black;
+    }
+
+    .success {
+        animation: pulse 0.25s infinite alternate;
+    }
+
+    @keyframes pulse {
+        from { box-shadow: 0 0 20px #00ff66; }
+        to { box-shadow: 0 0 80px #00ff66; }
+    }
+
+    .modal {
+        position: fixed;
+        z-index: 10;
+        top: 20%;
+        left: 25%;
+        width: 50%;
+        min-height: 250px;
+        background: black;
+        border: 3px solid #00ff66;
+        box-shadow: 0 0 50px #00ff66;
+        padding: 30px;
+        text-align: center;
+    }
+
+    .modal h1 {
+        color: #00ff66;
+    }
+
+    .reward {
+        color: white;
+        font-size: 20px;
+        margin-top: 25px;
+    }
 </style>
 </head>
 
 <body>
-<div id="game">
 
-  <div id="hud">
-    WIZARD HP: <span id="wizHPText">100</span> | MANA: <span id="manaText">100</span>
-    <div class="barBox"><div id="wizBar" class="bar"></div></div>
-    DRAGON HP: <span id="dragHPText">150</span> | SCORE: <span id="scoreText">0</span>
-    <div class="barBox"><div id="dragBar" class="bar"></div></div>
-  </div>
+<canvas id="matrix"></canvas>
 
-  <div id="arena">
-    <div id="wizard" class="sprite"> /\
-/__\
-(oo)
-/||\
- /\
-/  \</div>
+<div class="screen">
 
-    <div id="dragon" class="sprite">  /^\/^\
- /  O O\
-/   ___/
-\__/</div>
-
-    <div id="ground"></div>
-  </div>
-
-  <div id="log">SYSTEM READY.</div>
-
-  <div id="controls">
-    <button id="up">UP</button>
-    <button id="down">DOWN</button>
-    <button id="cast">CAST ⚡</button>
-    <button id="shield">SHIELD</button>
-  </div>
-
-  <div id="start">
-    <div class="panel">
-      <h1>WIZARD vs DRAGON</h1>
-      <p>Old-school DOS style battle.</p>
-      <p>Move. Cast spells. Block fire. Kill the dragon.</p>
-      <button onclick="startGame()">START GAME</button>
+    <div class="panel" onclick="zoomPanel(this)">
+        ACCESS NODE 01<br><br>
+        “The answer hides in plain sight.”
     </div>
-  </div>
 
-  <div id="gameOver" class="hidden">
-    <div class="panel">
-      <h1 id="endTitle">GAME OVER</h1>
-      <p id="endText"></p>
-      <button onclick="restartGame()">PLAY AGAIN</button>
+    <div class="panel" onclick="zoomPanel(this)">
+        ACCESS NODE 02<br><br>
+        Clue: Follow the green code.
     </div>
-  </div>
+
+    <div class="panel" onclick="zoomPanel(this)">
+        ACCESS NODE 03<br><br>
+        Enter the password:<br><br>
+        <input id="answer" placeholder="Type answer">
+        <br>
+        <button onclick="checkAnswer(event)">Submit</button>
+    </div>
 
 </div>
 
+<div id="rewardModal" class="modal hidden">
+    <h1>ACCESS GRANTED</h1>
+    <p>System unlocked.</p>
+
+    <div class="reward">
+        Reward Information:<br><br>
+        <strong>The safe code is: 7-2-9-4</strong><br><br>
+        Proceed to the next objective.
+    </div>
+
+    <button onclick="closeReward()">Close</button>
+</div>
+
 <script>
-let audio;
-let running=false;
+/* MATRIX RAIN BACKGROUND */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
 
-let wizard=document.getElementById("wizard");
-let dragon=document.getElementById("dragon");
-let arena=document.getElementById("arena");
-let logBox=document.getElementById("log");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
 
-let wizHP=100;
-let mana=100;
-let dragHP=150;
-let score=0;
-let wizY=35;
-let shield=false;
+const letters = "アカサタナハマヤラワ0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const fontSize = 16;
+const columns = canvas.width / fontSize;
 
-let bolts=[];
-let fires=[];
-
-function sound(freq,duration,type="square"){
-  if(!audio)return;
-  let osc=audio.createOscillator();
-  let gain=audio.createGain();
-  osc.frequency.value=freq;
-  osc.type=type;
-  gain.gain.value=.05;
-  osc.connect(gain);
-  gain.connect(audio.destination);
-  osc.start();
-  gain.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);
-  osc.stop(audio.currentTime+duration);
+const drops = [];
+for (let i = 0; i < columns; i++) {
+    drops[i] = 1;
 }
 
-function log(t){
-  logBox.innerHTML="> "+t;
-}
+function drawMatrix() {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-function updateHUD(){
-  document.getElementById("wizHPText").textContent=Math.max(0,Math.floor(wizHP));
-  document.getElementById("manaText").textContent=Math.floor(mana);
-  document.getElementById("dragHPText").textContent=Math.max(0,Math.floor(dragHP));
-  document.getElementById("scoreText").textContent=score;
+    ctx.fillStyle = "#00ff66";
+    ctx.font = fontSize + "px monospace";
 
-  document.getElementById("wizBar").style.width=wizHP+"%";
-  document.getElementById("dragBar").style.width=(dragHP/150*100)+"%";
-}
+    for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-function startGame(){
-  audio=new(window.AudioContext||window.webkitAudioContext)();
-  document.getElementById("start").classList.add("hidden");
-  running=true;
-  log("BATTLE STARTED.");
-  sound(440,.1);
-  gameLoop();
-  setInterval(dragonAttack,1000);
-  setInterval(()=>{if(running)mana=Math.min(100,mana+3)},500);
-}
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+            drops[i] = 0;
+        }
 
-function restartGame(){
-  location.reload();
-}
-
-function castSpell(){
-  if(!running||mana<10)return;
-  mana-=10;
-
-  let b=document.createElement("div");
-  b.className="projectile bolt";
-  b.textContent="⚡";
-  b.style.left="90px";
-  b.style.bottom=(wizY+60)+"px";
-  arena.appendChild(b);
-
-  bolts.push({el:b,x:90,y:wizY+60});
-  sound(700,.08);
-  log("LIGHTNING BOLT FIRED.");
-}
-
-function dragonAttack(){
-  if(!running)return;
-
-  let f=document.createElement("div");
-  f.className="projectile fire";
-  f.textContent="🔥";
-  f.style.right="90px";
-  f.style.bottom=(50+Math.random()*130)+"px";
-  arena.appendChild(f);
-
-  fires.push({el:f,x:window.innerWidth-110,y:parseFloat(f.style.bottom)});
-  sound(120,.12,"sawtooth");
-}
-
-function activateShield(){
-  if(!running||mana<20)return;
-  mana-=20;
-  shield=true;
-  wizard.style.filter="drop-shadow(0 0 15px #b266ff)";
-  log("SHIELD ACTIVE.");
-  sound(300,.12,"triangle");
-
-  setTimeout(()=>{
-    shield=false;
-    wizard.style.filter="none";
-    log("SHIELD DOWN.");
-  },1800);
-}
-
-function moveUp(){
-  wizY=Math.min(arena.clientHeight-130,wizY+35);
-  wizard.style.bottom=wizY+"px";
-}
-
-function moveDown(){
-  wizY=Math.max(35,wizY-35);
-  wizard.style.bottom=wizY+"px";
-}
-
-function gameLoop(){
-  if(!running)return;
-
-  bolts.forEach((b,i)=>{
-    b.x+=10;
-    b.el.style.left=b.x+"px";
-
-    if(b.x>window.innerWidth-150){
-      dragHP-=15;
-      score+=100;
-      b.el.remove();
-      bolts.splice(i,1);
-      sound(90,.08);
-      log("DRAGON HIT.");
-
-      if(dragHP<=0){
-        endGame(true);
-      }
+        drops[i]++;
     }
-  });
-
-  fires.forEach((f,i)=>{
-    f.x-=7;
-    f.el.style.left=f.x+"px";
-
-    let hitY=Math.abs(f.y-wizY)<80;
-
-    if(f.x<95&&hitY){
-      let damage=shield?5:18;
-      wizHP-=damage;
-      f.el.remove();
-      fires.splice(i,1);
-
-      log(shield?"SHIELD BLOCKED FIRE.":"DRAGON FIRE HIT YOU.");
-      sound(180,.1);
-
-      if(wizHP<=0){
-        endGame(false);
-      }
-    }
-
-    if(f.x<0){
-      f.el.remove();
-      fires.splice(i,1);
-    }
-  });
-
-  updateHUD();
-  requestAnimationFrame(gameLoop);
 }
 
-function endGame(win){
-  running=false;
-  document.getElementById("gameOver").classList.remove("hidden");
+setInterval(drawMatrix, 35);
 
-  if(win){
-    document.getElementById("endTitle").textContent="DRAGON SLAIN";
-    document.getElementById("endText").textContent="Victory. Score: "+score;
-    sound(900,.2);
-  }else{
-    document.getElementById("endTitle").textContent="YOU DIED";
-    document.getElementById("endText").textContent="The dragon burned you down. Score: "+score;
-    sound(80,.4);
-  }
+/* BASIC SOUND EFFECTS */
+function playBeep(freq = 440, duration = 120) {
+    const audioCtx = new AudioContext();
+    const oscillator = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+
+    oscillator.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    oscillator.frequency.value = freq;
+    oscillator.type = "square";
+
+    oscillator.start();
+
+    gain.gain.exponentialRampToValueAtTime(
+        0.00001,
+        audioCtx.currentTime + duration / 1000
+    );
+
+    setTimeout(() => {
+        oscillator.stop();
+    }, duration);
 }
 
-document.getElementById("cast").onclick=castSpell;
-document.getElementById("shield").onclick=activateShield;
-document.getElementById("up").onclick=moveUp;
-document.getElementById("down").onclick=moveDown;
+/* CLICK TO ZOOM */
+function zoomPanel(panel) {
+    playBeep(520, 100);
 
-window.addEventListener("keydown",e=>{
-  if(e.key==="ArrowUp")moveUp();
-  if(e.key==="ArrowDown")moveDown();
-  if(e.key===" ")castSpell();
-  if(e.key.toLowerCase()==="s")activateShield();
-});
+    document.querySelectorAll(".panel").forEach(p => {
+        if (p !== panel) p.classList.remove("zoomed");
+    });
 
-updateHUD();
+    panel.classList.toggle("zoomed");
+}
+
+/* PUZZLE LOGIC */
+function checkAnswer(event) {
+    event.stopPropagation();
+
+    const input = document.getElementById("answer").value.trim().toLowerCase();
+
+    if (input === "matrix") {
+        playBeep(900, 300);
+
+        document.body.classList.add("success");
+
+        setTimeout(() => {
+            document.getElementById("rewardModal").classList.remove("hidden");
+        }, 900);
+
+    } else {
+        playBeep(160, 300);
+        alert("ACCESS DENIED");
+    }
+}
+
+function closeReward() {
+    document.getElementById("rewardModal").classList.add("hidden");
+}
 </script>
+
 </body>
 </html>
