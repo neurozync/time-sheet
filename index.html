@@ -10,10 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
 
     body {
       margin: 0;
@@ -38,8 +35,9 @@
 
     .header h1 {
       margin: 0;
-      font-size: 22px;
-      letter-spacing: 1px;
+      font-size: 18px;
+      letter-spacing: .5px;
+      line-height: 1.25;
     }
 
     .status {
@@ -80,25 +78,10 @@
       cursor: pointer;
     }
 
-    .start {
-      background: #16a34a;
-      color: white;
-    }
-
-    .end {
-      background: #dc2626;
-      color: white;
-    }
-
-    .secondary {
-      background: #334155;
-      color: white;
-    }
-
-    .warning {
-      background: #f59e0b;
-      color: #111;
-    }
+    .start { background: #16a34a; color: white; }
+    .end { background: #dc2626; color: white; }
+    .secondary { background: #334155; color: white; }
+    .warning { background: #f59e0b; color: #111; }
 
     .data-row {
       display: flex;
@@ -108,13 +91,9 @@
       font-size: 14px;
     }
 
-    .data-row:last-child {
-      border-bottom: none;
-    }
+    .data-row:last-child { border-bottom: none; }
 
-    .label {
-      color: #cbd5e1;
-    }
+    .label { color: #cbd5e1; }
 
     .value {
       font-weight: bold;
@@ -178,9 +157,7 @@
     }
 
     @media print {
-      button, input[type="file"] {
-        display: none;
-      }
+      button, input[type="file"] { display: none; }
 
       body {
         background: white;
@@ -200,7 +177,7 @@
   <div class="app" id="captureArea">
 
     <div class="header">
-      <h1>TACTICAL PATROL TRACKER</h1>
+      <h1 id="addressHeader">Waiting for GPS address...</h1>
       <div class="status" id="gpsStatus">GPS standing by...</div>
     </div>
 
@@ -272,6 +249,8 @@
     let currentMarker = null;
     let accuracyCircle = null;
     let checkpoints = [];
+    let lastGoodPosition = null;
+    let lastAddressLookupTime = 0;
 
     function formatTime(date = new Date()) {
       return date.toLocaleString([], {
@@ -285,12 +264,15 @@
     }
 
     function initMap() {
-      map = L.map("map").setView([33.4484, -112.0740], 16);
+      map = L.map("map").setView([33.4484, -112.0740], 18);
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 22,
-        attribution: "© OpenStreetMap"
-      }).addTo(map);
+      L.tileLayer(
+        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        {
+          maxZoom: 22,
+          attribution: "Tiles © Esri"
+        }
+      ).addTo(map);
 
       breadcrumbLine = L.polyline([], {
         weight: 5
@@ -306,11 +288,13 @@
       patrolActive = true;
       breadcrumbPoints = [];
       checkpoints = [];
+      lastGoodPosition = null;
 
       document.getElementById("startTime").textContent = formatTime();
       document.getElementById("endTime").textContent = "In progress";
       document.getElementById("checkpointList").textContent = "No checkpoints marked.";
       document.getElementById("gpsStatus").textContent = "GPS tracking active...";
+      document.getElementById("pointCount").textContent = "0";
 
       if (breadcrumbLine) breadcrumbLine.setLatLngs([]);
 
@@ -320,7 +304,7 @@
         {
           enableHighAccuracy: true,
           maximumAge: 0,
-          timeout: 10000
+          timeout: 5000
         }
       );
     }
@@ -341,8 +325,32 @@
       const lng = position.coords.longitude;
       const accuracy = position.coords.accuracy;
       const speed = position.coords.speed;
+      const timestamp = position.timestamp;
+
+      if (accuracy > 75) {
+        document.getElementById("gpsStatus").textContent =
+          "Weak GPS signal — waiting for better accuracy...";
+      }
 
       const point = [lat, lng];
+
+      if (lastGoodPosition) {
+        const distance = getDistanceMeters(
+          lastGoodPosition.lat,
+          lastGoodPosition.lng,
+          lat,
+          lng
+        );
+
+        const seconds = (timestamp - lastGoodPosition.timestamp) / 1000;
+        const calculatedSpeed = seconds > 0 ? distance / seconds : 0;
+
+        if (accuracy > 100 && calculatedSpeed > 70) {
+          return;
+        }
+      }
+
+      lastGoodPosition = { lat, lng, timestamp };
 
       document.getElementById("coords").textContent =
         lat.toFixed(6) + ", " + lng.toFixed(6);
@@ -352,6 +360,9 @@
 
       document.getElementById("speed").textContent =
         speed !== null ? (speed * 2.23694).toFixed(1) + " mph" : "0 mph";
+
+      document.getElementById("gpsStatus").textContent =
+        "GPS tracking active — high accuracy mode.";
 
       if (patrolActive) {
         breadcrumbPoints.push(point);
@@ -376,7 +387,49 @@
         accuracyCircle.setRadius(accuracy);
       }
 
-      map.setView(point, 18);
+      map.setView(point, 19);
+
+      const now = Date.now();
+      if (now - lastAddressLookupTime > 8000) {
+        lastAddressLookupTime = now;
+        reverseGeocode(lat, lng);
+      }
+    }
+
+    function reverseGeocode(lat, lng) {
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.display_name) {
+            document.getElementById("addressHeader").textContent = data.display_name;
+          } else {
+            document.getElementById("addressHeader").textContent =
+              lat.toFixed(6) + ", " + lng.toFixed(6);
+          }
+        })
+        .catch(() => {
+          document.getElementById("addressHeader").textContent =
+            lat.toFixed(6) + ", " + lng.toFixed(6);
+        });
+    }
+
+    function getDistanceMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const toRad = value => value * Math.PI / 180;
+
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      return R * c;
     }
 
     function gpsError(error) {
