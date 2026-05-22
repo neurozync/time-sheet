@@ -1,519 +1,479 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="description" content="Pokémon Trainer Network - 2001 Pokémon Fan Portal">
-<meta name="keywords" content="pokemon, pokemon gold, pokemon silver, pokemon crystal, pikachu, gameboy">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tactical Patrol Tracker</title>
 
-<title>Pokémon Trainer Network :: 2001 Fan Portal</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-<style>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
 
-body{
-    margin:0;
-    padding:0;
-    background:#0a2f6f url('https://www.transparenttextures.com/patterns/stardust.png');
-    font-family:Verdana, Arial, sans-serif;
-    color:#111;
-}
+    body {
+      margin: 0;
+      background: #101820;
+      color: #fff;
+    }
 
-table{
-    border-collapse:collapse;
-}
+    .app {
+      max-width: 480px;
+      margin: auto;
+      padding: 12px;
+    }
 
-a{
-    color:#0033cc;
-    text-decoration:none;
-    font-weight:bold;
-}
+    .header {
+      text-align: center;
+      padding: 14px;
+      background: #1f2933;
+      border-radius: 14px;
+      margin-bottom: 12px;
+      border: 1px solid #334155;
+    }
 
-a:hover{
-    color:#cc0000;
-    text-decoration:underline;
-}
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: 1px;
+    }
 
-#container{
-    width:980px;
-    margin:20px auto;
-    background:#ffffff;
-    border:3px solid #111;
-    box-shadow:0 0 20px #000;
-}
+    .status {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #9ae6b4;
+    }
 
-#top-banner{
-    height:220px;
-    background:url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=1400&auto=format&fit=crop') center/cover;
-    position:relative;
-    border-bottom:5px solid #ffcc00;
-}
+    #map {
+      height: 360px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 2px solid #334155;
+      margin-bottom: 12px;
+    }
 
-#overlay{
-    background:rgba(0,0,0,0.55);
-    height:100%;
-    width:100%;
-}
+    .panel {
+      background: #1f2933;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
 
-#site-title{
-    position:absolute;
-    bottom:20px;
-    left:30px;
-    color:white;
-}
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
 
-#site-title h1{
-    margin:0;
-    font-size:52px;
-    text-shadow:3px 3px 5px black;
-}
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+    }
 
-#site-title h3{
-    margin:0;
-    color:#ffcc00;
-}
+    .start {
+      background: #16a34a;
+      color: white;
+    }
 
-#navbar{
-    background:#cc0000;
-    padding:12px;
-    text-align:center;
-    border-bottom:4px solid #ffcc00;
-}
+    .end {
+      background: #dc2626;
+      color: white;
+    }
 
-#navbar a{
-    color:white;
-    margin:0 18px;
-    font-size:14px;
-}
+    .secondary {
+      background: #334155;
+      color: white;
+    }
 
-#main{
-    display:flex;
-}
+    .warning {
+      background: #f59e0b;
+      color: #111;
+    }
 
-#sidebar{
-    width:240px;
-    background:#f2f2f2;
-    border-right:2px solid #ccc;
-    padding:15px;
-}
+    .data-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid #334155;
+      font-size: 14px;
+    }
 
-.sidebox{
-    background:white;
-    border:2px solid #003399;
-    margin-bottom:18px;
-}
+    .data-row:last-child {
+      border-bottom: none;
+    }
 
-.sidebox h3{
-    margin:0;
-    background:#003399;
-    color:white;
-    padding:8px;
-    font-size:15px;
-}
+    .label {
+      color: #cbd5e1;
+    }
 
-.sidebox .content{
-    padding:10px;
-    font-size:13px;
-}
+    .value {
+      font-weight: bold;
+      text-align: right;
+    }
 
-.counter{
-    font-family:Courier New;
-    background:black;
-    color:#00ff00;
-    padding:8px;
-    text-align:center;
-    font-size:24px;
-    border:3px inset gray;
-}
+    textarea {
+      width: 100%;
+      min-height: 80px;
+      resize: vertical;
+      border-radius: 10px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: white;
+      padding: 10px;
+      font-size: 14px;
+    }
 
-#content{
-    flex:1;
-    padding:20px;
-    background:#ffffff;
-}
+    .photo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
 
-.news-box{
-    border:2px solid #003399;
-    margin-bottom:20px;
-    background:#fafafa;
-}
+    .photo-box {
+      border: 1px dashed #64748b;
+      border-radius: 12px;
+      min-height: 140px;
+      padding: 8px;
+      background: #0f172a;
+      text-align: center;
+    }
 
-.news-header{
-    background:#003399;
-    color:white;
-    padding:10px;
-    font-size:18px;
-}
+    .photo-box img {
+      width: 100%;
+      max-height: 130px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-top: 6px;
+    }
 
-.news-content{
-    padding:15px;
-    line-height:1.6;
-}
+    .photo-box input {
+      width: 100%;
+      font-size: 12px;
+      color: white;
+    }
 
-.pokemon-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:15px;
-    margin-top:20px;
-}
+    .checkpoint-list {
+      font-size: 13px;
+      line-height: 1.5;
+      max-height: 120px;
+      overflow-y: auto;
+    }
 
-.card{
-    background:#fff8d6;
-    border:3px solid #ffcc00;
-    text-align:center;
-    padding:10px;
-    box-shadow:3px 3px 6px rgba(0,0,0,0.2);
-}
+    .footer-note {
+      font-size: 12px;
+      color: #94a3b8;
+      text-align: center;
+      padding-bottom: 20px;
+    }
 
-.card img{
-    width:120px;
-    height:120px;
-    image-rendering:pixelated;
-}
+    @media print {
+      button, input[type="file"] {
+        display: none;
+      }
 
-.card h4{
-    margin:8px 0 4px 0;
-}
+      body {
+        background: white;
+        color: black;
+      }
 
-.gallery-banner{
-    width:100%;
-    border:3px solid #003399;
-    margin-bottom:20px;
-}
-
-.forum-table{
-    width:100%;
-    border:2px solid #003399;
-    margin-top:20px;
-}
-
-.forum-table th{
-    background:#003399;
-    color:white;
-    padding:10px;
-}
-
-.forum-table td{
-    padding:10px;
-    border-top:1px solid #ccc;
-    background:#f7f7f7;
-}
-
-.footer{
-    background:#111;
-    color:white;
-    text-align:center;
-    padding:20px;
-    font-size:12px;
-    border-top:5px solid #ffcc00;
-}
-
-.blink{
-    animation:blink 1s infinite;
-}
-
-@keyframes blink{
-    50%{opacity:0;}
-}
-
-.marquee{
-    background:#ffcc00;
-    color:#111;
-    font-weight:bold;
-    padding:8px;
-    border-bottom:2px solid #000;
-}
-
-</style>
+      .panel, .header {
+        background: white;
+        color: black;
+        border: 1px solid #999;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div class="app" id="captureArea">
 
-<!-- MIDI BACKGROUND MUSIC -->
-<!-- PLACE YOUR OWN LEGALLY OWNED FILE IN SAME FOLDER -->
-<bgsound src="pokemon-theme.mid" loop="infinite">
-
-<audio autoplay loop>
-    <source src="pokemon-theme.mid" type="audio/midi">
-</audio>
-
-<div id="container">
-
-    <div id="top-banner">
-        <div id="overlay"></div>
-
-        <div id="site-title">
-            <h1>Pokémon Trainer Network</h1>
-            <h3>Ultimate Fan Portal :: Est. 2001</h3>
-        </div>
+    <div class="header">
+      <h1>TACTICAL PATROL TRACKER</h1>
+      <div class="status" id="gpsStatus">GPS standing by...</div>
     </div>
 
-    <div class="marquee">
-        <marquee scrollamount="6">
-            Pokémon Crystal Version OUT NOW! • Trade Pokémon Online! • New Johto Strategy Guides Added • Pokémon Stadium 2 Coverage Live!
-        </marquee>
+    <div id="map"></div>
+
+    <div class="panel">
+      <div class="grid">
+        <button class="start" onclick="startPatrol()">START PATROL</button>
+        <button class="end" onclick="endPatrol()">END PATROL</button>
+        <button class="secondary" onclick="addCheckpoint()">MARK CHECKPOINT</button>
+        <button class="warning" onclick="takeScreenshot()">SCREENSHOT</button>
+      </div>
     </div>
 
-    <div id="navbar">
-        <a href="https://pokemon.com" target="_blank">Official Pokémon</a>
-        <a href="https://bulbapedia.bulbagarden.net" target="_blank">Pokédex</a>
-        <a href="https://archives.bulbagarden.net" target="_blank">Anime Gallery</a>
-        <a href="https://www.serebii.net" target="_blank">Game Guides</a>
-        <a href="https://pokemonshowdown.com" target="_blank">Battle Simulator</a>
-        <a href="https://archive.org" target="_blank">Classic Web</a>
+    <div class="panel">
+      <div class="data-row">
+        <span class="label">Start Time</span>
+        <span class="value" id="startTime">Not started</span>
+      </div>
+      <div class="data-row">
+        <span class="label">End Time</span>
+        <span class="value" id="endTime">Not ended</span>
+      </div>
+      <div class="data-row">
+        <span class="label">Current Location</span>
+        <span class="value" id="coords">Waiting...</span>
+      </div>
+      <div class="data-row">
+        <span class="label">GPS Accuracy</span>
+        <span class="value" id="accuracy">Waiting...</span>
+      </div>
+      <div class="data-row">
+        <span class="label">Speed</span>
+        <span class="value" id="speed">Waiting...</span>
+      </div>
+      <div class="data-row">
+        <span class="label">Breadcrumb Points</span>
+        <span class="value" id="pointCount">0</span>
+      </div>
     </div>
 
-    <div id="main">
-
-        <div id="sidebar">
-
-            <div class="sidebox">
-                <h3>Trainer Login</h3>
-
-                <div class="content">
-                    Username:<br>
-                    <input type="text" style="width:95%;"><br><br>
-
-                    Password:<br>
-                    <input type="password" style="width:95%;"><br><br>
-
-                    <button>Login</button>
-                </div>
-            </div>
-
-            <div class="sidebox">
-                <h3>Visitor Counter</h3>
-
-                <div class="content">
-                    <div class="counter">
-                        00151987
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebox">
-                <h3>Top Pokémon</h3>
-
-                <div class="content">
-                    ⚡ Pikachu<br><br>
-                    🔥 Charizard<br><br>
-                    💧 Blastoise<br><br>
-                    🌿 Venusaur<br><br>
-                    👻 Gengar<br><br>
-                    🐉 Dragonite
-                </div>
-            </div>
-
-            <div class="sidebox">
-                <h3>Site Status</h3>
-
-                <div class="content">
-                    Best Viewed In:<br><br>
-
-                    ✔ Internet Explorer 6<br>
-                    ✔ Netscape Navigator<br>
-                    ✔ 1024x768 Resolution<br><br>
-
-                    <span class="blink">
-                        NEW CONTENT DAILY
-                    </span>
-                </div>
-            </div>
-
-            <div class="sidebox">
-                <h3>Gameboy Poll</h3>
-
-                <div class="content">
-                    Favorite Version?<br><br>
-
-                    <input type="radio"> Red<br>
-                    <input type="radio"> Blue<br>
-                    <input type="radio"> Gold<br>
-                    <input type="radio"> Silver<br>
-                    <input type="radio"> Crystal<br><br>
-
-                    <button>Vote</button>
-                </div>
-            </div>
-
-        </div>
-
-        <div id="content">
-
-            <img class="gallery-banner" src="https://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season01/season01_ep01_ss01.jpg">
-
-            <div class="news-box">
-
-                <div class="news-header">
-                    Welcome Trainers
-                </div>
-
-                <div class="news-content">
-
-                    Welcome to Pokémon Trainer Network — one of the biggest fan-made Pokémon portals online in 2001.
-
-                    Here you'll find:
-
-                    <ul>
-                        <li>Johto walkthroughs</li>
-                        <li>Legendary Pokémon secrets</li>
-                        <li>Anime screenshots</li>
-                        <li>Pokémon Crystal strategies</li>
-                        <li>Pokédex information</li>
-                        <li>Trading tips and rumors</li>
-                    </ul>
-
-                    The Pokémon world never stops evolving. Train hard. Battle smart. Catch everything.
-                </div>
-
-            </div>
-
-            <div class="news-box">
-
-                <div class="news-header">
-                    Featured Pokémon
-                </div>
-
-                <div class="news-content">
-
-                    <div class="pokemon-grid">
-
-                        <div class="card">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png">
-                            <h4>Pikachu</h4>
-                            Electric Type
-                        </div>
-
-                        <div class="card">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/6.png">
-                            <h4>Charizard</h4>
-                            Fire/Flying
-                        </div>
-
-                        <div class="card">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/9.png">
-                            <h4>Blastoise</h4>
-                            Water Type
-                        </div>
-
-                        <div class="card">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/3.png">
-                            <h4>Venusaur</h4>
-                            Grass/Poison
-                        </div>
-
-                        <div class="card">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/94.png">
-                            <h4>Gengar</h4>
-                            Ghost Type
-                        </div>
-
-                        <div class="card">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/149.png">
-                            <h4>Dragonite</h4>
-                            Dragon/Flying
-                        </div>
-
-                        <div class="card">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/150.png">
-                            <h4>Mewtwo</h4>
-                            Psychic Type
-                        </div>
-
-                        <div class="card">
-                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/249.png">
-                            <h4>Lugia</h4>
-                            Psychic/Flying
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <div class="news-box">
-
-                <div class="news-header">
-                    Trainer Forums
-                </div>
-
-                <div class="news-content">
-
-                    <table class="forum-table">
-
-                        <tr>
-                            <th>Forum</th>
-                            <th>Topics</th>
-                            <th>Posts</th>
-                        </tr>
-
-                        <tr>
-                            <td>Pokémon Crystal Walkthroughs</td>
-                            <td>458</td>
-                            <td>7,192</td>
-                        </tr>
-
-                        <tr>
-                            <td>Trading Card Game</td>
-                            <td>382</td>
-                            <td>5,020</td>
-                        </tr>
-
-                        <tr>
-                            <td>Anime Discussion</td>
-                            <td>911</td>
-                            <td>12,830</td>
-                        </tr>
-
-                        <tr>
-                            <td>Legendary Pokémon Rumors</td>
-                            <td>198</td>
-                            <td>3,117</td>
-                        </tr>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-            <div class="news-box">
-
-                <div class="news-header">
-                    Anime Screenshot Gallery
-                </div>
-
-                <div class="news-content">
-
-                    <img src="https://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season01/season01_ep01_ss02.jpg" width="48%">
-
-                    <img src="https://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season01/season01_ep01_ss03.jpg" width="48%">
-
-                    <br><br>
-
-                    <img src="https://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season01/season01_ep01_ss04.jpg" width="48%">
-
-                    <img src="https://assets.pokemon.com/assets/cms2/img/watch-pokemon-tv/seasons/season01/season01_ep01_ss05.jpg" width="48%">
-
-                </div>
-
-            </div>
-
-        </div>
-
+    <div class="panel">
+      <strong>Patrol Notes / Activity Log</strong>
+      <textarea id="notes" placeholder="Example: Checked north gate, vehicle row, stairwell, loading dock..."></textarea>
     </div>
 
-    <div class="footer">
-
-        © 2001 Pokémon Trainer Network<br><br>
-
-        Pokémon © Nintendo / Game Freak / Creatures Inc.<br><br>
-
-        This is a fan-made retro tribute website inspired by early 2000s Pokémon fan portals.
-
+    <div class="panel">
+      <strong>Photo Evidence / Checked Items</strong>
+      <div class="photo-grid" id="photoGrid"></div>
     </div>
 
-</div>
+    <div class="panel">
+      <strong>Checkpoints</strong>
+      <div class="checkpoint-list" id="checkpointList">No checkpoints marked.</div>
+    </div>
 
+    <div class="footer-note">
+      Screenshot this full screen for patrol submission. GPS accuracy depends on phone signal, sky view, device hardware, and browser permissions.
+    </div>
+
+  </div>
+
+  <script>
+    let map;
+    let watchId = null;
+    let patrolActive = false;
+    let breadcrumbPoints = [];
+    let breadcrumbLine = null;
+    let currentMarker = null;
+    let accuracyCircle = null;
+    let checkpoints = [];
+
+    function formatTime(date = new Date()) {
+      return date.toLocaleString([], {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      });
+    }
+
+    function initMap() {
+      map = L.map("map").setView([33.4484, -112.0740], 16);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 22,
+        attribution: "© OpenStreetMap"
+      }).addTo(map);
+
+      breadcrumbLine = L.polyline([], {
+        weight: 5
+      }).addTo(map);
+    }
+
+    function startPatrol() {
+      if (!navigator.geolocation) {
+        alert("GPS is not supported on this device/browser.");
+        return;
+      }
+
+      patrolActive = true;
+      breadcrumbPoints = [];
+      checkpoints = [];
+
+      document.getElementById("startTime").textContent = formatTime();
+      document.getElementById("endTime").textContent = "In progress";
+      document.getElementById("checkpointList").textContent = "No checkpoints marked.";
+      document.getElementById("gpsStatus").textContent = "GPS tracking active...";
+
+      if (breadcrumbLine) breadcrumbLine.setLatLngs([]);
+
+      watchId = navigator.geolocation.watchPosition(
+        updatePosition,
+        gpsError,
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 10000
+        }
+      );
+    }
+
+    function endPatrol() {
+      patrolActive = false;
+      document.getElementById("endTime").textContent = formatTime();
+      document.getElementById("gpsStatus").textContent = "Patrol ended.";
+
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+      }
+    }
+
+    function updatePosition(position) {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+      const speed = position.coords.speed;
+
+      const point = [lat, lng];
+
+      document.getElementById("coords").textContent =
+        lat.toFixed(6) + ", " + lng.toFixed(6);
+
+      document.getElementById("accuracy").textContent =
+        "± " + Math.round(accuracy) + " meters";
+
+      document.getElementById("speed").textContent =
+        speed !== null ? (speed * 2.23694).toFixed(1) + " mph" : "0 mph";
+
+      if (patrolActive) {
+        breadcrumbPoints.push(point);
+        breadcrumbLine.setLatLngs(breadcrumbPoints);
+        document.getElementById("pointCount").textContent = breadcrumbPoints.length;
+      }
+
+      if (!currentMarker) {
+        currentMarker = L.marker(point).addTo(map).bindPopup("Current Location");
+      } else {
+        currentMarker.setLatLng(point);
+      }
+
+      if (!accuracyCircle) {
+        accuracyCircle = L.circle(point, {
+          radius: accuracy,
+          weight: 1,
+          fillOpacity: 0.12
+        }).addTo(map);
+      } else {
+        accuracyCircle.setLatLng(point);
+        accuracyCircle.setRadius(accuracy);
+      }
+
+      map.setView(point, 18);
+    }
+
+    function gpsError(error) {
+      let msg = "GPS error.";
+
+      if (error.code === 1) msg = "GPS permission denied.";
+      if (error.code === 2) msg = "GPS position unavailable.";
+      if (error.code === 3) msg = "GPS request timed out.";
+
+      document.getElementById("gpsStatus").textContent = msg;
+      alert(msg);
+    }
+
+    function addCheckpoint() {
+      if (!currentMarker) {
+        alert("No GPS location available yet.");
+        return;
+      }
+
+      const location = currentMarker.getLatLng();
+      const time = formatTime();
+
+      checkpoints.push({
+        time,
+        lat: location.lat,
+        lng: location.lng
+      });
+
+      L.marker([location.lat, location.lng])
+        .addTo(map)
+        .bindPopup("Checkpoint<br>" + time);
+
+      renderCheckpoints();
+    }
+
+    function renderCheckpoints() {
+      const box = document.getElementById("checkpointList");
+
+      if (checkpoints.length === 0) {
+        box.textContent = "No checkpoints marked.";
+        return;
+      }
+
+      box.innerHTML = checkpoints.map((c, i) => `
+        <div>
+          <strong>#${i + 1}</strong> — ${c.time}<br>
+          ${c.lat.toFixed(6)}, ${c.lng.toFixed(6)}
+        </div><br>
+      `).join("");
+    }
+
+    function buildPhotoSlots() {
+      const grid = document.getElementById("photoGrid");
+
+      for (let i = 1; i <= 6; i++) {
+        const box = document.createElement("div");
+        box.className = "photo-box";
+
+        box.innerHTML = `
+          <strong>Photo ${i}</strong>
+          <input type="file" accept="image/*" capture="environment" onchange="previewPhoto(event, ${i})">
+          <img id="photo${i}" style="display:none;" />
+        `;
+
+        grid.appendChild(box);
+      }
+    }
+
+    function previewPhoto(event, number) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        const img = document.getElementById("photo" + number);
+        img.src = e.target.result;
+        img.style.display = "block";
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    function takeScreenshot() {
+      html2canvas(document.getElementById("captureArea"), {
+        useCORS: true,
+        scale: 2
+      }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "patrol-report.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
+    }
+
+    initMap();
+    buildPhotoSlots();
+  </script>
 </body>
 </html>
