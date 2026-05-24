@@ -87,6 +87,7 @@ button {
 
 #focusDot {
   position: fixed;
+  display: none;
   width: 18px;
   height: 18px;
   border-radius: 50%;
@@ -100,11 +101,12 @@ button {
 
 #player {
   position: fixed;
+  display: none;
   width: 34px;
   height: 34px;
   border-radius: 50%;
   background: cyan;
-  box-shadow: 0 0 20px cyan;
+  box-shadow: 0 0 16px cyan;
   z-index: 12;
   left: 50%;
   top: 75%;
@@ -148,6 +150,7 @@ const ui = document.getElementById("ui");
 const hud = document.getElementById("hud");
 const message = document.getElementById("message");
 const playerEl = document.getElementById("player");
+const focusDot = document.getElementById("focusDot");
 
 let W, H;
 let running = false;
@@ -166,51 +169,70 @@ let gainNode;
 function resize() {
   W = innerWidth;
   H = innerHeight;
+
   bg.width = game.width = W * devicePixelRatio;
   bg.height = game.height = H * devicePixelRatio;
+
   bctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
   gctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
 
-  player.x = W / 2;
-  player.y = H * .75;
-  target.x = player.x;
-  target.y = player.y;
+  if (!running) {
+    player.x = W / 2;
+    player.y = H * .75;
+    target.x = player.x;
+    target.y = player.y;
+  }
 }
+
 resize();
 addEventListener("resize", resize);
 
 function startAudio() {
-  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-  oscillator = audioCtx.createOscillator();
-  gainNode = audioCtx.createGain();
+    oscillator = audioCtx.createOscillator();
+    gainNode = audioCtx.createGain();
 
-  oscillator.type = "sine";
-  oscillator.frequency.value = 96;
+    oscillator.type = "sine";
+    oscillator.frequency.value = 88;
+    gainNode.gain.value = 0.035;
 
-  gainNode.gain.value = 0.045;
-
-  oscillator.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-  oscillator.start();
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    oscillator.start();
+  } catch (e) {
+    audioCtx = null;
+  }
 }
 
 function pulseAudio() {
-  if (!audioCtx) return;
+  if (!audioCtx || !oscillator || !gainNode) return;
+
   let now = audioCtx.currentTime;
-  oscillator.frequency.setTargetAtTime(80 + depth * 8, now, .25);
-  gainNode.gain.setTargetAtTime(0.035 + depth * .004, now, .4);
+  oscillator.frequency.setTargetAtTime(80 + depth * 6, now, .35);
+  gainNode.gain.setTargetAtTime(0.025 + depth * .003, now, .5);
 }
 
 function startGame() {
   ui.style.display = "none";
   hud.style.display = "flex";
+  focusDot.style.display = "block";
+  playerEl.style.display = "block";
+
   running = true;
+  t = 0;
   score = 0;
   depth = 1;
   enemies = [];
+
+  player.x = W / 2;
+  player.y = H * .75;
+  target.x = player.x;
+  target.y = player.y;
+
   startAudio();
-  loop();
+  requestAnimationFrame(loop);
 }
 
 function drawHypnoBackground() {
@@ -219,41 +241,30 @@ function drawHypnoBackground() {
   const cx = W / 2;
   const cy = H / 2;
   const max = Math.sqrt(W * W + H * H);
-  const rings = 85;
+  const rings = 32;
 
   bctx.save();
   bctx.translate(cx, cy);
-  bctx.rotate(t * 0.002 * depth);
+  bctx.rotate(t * 0.0018 * depth);
 
   for (let i = rings; i > 0; i--) {
     let radius = (i / rings) * max;
-    let wave = Math.sin(i * .55 + t * .035) * 18 * depth;
-    let alpha = .08 + (i % 2) * .22;
+    let wave = Math.sin(i * .55 + t * .03) * 10 * depth;
+    let alpha = .07 + (i % 2) * .16;
 
     bctx.beginPath();
     bctx.arc(0, 0, radius + wave, 0, Math.PI * 2);
-    bctx.strokeStyle = `rgba(${80 + depth * 25}, ${180}, ${255}, ${alpha})`;
-    bctx.lineWidth = 7 + depth * .6;
+    bctx.strokeStyle = `rgba(${80 + depth * 20}, 180, 255, ${alpha})`;
+    bctx.lineWidth = 2 + depth * .18;
     bctx.stroke();
-  }
-
-  for (let a = 0; a < Math.PI * 8; a += .12) {
-    let r = a * 34;
-    let x = Math.cos(a + t * .025) * r;
-    let y = Math.sin(a + t * .025) * r;
-
-    bctx.fillStyle = `rgba(255,255,255,${.12 + Math.sin(t*.02+a)*.06})`;
-    bctx.beginPath();
-    bctx.arc(x, y, 3 + depth * .25, 0, Math.PI * 2);
-    bctx.fill();
   }
 
   bctx.restore();
 
-  let grad = bctx.createRadialGradient(cx, cy, 10, cx, cy, max * .65);
-  grad.addColorStop(0, "rgba(255,255,255,.08)");
-  grad.addColorStop(.25, "rgba(0,0,0,.05)");
-  grad.addColorStop(1, "rgba(0,0,0,.8)");
+  let grad = bctx.createRadialGradient(cx, cy, 10, cx, cy, max * .7);
+  grad.addColorStop(0, "rgba(255,255,255,.07)");
+  grad.addColorStop(.35, "rgba(0,0,0,.08)");
+  grad.addColorStop(1, "rgba(0,0,0,.82)");
   bctx.fillStyle = grad;
   bctx.fillRect(0, 0, W, H);
 }
@@ -262,9 +273,8 @@ function spawnEnemy() {
   enemies.push({
     x: Math.random() * W,
     y: -30,
-    r: 14 + Math.random() * 18,
-    speed: 1.6 + Math.random() * depth,
-    sway: Math.random() * 10,
+    r: 14 + Math.random() * 16,
+    speed: 1.4 + Math.random() * depth,
     phase: Math.random() * 100
   });
 }
@@ -274,15 +284,12 @@ function drawGame() {
 
   for (let e of enemies) {
     e.y += e.speed;
-    e.x += Math.sin(t * .02 + e.phase) * .45 * depth;
+    e.x += Math.sin(t * .02 + e.phase) * .35 * depth;
 
     gctx.beginPath();
     gctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
-    gctx.fillStyle = "rgba(255,70,120,.8)";
-    gctx.shadowBlur = 20;
-    gctx.shadowColor = "red";
+    gctx.fillStyle = "rgba(255,70,120,.82)";
     gctx.fill();
-    gctx.shadowBlur = 0;
 
     let dx = player.x - e.x;
     let dy = player.y - e.y;
@@ -290,6 +297,7 @@ function drawGame() {
 
     if (dist < player.r + e.r) {
       endGame();
+      return;
     }
   }
 
@@ -297,8 +305,8 @@ function drawGame() {
 }
 
 function updatePlayer() {
-  player.x += (target.x - player.x) * .065;
-  player.y += (target.y - player.y) * .065;
+  player.x += (target.x - player.x) * .08;
+  player.y += (target.y - player.y) * .08;
 
   playerEl.style.left = player.x + "px";
   playerEl.style.top = player.y + "px";
@@ -314,9 +322,7 @@ function updateText() {
     "Stay locked in."
   ];
 
-  if (Math.floor(t / 210) % 2 === 0) {
-    message.innerText = lines[Math.floor(t / 210) % lines.length];
-  }
+  message.innerText = lines[Math.floor(t / 210) % lines.length];
 }
 
 function updateScore() {
@@ -326,18 +332,25 @@ function updateScore() {
   document.getElementById("focusScore").innerText = score;
   document.getElementById("depth").innerText = depth;
 
-  pulseAudio();
+  if (score % 120 === 0) {
+    pulseAudio();
+  }
 }
 
 function endGame() {
   running = false;
 
-  if (audioCtx) {
+  focusDot.style.display = "none";
+  playerEl.style.display = "none";
+  message.innerText = "";
+
+  if (audioCtx && gainNode) {
     gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, .2);
   }
 
   ui.style.display = "flex";
   hud.style.display = "none";
+
   ui.innerHTML = `
     <h1>SESSION COMPLETE</h1>
     <p>Focus Score: ${score}</p>
@@ -357,7 +370,7 @@ function loop() {
   updateText();
   updateScore();
 
-  if (t % Math.max(18, 55 - depth * 4) === 0) {
+  if (t % Math.max(22, 60 - depth * 4) === 0) {
     spawnEnemy();
   }
 
@@ -365,17 +378,25 @@ function loop() {
 }
 
 function handleMove(x, y) {
-  target.x = x;
-  target.y = y;
+  target.x = Math.max(20, Math.min(W - 20, x));
+  target.y = Math.max(20, Math.min(H - 20, y));
 }
 
 addEventListener("touchmove", e => {
   e.preventDefault();
+  if (!running) return;
+  const touch = e.touches[0];
+  handleMove(touch.clientX, touch.clientY);
+}, { passive: false });
+
+addEventListener("touchstart", e => {
+  if (!running) return;
   const touch = e.touches[0];
   handleMove(touch.clientX, touch.clientY);
 }, { passive: false });
 
 addEventListener("mousemove", e => {
+  if (!running) return;
   handleMove(e.clientX, e.clientY);
 });
 </script>
