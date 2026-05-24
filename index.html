@@ -1,401 +1,680 @@
-Here’s a single-file 1990s-style DBZ store site. Save as dbz-90s-site.html. Put a MIDI file next to it named dbz-theme.mid if you have one. Browsers may block autoplay.
+Copy this into index.html and run it in your browser.
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>The Dragon Ball Z Store - Microsoft Internet Explorer</title>
-<style>
-body {
-  margin: 0;
-  background: #b8c0d0;
-  font-family: Arial, Helvetica, sans-serif;
-  color: #111;
-  font-size: 14px;
-}
-.browser {
-  width: 1000px;
-  margin: 20px auto;
-  border: 3px ridge #d0d0d0;
-  background: #c8c8d8;
-  box-shadow: 0 0 12px #333;
-}
-.titlebar {
-  background: linear-gradient(to right, #334b7a, #d5d8e8);
-  color: white;
-  padding: 4px 8px;
-  font-weight: bold;
-  font-size: 14px;
-}
-.toolbar, .addressbar {
-  background: #d6d6e2;
-  border-bottom: 2px groove #eee;
-  padding: 6px;
-}
-.toolbar button {
-  margin-right: 8px;
-  padding: 4px 10px;
-  border: 2px outset #eee;
-  background: #ddd;
-  font-weight: bold;
-}
-.addressbar input {
-  width: 780px;
-  padding: 3px;
-  border: 2px inset #eee;
-  font-family: monospace;
-}
-.page {
-  width: 960px;
-  height: 700px;
-  overflow-y: scroll;
-  background: #c3cad8;
-  margin: 0 auto;
-  padding: 18px;
-}
-.site {
-  width: 760px;
-  margin-left: 20px;
-}
-.header {
-  background: white;
-  border: 1px solid #999;
-  text-align: center;
-}
-.logo {
-  height: 105px;
-  background:
-    linear-gradient(90deg, #fff 0%, #fff4b0 30%, #fff 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.logo span {
-  font-size: 52px;
-  font-weight: 900;
-  color: #f7d800;
-  text-shadow:
-    3px 3px 0 #e21b23,
-    5px 5px 0 #111;
-  transform: skew(-8deg);
-  letter-spacing: -3px;
-}
-.nav {
-  background: #050505;
-  color: white;
-  display: flex;
-  justify-content: space-around;
-  padding: 4px;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-.nav a {
-  color: white;
-  text-decoration: none;
-}
-.discount {
-  background: #081943;
-  color: white;
-  margin: 25px 0;
-  padding: 7px;
-  text-align: center;
-  font-size: 22px;
-  border-top: 2px solid #777;
-  border-bottom: 2px solid #777;
-}
-.layout {
-  display: grid;
-  grid-template-columns: 210px 1fr;
-  gap: 20px;
-}
-.sidebar {
-  background: #020202;
-  color: white;
-  padding: 12px;
-  min-height: 600px;
-}
-.sidebar h3 {
-  font-size: 13px;
-  margin: 16px 0 5px;
-  color: white;
-  font-style: italic;
-}
-.sidebar input {
-  width: 115px;
-  background: white;
-  border: 2px inset #ddd;
-}
-.sidebar button {
-  margin-left: 5px;
-  font-size: 11px;
-}
-.sidebar a {
-  color: white;
-  display: block;
-  font-size: 12px;
-  text-decoration: underline;
-}
-.cart {
-  background: #0648b8;
-  padding: 3px;
-  margin-top: 5px;
-}
-.content {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 20px;
-}
-.textbox {
-  font-size: 18px;
-  line-height: 1.35;
-  color: #222;
-}
-.notice {
-  background: #081943;
-  color: white;
-  margin-top: 20px;
-  padding: 10px;
-  border: 2px groove #ccc;
-  font-size: 15px;
-  font-weight: bold;
-}
-.panel {
-  border: 3px ridge #d8d8e8;
-  background: #000;
-}
-.panel-title {
-  background: #d9dce8;
-  color: #222;
-  text-align: center;
-  font-size: 26px;
-  padding: 8px;
-  border-bottom: 2px groove #aaa;
-}
-.release {
-  color: white;
-  padding: 18px;
-  text-align: center;
-  font-size: 17px;
-  font-weight: bold;
-}
-.covers {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-}
-.cover {
-  width: 105px;
-  height: 145px;
-  border: 3px solid #111;
-  background: #ffd800;
-  color: #e21b23;
-  font-weight: 900;
-  text-align: center;
-  box-shadow: 4px 4px 0 #333;
-  position: relative;
-}
-.cover.blue {
-  background: #32b7ff;
-}
-.cover .top {
-  background: white;
-  color: #111;
-  font-size: 14px;
-  padding: 5px;
-}
-.cover .art {
-  font-size: 40px;
-  margin-top: 22px;
-}
-.products {
-  margin-top: 25px;
-  background: #d6d6e8;
-  border: 2px ridge #eee;
-  padding: 12px;
-}
-.product {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 18px;
-  border-bottom: 1px solid #888;
-  padding-bottom: 12px;
-}
-.thumb {
-  width: 85px;
-  height: 85px;
-  background: radial-gradient(circle, #ffef00, #ff7b00);
-  border: 2px solid #333;
-  text-align: center;
-  line-height: 85px;
-  font-size: 36px;
-  font-weight: bold;
-}
-.buy {
-  background: #081943;
-  color: white;
-  border: 2px outset #ccc;
-  padding: 4px 10px;
-  cursor: pointer;
-}
-.marquee {
-  color: yellow;
-  background: black;
-  padding: 5px;
-  font-weight: bold;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Puente Security Group | Report Writing System</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    body {
+      margin: 0;
+      background: #0b111c;
+      color: #e5e7eb;
+    }
+    .topbar {
+      background: #020617;
+      border-bottom: 2px solid #2563eb;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand {
+      font-size: 22px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      color: #93c5fd;
+    }
+    .status {
+      font-size: 13px;
+      color: #9ca3af;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: calc(100vh - 58px);
+    }
+    .sidebar {
+      background: #111827;
+      border-right: 1px solid #374151;
+      padding: 18px;
+    }
+    .sidebar h3 {
+      margin-top: 0;
+      color: #93c5fd;
+      font-size: 15px;
+      border-bottom: 1px solid #374151;
+      padding-bottom: 8px;
+    }
+    .sidebar button {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 11px;
+      border: none;
+      background: #1d4ed8;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .sidebar button:hover {
+      background: #2563eb;
+    }
+    .main {
+      padding: 20px;
+    }
+    .cad-header {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: #111827;
+      border: 1px solid #374151;
+      border-radius: 6px;
+      padding: 14px;
+    }
+    .card-title {
+      color: #93c5fd;
+      font-size: 14px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      border-bottom: 1px solid #374151;
+      padding-bottom: 6px;
+    }
+    label {
+      font-size: 12px;
+      color: #cbd5e1;
+      display: block;
+      margin-bottom: 5px;
+      margin-top: 10px;
+    }
+    input, select, textarea {
+      width: 100%;
+      background: #020617;
+      color: #e5e7eb;
+      border: 1px solid #475569;
+      border-radius: 4px;
+      padding: 9px;
+      font-size: 14px;
+    }
+    textarea {
+      min-height: 160px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .section {
+      margin-bottom: 18px;
+    }
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 11px 16px;
+      border: none;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+    .btn-green {
+      background: #047857;
+      color: white;
+    }
+    .btn-red {
+      background: #991b1b;
+      color: white;
+    }
+    .btn-gray {
+      background: #374151;
+      color: white;
+    }
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .checkbox-item {
+      background: #020617;
+      border: 1px solid #374151;
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .checkbox-item input {
+      width: auto;
+      margin-right: 6px;
+    }
+    .person-entry, .vehicle-entry {
+      border: 1px solid #374151;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 5px;
+      background: #0f172a;
+    }
+    #reportPreview {
+      display: none;
+      background: white;
+      color: black;
+      padding: 35px;
+      width: 8.5in;
+      min-height: 11in;
+    }
+    .pdf-header {
+      text-align: center;
+      border-bottom: 3px solid black;
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+    .pdf-header h1 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: 1px;
+    }
+    .pdf-header h2 {
+      margin: 6px 0 0 0;
+      font-size: 18px;
+    }
+    .pdf-section {
+      margin-bottom: 18px;
+      page-break-inside: avoid;
+    }
+    .pdf-section h3 {
+      background: #e5e7eb;
+      padding: 7px;
+      font-size: 14px;
+      border: 1px solid #111;
+      margin-bottom: 8px;
+    }
+    .pdf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 18px;
+      font-size: 12px;
+    }
+    .pdf-text {
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    .signature-line {
+      margin-top: 35px;
+      border-top: 1px solid black;
+      width: 260px;
+      font-size: 11px;
+      padding-top: 5px;
+    }
+    @media print {
+      body {
+        background: white;
+      }
+    }
+  </style>
 </head>
 <body>
-<!-- Optional MIDI background music.
-     Put a legal MIDI file named dbz-theme.mid in the same folder. -->
-<audio autoplay loop>
-  <source src="dbz-theme.mid" type="audio/midi">
-</audio>
-<div class="browser">
-  <div class="titlebar">The Funimation Store - Microsoft Internet Explorer</div>
-  <div class="toolbar">
-    <button>Back</button>
-    <button>Forward</button>
-    <button>Stop</button>
-    <button>Refresh</button>
-    <button>Home</button>
-    <button>Search</button>
-    <button>Favorites</button>
-    <button>History</button>
-    <button>Mail</button>
-    <button>Print</button>
+  <div class="topbar">
+    <div class="brand">PUENTE SECURITY GROUP | REPORT WRITING SYSTEM</div>
+    <div class="status" id="liveClock">SYSTEM ACTIVE</div>
   </div>
-  <div class="addressbar">
-    Address:
-    <input value="http://www.dbzstore.com/" readonly>
-    <button>Go</button>
-  </div>
-  <div class="page">
-    <div class="site">
-      <div class="header">
-        <div class="logo">
-          <span>DRAGON BALL Z</span>
+  <div class="layout">
+    <aside class="sidebar">
+      <h3>REPORT COMMANDS</h3>
+      <button onclick="generateReportNumber()">New Report #</button>
+      <button onclick="saveDraft()">Save Draft</button>
+      <button onclick="loadDraft()">Load Draft</button>
+      <button onclick="clearForm()">Clear Report</button>
+      <button onclick="generatePDF()">Generate PDF</button>
+      <h3>REPORT STATUS</h3>
+      <p><strong>System:</strong> Local Browser</p>
+      <p><strong>PDF Engine:</strong> HTML2PDF.js</p>
+      <p><strong>Storage:</strong> LocalStorage</p>
+    </aside>
+    <main class="main">
+      <div class="cad-header">
+        <div class="card">
+          <div class="card-title">Report Number</div>
+          <input id="reportNumber" readonly />
         </div>
-        <div class="nav">
-          <a href="#">Advanced Search</a>
-          <a href="#">Shopping Cart</a>
-          <a href="#">Checkout</a>
-          <a href="#">Home</a>
+        <div class="card">
+          <div class="card-title">Priority</div>
+          <select id="priority">
+            <option>Low</option>
+            <option>Medium</option>
+            <option>High</option>
+            <option>Emergency</option>
+          </select>
+        </div>
+        <div class="card">
+          <div class="card-title">Status</div>
+          <select id="caseStatus">
+            <option>Open</option>
+            <option>Closed</option>
+            <option>Pending Review</option>
+            <option>Referred to Law Enforcement</option>
+          </select>
+        </div>
+        <div class="card">
+          <div class="card-title">Incident Type</div>
+          <select id="incidentType">
+            <option>General Incident</option>
+            <option>Trespassing</option>
+            <option>Disturbance</option>
+            <option>Theft</option>
+            <option>Assault</option>
+            <option>Medical</option>
+            <option>Property Damage</option>
+            <option>Suspicious Activity</option>
+            <option>Vehicle Incident</option>
+            <option>Use of Force</option>
+            <option>Other</option>
+          </select>
         </div>
       </div>
-      <div class="discount">
-        DBZ Year 2000 Calendar 40% off!
+      <div class="section card">
+        <div class="card-title">Incident Information</div>
+        <div class="grid-4">
+          <div>
+            <label>Date</label>
+            <input type="date" id="incidentDate" />
+          </div>
+          <div>
+            <label>Time</label>
+            <input type="time" id="incidentTime" />
+          </div>
+          <div>
+            <label>Location</label>
+            <input id="location" placeholder="Property / address / post location" />
+          </div>
+          <div>
+            <label>Client / Site</label>
+            <input id="clientSite" placeholder="Client or site name" />
+          </div>
+        </div>
       </div>
-      <div class="layout">
-        <div class="sidebar">
-          <h3>SEARCH</h3>
-          <input type="text">
-          <button onclick="alert('Searching the DBZ Store...')">GO!</button>
-          <h3>YOUR CART</h3>
-          <div class="cart">Empty</div>
-          <h3>NEW ITEMS</h3>
-          <a href="#">Capsule Figures</a>
-          <h3>VIDEOS - DVDS</h3>
-          <a href="#">New Releases</a>
-          <a href="#">VHS Box Sets</a>
-          <a href="#">DVD Box Sets</a>
-          <a href="#">Movie Specials</a>
-          <a href="#">Trailers</a>
-          <h3>CLOTHING</h3>
-          <a href="#">Adult T-Shirts</a>
-          <a href="#">Youth T-Shirts</a>
-          <a href="#">Caps / Hats</a>
-          <a href="#">Sweatshirts</a>
-          <a href="#">Bandanas</a>
-          <h3>SPECIALS</h3>
-          <a href="#">Action Figures</a>
-          <a href="#">Wall Scrolls</a>
-          <a href="#">Posters</a>
-          <a href="#">Calendars</a>
-        </div>
-        <div>
-          <div class="content">
-            <div>
-              <div class="textbox">
-                Here you will be able to search for products, track your packages,
-                and order online with no hassles!
-                <br><br>
-                This store does not allow back-ordering, so if you see the product
-                online, we have it in stock.
-              </div>
-              <div class="notice">
-                IMPORTANT — If you have trouble registering due to the message
-                “this e-mail assigned to another account,” please contact customer service.
-              </div>
-            </div>
-            <div class="panel">
-              <div class="panel-title">NEW VIDEO RELEASES!</div>
-              <div class="release">
-                Trunks: Mysterious Youth and Trunks: Prelude to Terror are now available.
-                <div class="covers">
-                  <div class="cover blue">
-                    <div class="top">DRAGON BALL Z</div>
-                    <div class="art">⚡</div>
-                    TRUNKS
-                  </div>
-                  <div class="cover">
-                    <div class="top">DRAGON BALL Z</div>
-                    <div class="art">🔥</div>
-                    PRELUDE
-                  </div>
-                </div>
-              </div>
-            </div>
+      <div class="section card">
+        <div class="card-title">Reporting Officer</div>
+        <div class="grid-4">
+          <div>
+            <label>Officer Name</label>
+            <input id="officerName" />
           </div>
-          <div class="products">
-            <div class="marquee">
-              <marquee behavior="scroll" direction="left">
-                WELCOME TO THE DRAGON BALL Z STORE — NEW VHS, DVDS, SHIRTS, POSTERS, AND ACTION FIGURES!
-              </marquee>
-            </div>
-            <h2>Featured DBZ Items</h2>
-            <div class="product">
-              <div class="thumb">Z</div>
-              <div>
-                <b>Super Saiyan Goku Action Figure</b><br>
-                Fully poseable collector figure.<br>
-                <b>$12.99</b><br>
-                <button class="buy" onclick="addCart('Super Saiyan Goku Action Figure')">Add To Cart</button>
-              </div>
-            </div>
-            <div class="product">
-              <div class="thumb">★</div>
-              <div>
-                <b>Dragon Ball Z Wall Scroll</b><br>
-                Classic anime wall decoration.<br>
-                <b>$9.99</b><br>
-                <button class="buy" onclick="addCart('Dragon Ball Z Wall Scroll')">Add To Cart</button>
-              </div>
-            </div>
-            <div class="product">
-              <div class="thumb">📼</div>
-              <div>
-                <b>Trunks Saga VHS Tape</b><br>
-                Old-school video release.<br>
-                <b>$14.95</b><br>
-                <button class="buy" onclick="addCart('Trunks Saga VHS Tape')">Add To Cart</button>
-              </div>
-            </div>
+          <div>
+            <label>Badge / Employee ID</label>
+            <input id="badgeId" />
+          </div>
+          <div>
+            <label>Shift</label>
+            <select id="shift">
+              <option>Day Shift</option>
+              <option>Swing Shift</option>
+              <option>Night Shift</option>
+              <option>Special Assignment</option>
+            </select>
+          </div>
+          <div>
+            <label>Supervisor</label>
+            <input id="supervisor" />
           </div>
         </div>
+      </div>
+      <div class="section card">
+        <div class="card-title">Persons Involved</div>
+        <div id="personsContainer"></div>
+        <div class="btn-row">
+          <button class="btn btn-gray" onclick="addPerson()">Add Person</button>
+        </div>
+      </div>
+      <div class="section card">
+        <div class="card-title">Vehicles</div>
+        <div id="vehiclesContainer"></div>
+        <div class="btn-row">
+          <button class="btn btn-gray" onclick="addVehicle()">Add Vehicle</button>
+        </div>
+      </div>
+      <div class="section card">
+        <div class="card-title">Narrative</div>
+        <label>Detailed Incident Narrative</label>
+        <textarea id="narrative" spellcheck="true" placeholder="Write the report narrative here. Include who, what, when, where, why, how, actions taken, and final disposition."></textarea>
+      </div>
+      <div class="section card">
+        <div class="card-title">Actions Taken</div>
+        <div class="checkbox-grid">
+          <label class="checkbox-item"><input type="checkbox" value="Verbal warning issued"> Verbal warning issued</label>
+          <label class="checkbox-item"><input type="checkbox" value="Subject removed from property"> Subject removed from property</label>
+          <label class="checkbox-item"><input type="checkbox" value="Trespass notice issued"> Trespass notice issued</label>
+          <label class="checkbox-item"><input type="checkbox" value="Law enforcement notified"> Law enforcement notified</label>
+          <label class="checkbox-item"><input type="checkbox" value="Medical assistance requested"> Medical assistance requested</label>
+          <label class="checkbox-item"><input type="checkbox" value="Client notified"> Client notified</label>
+          <label class="checkbox-item"><input type="checkbox" value="Supervisor notified"> Supervisor notified</label>
+          <label class="checkbox-item"><input type="checkbox" value="Photos taken"> Photos taken</label>
+          <label class="checkbox-item"><input type="checkbox" value="Report completed"> Report completed</label>
+        </div>
+        <label>Additional Actions</label>
+        <textarea id="additionalActions"></textarea>
+      </div>
+      <div class="section card">
+        <div class="card-title">Evidence / Property</div>
+        <label>Evidence / Property Description</label>
+        <textarea id="evidence"></textarea>
+      </div>
+      <div class="section card">
+        <div class="card-title">Supervisor Review</div>
+        <label>Supervisor Notes</label>
+        <textarea id="supervisorNotes"></textarea>
+        <div class="grid-2">
+          <div>
+            <label>Reviewed By</label>
+            <input id="reviewedBy" />
+          </div>
+          <div>
+            <label>Review Date</label>
+            <input type="date" id="reviewDate" />
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div id="reportPreview">
+    <div class="pdf-header">
+      <h1>PUENTE SECURITY GROUP</h1>
+      <h2>INCIDENT REPORT</h2>
+      <p>Professional Security Report</p>
+    </div>
+    <div class="pdf-section">
+      <h3>Report Information</h3>
+      <div class="pdf-grid">
+        <div><strong>Report Number:</strong> <span id="pdfReportNumber"></span></div>
+        <div><strong>Incident Type:</strong> <span id="pdfIncidentType"></span></div>
+        <div><strong>Priority:</strong> <span id="pdfPriority"></span></div>
+        <div><strong>Status:</strong> <span id="pdfCaseStatus"></span></div>
+        <div><strong>Date:</strong> <span id="pdfIncidentDate"></span></div>
+        <div><strong>Time:</strong> <span id="pdfIncidentTime"></span></div>
+        <div><strong>Location:</strong> <span id="pdfLocation"></span></div>
+        <div><strong>Client / Site:</strong> <span id="pdfClientSite"></span></div>
       </div>
     </div>
+    <div class="pdf-section">
+      <h3>Reporting Officer</h3>
+      <div class="pdf-grid">
+        <div><strong>Officer:</strong> <span id="pdfOfficerName"></span></div>
+        <div><strong>Badge / Employee ID:</strong> <span id="pdfBadgeId"></span></div>
+        <div><strong>Shift:</strong> <span id="pdfShift"></span></div>
+        <div><strong>Supervisor:</strong> <span id="pdfSupervisor"></span></div>
+      </div>
+    </div>
+    <div class="pdf-section">
+      <h3>Persons Involved</h3>
+      <div class="pdf-text" id="pdfPersons"></div>
+    </div>
+    <div class="pdf-section">
+      <h3>Vehicles</h3>
+      <div class="pdf-text" id="pdfVehicles"></div>
+    </div>
+    <div class="pdf-section">
+      <h3>Narrative</h3>
+      <div class="pdf-text" id="pdfNarrative"></div>
+    </div>
+    <div class="pdf-section">
+      <h3>Actions Taken</h3>
+      <div class="pdf-text" id="pdfActions"></div>
+    </div>
+    <div class="pdf-section">
+      <h3>Evidence / Property</h3>
+      <div class="pdf-text" id="pdfEvidence"></div>
+    </div>
+    <div class="pdf-section">
+      <h3>Supervisor Review</h3>
+      <div class="pdf-text" id="pdfSupervisorNotes"></div>
+      <div class="pdf-grid">
+        <div><strong>Reviewed By:</strong> <span id="pdfReviewedBy"></span></div>
+        <div><strong>Review Date:</strong> <span id="pdfReviewDate"></span></div>
+      </div>
+    </div>
+    <div class="pdf-section">
+      <h3>Certification</h3>
+      <p class="pdf-text">
+        I certify that the above information is true and accurate to the best of my knowledge.
+      </p>
+      <div class="signature-line">Reporting Officer Signature / Date</div>
+      <div class="signature-line">Supervisor Signature / Date</div>
+    </div>
   </div>
-</div>
-<script>
-let cart = [];
-function addCart(item) {
-  cart.push(item);
-  document.querySelector(".cart").innerHTML = cart.length + " item(s)";
-  alert(item + " added to your cart!");
-}
-</script>
+  <script>
+    function updateClock() {
+      const now = new Date();
+      document.getElementById("liveClock").innerText =
+        "SYSTEM ACTIVE | " + now.toLocaleDateString() + " " + now.toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+    function generateReportNumber() {
+      const year = new Date().getFullYear();
+      const random = Math.floor(Math.random() * 999999).toString().padStart(6, "0");
+      document.getElementById("reportNumber").value = `PSG-${year}-${random}`;
+    }
+    function setCurrentDateTime() {
+      const now = new Date();
+      document.getElementById("incidentDate").value = now.toISOString().split("T")[0];
+      document.getElementById("incidentTime").value = now.toTimeString().slice(0, 5);
+    }
+    function addPerson() {
+      const container = document.getElementById("personsContainer");
+      const div = document.createElement("div");
+      div.className = "person-entry";
+      div.innerHTML = `
+        <div class="grid-4">
+          <div>
+            <label>Name</label>
+            <input class="personName">
+          </div>
+          <div>
+            <label>DOB</label>
+            <input class="personDob">
+          </div>
+          <div>
+            <label>Phone</label>
+            <input class="personPhone">
+          </div>
+          <div>
+            <label>Role</label>
+            <select class="personRole">
+              <option>Victim</option>
+              <option>Suspect</option>
+              <option>Witness</option>
+              <option>Complainant</option>
+              <option>Reporting Party</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <label>Address / Description</label>
+        <input class="personDescription">
+        <div class="btn-row">
+          <button class="btn btn-red" onclick="this.closest('.person-entry').remove()">Remove Person</button>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+    function addVehicle() {
+      const container = document.getElementById("vehiclesContainer");
+      const div = document.createElement("div");
+      div.className = "vehicle-entry";
+      div.innerHTML = `
+        <div class="grid-4">
+          <div>
+            <label>Year</label>
+            <input class="vehicleYear">
+          </div>
+          <div>
+            <label>Make</label>
+            <input class="vehicleMake">
+          </div>
+          <div>
+            <label>Model</label>
+            <input class="vehicleModel">
+          </div>
+          <div>
+            <label>Plate</label>
+            <input class="vehiclePlate">
+          </div>
+        </div>
+        <label>Vehicle Notes</label>
+        <input class="vehicleNotes">
+        <div class="btn-row">
+          <button class="btn btn-red" onclick="this.closest('.vehicle-entry').remove()">Remove Vehicle</button>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+    function getValue(id) {
+      return document.getElementById(id).value || "N/A";
+    }
+    function fillPdfPreview() {
+      document.getElementById("pdfReportNumber").innerText = getValue("reportNumber");
+      document.getElementById("pdfIncidentType").innerText = getValue("incidentType");
+      document.getElementById("pdfPriority").innerText = getValue("priority");
+      document.getElementById("pdfCaseStatus").innerText = getValue("caseStatus");
+      document.getElementById("pdfIncidentDate").innerText = getValue("incidentDate");
+      document.getElementById("pdfIncidentTime").innerText = getValue("incidentTime");
+      document.getElementById("pdfLocation").innerText = getValue("location");
+      document.getElementById("pdfClientSite").innerText = getValue("clientSite");
+      document.getElementById("pdfOfficerName").innerText = getValue("officerName");
+      document.getElementById("pdfBadgeId").innerText = getValue("badgeId");
+      document.getElementById("pdfShift").innerText = getValue("shift");
+      document.getElementById("pdfSupervisor").innerText = getValue("supervisor");
+      document.getElementById("pdfNarrative").innerText = getValue("narrative");
+      document.getElementById("pdfEvidence").innerText = getValue("evidence");
+      document.getElementById("pdfSupervisorNotes").innerText = getValue("supervisorNotes");
+      document.getElementById("pdfReviewedBy").innerText = getValue("reviewedBy");
+      document.getElementById("pdfReviewDate").innerText = getValue("reviewDate");
+      const persons = [...document.querySelectorAll(".person-entry")].map((entry, index) => {
+        return `Person ${index + 1}
+Name: ${entry.querySelector(".personName").value || "N/A"}
+DOB: ${entry.querySelector(".personDob").value || "N/A"}
+Phone: ${entry.querySelector(".personPhone").value || "N/A"}
+Role: ${entry.querySelector(".personRole").value || "N/A"}
+Description: ${entry.querySelector(".personDescription").value || "N/A"}`;
+      }).join("\n\n");
+      document.getElementById("pdfPersons").innerText = persons || "N/A";
+      const vehicles = [...document.querySelectorAll(".vehicle-entry")].map((entry, index) => {
+        return `Vehicle ${index + 1}
+Year: ${entry.querySelector(".vehicleYear").value || "N/A"}
+Make: ${entry.querySelector(".vehicleMake").value || "N/A"}
+Model: ${entry.querySelector(".vehicleModel").value || "N/A"}
+Plate: ${entry.querySelector(".vehiclePlate").value || "N/A"}
+Notes: ${entry.querySelector(".vehicleNotes").value || "N/A"}`;
+      }).join("\n\n");
+      document.getElementById("pdfVehicles").innerText = vehicles || "N/A";
+      const checkedActions = [...document.querySelectorAll(".checkbox-item input:checked")]
+        .map(box => "- " + box.value);
+      const additional = getValue("additionalActions");
+      document.getElementById("pdfActions").innerText =
+        checkedActions.join("\n") + "\n\nAdditional Actions:\n" + additional;
+    }
+    function generatePDF() {
+      fillPdfPreview();
+      const report = document.getElementById("reportPreview");
+      report.style.display = "block";
+      const fileName = `${getValue("reportNumber")}-Incident-Report.pdf`;
+      const options = {
+        margin: 0.4,
+        filename: fileName,
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: { scale: 2 },
+        jsPDF: {
+          unit: "in",
+          format: "letter",
+          orientation: "portrait"
+        }
+      };
+      html2pdf().set(options).from(report).save().then(() => {
+        report.style.display = "none";
+      });
+    }
+    function saveDraft() {
+      const data = {
+        reportNumber: getValue("reportNumber"),
+        priority: getValue("priority"),
+        caseStatus: getValue("caseStatus"),
+        incidentType: getValue("incidentType"),
+        incidentDate: getValue("incidentDate"),
+        incidentTime: getValue("incidentTime"),
+        location: getValue("location"),
+        clientSite: getValue("clientSite"),
+        officerName: getValue("officerName"),
+        badgeId: getValue("badgeId"),
+        shift: getValue("shift"),
+        supervisor: getValue("supervisor"),
+        narrative: getValue("narrative"),
+        additionalActions: getValue("additionalActions"),
+        evidence: getValue("evidence"),
+        supervisorNotes: getValue("supervisorNotes"),
+        reviewedBy: getValue("reviewedBy"),
+        reviewDate: getValue("reviewDate")
+      };
+      localStorage.setItem("psgReportDraft", JSON.stringify(data));
+      alert("Draft saved.");
+    }
+    function loadDraft() {
+      const data = JSON.parse(localStorage.getItem("psgReportDraft"));
+      if (!data) {
+        alert("No saved draft found.");
+        return;
+      }
+      Object.keys(data).forEach(key => {
+        if (document.getElementById(key)) {
+          document.getElementById(key).value = data[key];
+        }
+      });
+      alert("Draft loaded.");
+    }
+    function clearForm() {
+      if (!confirm("Clear the entire report?")) return;
+      document.querySelectorAll("input, textarea, select").forEach(field => {
+        if (field.type === "checkbox") {
+          field.checked = false;
+        } else {
+          field.value = "";
+        }
+      });
+      document.getElementById("personsContainer").innerHTML = "";
+      document.getElementById("vehiclesContainer").innerHTML = "";
+      generateReportNumber();
+      setCurrentDateTime();
+    }
+    generateReportNumber();
+    setCurrentDateTime();
+    addPerson();
+  </script>
 </body>
 </html>
