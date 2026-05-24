@@ -2,199 +2,382 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<title>8-Bit Fighter</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Hypno Focus Game</title>
 
 <style>
-    body {
-        margin: 0;
-        background: #87ceeb;
-        overflow: hidden;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #000;
+  font-family: Arial, sans-serif;
+  color: white;
+  height: 100%;
+  touch-action: none;
+}
 
-    canvas {
-        border: 4px solid black;
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
-        background: #87ceeb;
-    }
+canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+#ui {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 25px;
+  background: radial-gradient(circle, rgba(0,0,0,.35), rgba(0,0,0,.95));
+}
+
+h1 {
+  font-size: 34px;
+  margin-bottom: 10px;
+  letter-spacing: 2px;
+}
+
+p {
+  max-width: 420px;
+  line-height: 1.5;
+  opacity: .9;
+}
+
+button {
+  margin-top: 20px;
+  padding: 16px 28px;
+  font-size: 18px;
+  border: 0;
+  border-radius: 14px;
+  background: white;
+  color: black;
+  font-weight: bold;
+}
+
+#hud {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  z-index: 20;
+  display: none;
+  justify-content: space-between;
+  font-size: 15px;
+  opacity: .9;
+}
+
+#message {
+  position: fixed;
+  bottom: 55px;
+  left: 20px;
+  right: 20px;
+  z-index: 20;
+  text-align: center;
+  font-size: 22px;
+  font-weight: bold;
+  text-shadow: 0 0 14px black;
+  pointer-events: none;
+}
+
+#focusDot {
+  position: fixed;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 25px white;
+  z-index: 15;
+  left: calc(50% - 9px);
+  top: calc(50% - 9px);
+  pointer-events: none;
+}
+
+#player {
+  position: fixed;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: cyan;
+  box-shadow: 0 0 20px cyan;
+  z-index: 12;
+  left: 50%;
+  top: 75%;
+  transform: translate(-50%, -50%);
+}
 </style>
 </head>
 
 <body>
 
-<canvas id="gameCanvas" width="500" height="500"></canvas>
+<canvas id="bg"></canvas>
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div>Focus: <span id="focusScore">0</span></div>
+  <div>Depth: <span id="depth">1</span></div>
+</div>
+
+<div id="focusDot"></div>
+<div id="player"></div>
+<div id="message"></div>
+
+<div id="ui">
+  <h1>HYPNO FOCUS</h1>
+  <p>
+    Keep your eyes on the center. Move the blue orb slowly.
+    Dodge the falling shapes. The calmer and smoother you move,
+    the deeper the visual field becomes.
+  </p>
+  <button onclick="startGame()">Start</button>
+</div>
 
 <script>
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const bg = document.getElementById("bg");
+const bctx = bg.getContext("2d");
 
-// PIXEL SIZE
-const p = 8;
+const game = document.getElementById("game");
+const gctx = game.getContext("2d");
 
-// Animation Variables
-let blinkTimer = 0;
-let blink = false;
-let bobOffset = 0;
-let bobDirection = 1;
+const ui = document.getElementById("ui");
+const hud = document.getElementById("hud");
+const message = document.getElementById("message");
+const playerEl = document.getElementById("player");
 
-// Fighter Position
-const fighter = {
-    x: 180,
-    y: 140
-};
+let W, H;
+let running = false;
+let t = 0;
+let score = 0;
+let depth = 1;
 
-// Main Animation Loop
-function animate() {
+let player = { x: 0, y: 0, r: 17 };
+let target = { x: 0, y: 0 };
+let enemies = [];
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+let audioCtx;
+let oscillator;
+let gainNode;
 
-    // Bobbing movement
-    bobOffset += 0.2 * bobDirection;
+function resize() {
+  W = innerWidth;
+  H = innerHeight;
+  bg.width = game.width = W * devicePixelRatio;
+  bg.height = game.height = H * devicePixelRatio;
+  bctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  gctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
 
-    if (bobOffset > 4 || bobOffset < -4) {
-        bobDirection *= -1;
-    }
+  player.x = W / 2;
+  player.y = H * .75;
+  target.x = player.x;
+  target.y = player.y;
+}
+resize();
+addEventListener("resize", resize);
 
-    // Blinking
-    blinkTimer++;
+function startAudio() {
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    if (blinkTimer > 100) {
-        blink = true;
-    }
+  oscillator = audioCtx.createOscillator();
+  gainNode = audioCtx.createGain();
 
-    if (blinkTimer > 110) {
-        blink = false;
-        blinkTimer = 0;
-    }
+  oscillator.type = "sine";
+  oscillator.frequency.value = 96;
 
-    drawFighter(fighter.x, fighter.y + bobOffset);
+  gainNode.gain.value = 0.045;
 
-    requestAnimationFrame(animate);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  oscillator.start();
 }
 
-function pixel(x, y, color) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x * p, y * p, p, p);
+function pulseAudio() {
+  if (!audioCtx) return;
+  let now = audioCtx.currentTime;
+  oscillator.frequency.setTargetAtTime(80 + depth * 8, now, .25);
+  gainNode.gain.setTargetAtTime(0.035 + depth * .004, now, .4);
 }
 
-function drawFighter(offsetX, offsetY) {
-
-    const ox = offsetX / p;
-    const oy = offsetY / p;
-
-    // =========================
-    // HAIR
-    // =========================
-
-    const hair = "#111";
-
-    for(let y = 0; y < 8; y++) {
-        for(let x = 3; x < 11; x++) {
-            pixel(ox + x, oy + y, hair);
-        }
-    }
-
-    // Ponytail
-    for(let y = 2; y < 12; y++) {
-        pixel(ox + 1, oy + y, hair);
-        pixel(ox + 2, oy + y, hair);
-    }
-
-    // Red tie
-    pixel(ox + 2, oy + 2, "red");
-    pixel(ox + 3, oy + 2, "red");
-    pixel(ox + 2, oy + 3, "red");
-
-    // =========================
-    // FACE
-    // =========================
-
-    const skin = "#f2c7a5";
-
-    for(let y = 5; y < 11; y++) {
-        for(let x = 4; x < 10; x++) {
-            pixel(ox + x, oy + y, skin);
-        }
-    }
-
-    // Eyes
-    if (!blink) {
-        pixel(ox + 5, oy + 7, "black");
-        pixel(ox + 8, oy + 7, "black");
-    } else {
-        pixel(ox + 5, oy + 7, "#663300");
-        pixel(ox + 8, oy + 7, "#663300");
-    }
-
-    // =========================
-    // BODY
-    // =========================
-
-    const shirt = "#444";
-
-    for(let y = 11; y < 16; y++) {
-        for(let x = 4; x < 10; x++) {
-            pixel(ox + x, oy + y, shirt);
-        }
-    }
-
-    // Arms
-    for(let y = 11; y < 16; y++) {
-        pixel(ox + 3, oy + y, skin);
-        pixel(ox + 10, oy + y, skin);
-    }
-
-    // =========================
-    // PANTS
-    // =========================
-
-    const pants = "#0a7a21";
-
-    // Left leg
-    for(let y = 16; y < 26; y++) {
-        for(let x = 3; x < 6; x++) {
-            pixel(ox + x, oy + y, pants);
-        }
-    }
-
-    // Right leg
-    for(let y = 16; y < 26; y++) {
-        for(let x = 8; x < 11; x++) {
-            pixel(ox + x, oy + y, pants);
-        }
-    }
-
-    // Spread stance
-    pixel(ox + 2, oy + 23, pants);
-    pixel(ox + 11, oy + 23, pants);
-
-    // =========================
-    // BOOTS
-    // =========================
-
-    for(let x = 2; x < 6; x++) {
-        pixel(ox + x, oy + 26, "black");
-    }
-
-    for(let x = 8; x < 12; x++) {
-        pixel(ox + x, oy + 26, "black");
-    }
-
-    // =========================
-    // FLOOR SHADOW
-    // =========================
-
-    ctx.fillStyle = "rgba(0,0,0,0.25)";
-    ctx.fillRect(offsetX - 20, offsetY + 220, 120, 10);
+function startGame() {
+  ui.style.display = "none";
+  hud.style.display = "flex";
+  running = true;
+  score = 0;
+  depth = 1;
+  enemies = [];
+  startAudio();
+  loop();
 }
 
-animate();
+function drawHypnoBackground() {
+  bctx.clearRect(0, 0, W, H);
+
+  const cx = W / 2;
+  const cy = H / 2;
+  const max = Math.sqrt(W * W + H * H);
+  const rings = 85;
+
+  bctx.save();
+  bctx.translate(cx, cy);
+  bctx.rotate(t * 0.002 * depth);
+
+  for (let i = rings; i > 0; i--) {
+    let radius = (i / rings) * max;
+    let wave = Math.sin(i * .55 + t * .035) * 18 * depth;
+    let alpha = .08 + (i % 2) * .22;
+
+    bctx.beginPath();
+    bctx.arc(0, 0, radius + wave, 0, Math.PI * 2);
+    bctx.strokeStyle = `rgba(${80 + depth * 25}, ${180}, ${255}, ${alpha})`;
+    bctx.lineWidth = 7 + depth * .6;
+    bctx.stroke();
+  }
+
+  for (let a = 0; a < Math.PI * 8; a += .12) {
+    let r = a * 34;
+    let x = Math.cos(a + t * .025) * r;
+    let y = Math.sin(a + t * .025) * r;
+
+    bctx.fillStyle = `rgba(255,255,255,${.12 + Math.sin(t*.02+a)*.06})`;
+    bctx.beginPath();
+    bctx.arc(x, y, 3 + depth * .25, 0, Math.PI * 2);
+    bctx.fill();
+  }
+
+  bctx.restore();
+
+  let grad = bctx.createRadialGradient(cx, cy, 10, cx, cy, max * .65);
+  grad.addColorStop(0, "rgba(255,255,255,.08)");
+  grad.addColorStop(.25, "rgba(0,0,0,.05)");
+  grad.addColorStop(1, "rgba(0,0,0,.8)");
+  bctx.fillStyle = grad;
+  bctx.fillRect(0, 0, W, H);
+}
+
+function spawnEnemy() {
+  enemies.push({
+    x: Math.random() * W,
+    y: -30,
+    r: 14 + Math.random() * 18,
+    speed: 1.6 + Math.random() * depth,
+    sway: Math.random() * 10,
+    phase: Math.random() * 100
+  });
+}
+
+function drawGame() {
+  gctx.clearRect(0, 0, W, H);
+
+  for (let e of enemies) {
+    e.y += e.speed;
+    e.x += Math.sin(t * .02 + e.phase) * .45 * depth;
+
+    gctx.beginPath();
+    gctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+    gctx.fillStyle = "rgba(255,70,120,.8)";
+    gctx.shadowBlur = 20;
+    gctx.shadowColor = "red";
+    gctx.fill();
+    gctx.shadowBlur = 0;
+
+    let dx = player.x - e.x;
+    let dy = player.y - e.y;
+    let dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < player.r + e.r) {
+      endGame();
+    }
+  }
+
+  enemies = enemies.filter(e => e.y < H + 60);
+}
+
+function updatePlayer() {
+  player.x += (target.x - player.x) * .065;
+  player.y += (target.y - player.y) * .065;
+
+  playerEl.style.left = player.x + "px";
+  playerEl.style.top = player.y + "px";
+}
+
+function updateText() {
+  const lines = [
+    "Keep your eyes on the center.",
+    "Move slowly. Stay calm.",
+    "Let the pattern pull your attention inward.",
+    "Breathe steady. React smoothly.",
+    "The slower you move, the sharper your focus gets.",
+    "Stay locked in."
+  ];
+
+  if (Math.floor(t / 210) % 2 === 0) {
+    message.innerText = lines[Math.floor(t / 210) % lines.length];
+  }
+}
+
+function updateScore() {
+  score++;
+  depth = Math.min(9, 1 + Math.floor(score / 700));
+
+  document.getElementById("focusScore").innerText = score;
+  document.getElementById("depth").innerText = depth;
+
+  pulseAudio();
+}
+
+function endGame() {
+  running = false;
+
+  if (audioCtx) {
+    gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, .2);
+  }
+
+  ui.style.display = "flex";
+  hud.style.display = "none";
+  ui.innerHTML = `
+    <h1>SESSION COMPLETE</h1>
+    <p>Focus Score: ${score}</p>
+    <p>You reached Depth Level ${depth}.</p>
+    <button onclick="location.reload()">Restart</button>
+  `;
+}
+
+function loop() {
+  if (!running) return;
+
+  t++;
+
+  drawHypnoBackground();
+  updatePlayer();
+  drawGame();
+  updateText();
+  updateScore();
+
+  if (t % Math.max(18, 55 - depth * 4) === 0) {
+    spawnEnemy();
+  }
+
+  requestAnimationFrame(loop);
+}
+
+function handleMove(x, y) {
+  target.x = x;
+  target.y = y;
+}
+
+addEventListener("touchmove", e => {
+  e.preventDefault();
+  const touch = e.touches[0];
+  handleMove(touch.clientX, touch.clientY);
+}, { passive: false });
+
+addEventListener("mousemove", e => {
+  handleMove(e.clientX, e.clientY);
+});
 </script>
 
 </body>
