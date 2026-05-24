@@ -1,405 +1,401 @@
+Here’s a single-file 1990s-style DBZ store site. Save as dbz-90s-site.html. Put a MIDI file next to it named dbz-theme.mid if you have one. Browsers may block autoplay.
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>Hypno Focus Game</title>
-
+<meta charset="UTF-8">
+<title>The Dragon Ball Z Store - Microsoft Internet Explorer</title>
 <style>
-html, body {
+body {
   margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background: #000;
-  font-family: Arial, sans-serif;
+  background: #b8c0d0;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #111;
+  font-size: 14px;
+}
+.browser {
+  width: 1000px;
+  margin: 20px auto;
+  border: 3px ridge #d0d0d0;
+  background: #c8c8d8;
+  box-shadow: 0 0 12px #333;
+}
+.titlebar {
+  background: linear-gradient(to right, #334b7a, #d5d8e8);
   color: white;
-  height: 100%;
-  touch-action: none;
+  padding: 4px 8px;
+  font-weight: bold;
+  font-size: 14px;
 }
-
-canvas {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
+.toolbar, .addressbar {
+  background: #d6d6e2;
+  border-bottom: 2px groove #eee;
+  padding: 6px;
 }
-
-#ui {
-  position: fixed;
-  inset: 0;
-  z-index: 10;
+.toolbar button {
+  margin-right: 8px;
+  padding: 4px 10px;
+  border: 2px outset #eee;
+  background: #ddd;
+  font-weight: bold;
+}
+.addressbar input {
+  width: 780px;
+  padding: 3px;
+  border: 2px inset #eee;
+  font-family: monospace;
+}
+.page {
+  width: 960px;
+  height: 700px;
+  overflow-y: scroll;
+  background: #c3cad8;
+  margin: 0 auto;
+  padding: 18px;
+}
+.site {
+  width: 760px;
+  margin-left: 20px;
+}
+.header {
+  background: white;
+  border: 1px solid #999;
+  text-align: center;
+}
+.logo {
+  height: 105px;
+  background:
+    linear-gradient(90deg, #fff 0%, #fff4b0 30%, #fff 100%);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  padding: 25px;
-  background: radial-gradient(circle, rgba(0,0,0,.35), rgba(0,0,0,.95));
+  overflow: hidden;
 }
-
-h1 {
-  font-size: 34px;
-  margin-bottom: 10px;
-  letter-spacing: 2px;
+.logo span {
+  font-size: 52px;
+  font-weight: 900;
+  color: #f7d800;
+  text-shadow:
+    3px 3px 0 #e21b23,
+    5px 5px 0 #111;
+  transform: skew(-8deg);
+  letter-spacing: -3px;
 }
-
-p {
-  max-width: 420px;
-  line-height: 1.5;
-  opacity: .9;
-}
-
-button {
-  margin-top: 20px;
-  padding: 16px 28px;
-  font-size: 18px;
-  border: 0;
-  border-radius: 14px;
-  background: white;
-  color: black;
+.nav {
+  background: #050505;
+  color: white;
+  display: flex;
+  justify-content: space-around;
+  padding: 4px;
   font-weight: bold;
+  letter-spacing: 1px;
 }
-
-#hud {
-  position: fixed;
-  top: 14px;
-  left: 14px;
-  right: 14px;
-  z-index: 20;
-  display: none;
-  justify-content: space-between;
-  font-size: 15px;
-  opacity: .9;
+.nav a {
+  color: white;
+  text-decoration: none;
 }
-
-#message {
-  position: fixed;
-  bottom: 55px;
-  left: 20px;
-  right: 20px;
-  z-index: 20;
+.discount {
+  background: #081943;
+  color: white;
+  margin: 25px 0;
+  padding: 7px;
   text-align: center;
   font-size: 22px;
-  font-weight: bold;
-  text-shadow: 0 0 14px black;
-  pointer-events: none;
+  border-top: 2px solid #777;
+  border-bottom: 2px solid #777;
 }
-
-#focusDot {
-  position: fixed;
-  display: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
+.layout {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: 20px;
+}
+.sidebar {
+  background: #020202;
+  color: white;
+  padding: 12px;
+  min-height: 600px;
+}
+.sidebar h3 {
+  font-size: 13px;
+  margin: 16px 0 5px;
+  color: white;
+  font-style: italic;
+}
+.sidebar input {
+  width: 115px;
   background: white;
-  box-shadow: 0 0 25px white;
-  z-index: 15;
-  left: calc(50% - 9px);
-  top: calc(50% - 9px);
-  pointer-events: none;
+  border: 2px inset #ddd;
 }
-
-#player {
-  position: fixed;
-  display: none;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: cyan;
-  box-shadow: 0 0 16px cyan;
-  z-index: 12;
-  left: 50%;
-  top: 75%;
-  transform: translate(-50%, -50%);
+.sidebar button {
+  margin-left: 5px;
+  font-size: 11px;
+}
+.sidebar a {
+  color: white;
+  display: block;
+  font-size: 12px;
+  text-decoration: underline;
+}
+.cart {
+  background: #0648b8;
+  padding: 3px;
+  margin-top: 5px;
+}
+.content {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+}
+.textbox {
+  font-size: 18px;
+  line-height: 1.35;
+  color: #222;
+}
+.notice {
+  background: #081943;
+  color: white;
+  margin-top: 20px;
+  padding: 10px;
+  border: 2px groove #ccc;
+  font-size: 15px;
+  font-weight: bold;
+}
+.panel {
+  border: 3px ridge #d8d8e8;
+  background: #000;
+}
+.panel-title {
+  background: #d9dce8;
+  color: #222;
+  text-align: center;
+  font-size: 26px;
+  padding: 8px;
+  border-bottom: 2px groove #aaa;
+}
+.release {
+  color: white;
+  padding: 18px;
+  text-align: center;
+  font-size: 17px;
+  font-weight: bold;
+}
+.covers {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+.cover {
+  width: 105px;
+  height: 145px;
+  border: 3px solid #111;
+  background: #ffd800;
+  color: #e21b23;
+  font-weight: 900;
+  text-align: center;
+  box-shadow: 4px 4px 0 #333;
+  position: relative;
+}
+.cover.blue {
+  background: #32b7ff;
+}
+.cover .top {
+  background: white;
+  color: #111;
+  font-size: 14px;
+  padding: 5px;
+}
+.cover .art {
+  font-size: 40px;
+  margin-top: 22px;
+}
+.products {
+  margin-top: 25px;
+  background: #d6d6e8;
+  border: 2px ridge #eee;
+  padding: 12px;
+}
+.product {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #888;
+  padding-bottom: 12px;
+}
+.thumb {
+  width: 85px;
+  height: 85px;
+  background: radial-gradient(circle, #ffef00, #ff7b00);
+  border: 2px solid #333;
+  text-align: center;
+  line-height: 85px;
+  font-size: 36px;
+  font-weight: bold;
+}
+.buy {
+  background: #081943;
+  color: white;
+  border: 2px outset #ccc;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+.marquee {
+  color: yellow;
+  background: black;
+  padding: 5px;
+  font-weight: bold;
 }
 </style>
 </head>
-
 <body>
-
-<canvas id="bg"></canvas>
-<canvas id="game"></canvas>
-
-<div id="hud">
-  <div>Focus: <span id="focusScore">0</span></div>
-  <div>Depth: <span id="depth">1</span></div>
+<!-- Optional MIDI background music.
+     Put a legal MIDI file named dbz-theme.mid in the same folder. -->
+<audio autoplay loop>
+  <source src="dbz-theme.mid" type="audio/midi">
+</audio>
+<div class="browser">
+  <div class="titlebar">The Funimation Store - Microsoft Internet Explorer</div>
+  <div class="toolbar">
+    <button>Back</button>
+    <button>Forward</button>
+    <button>Stop</button>
+    <button>Refresh</button>
+    <button>Home</button>
+    <button>Search</button>
+    <button>Favorites</button>
+    <button>History</button>
+    <button>Mail</button>
+    <button>Print</button>
+  </div>
+  <div class="addressbar">
+    Address:
+    <input value="http://www.dbzstore.com/" readonly>
+    <button>Go</button>
+  </div>
+  <div class="page">
+    <div class="site">
+      <div class="header">
+        <div class="logo">
+          <span>DRAGON BALL Z</span>
+        </div>
+        <div class="nav">
+          <a href="#">Advanced Search</a>
+          <a href="#">Shopping Cart</a>
+          <a href="#">Checkout</a>
+          <a href="#">Home</a>
+        </div>
+      </div>
+      <div class="discount">
+        DBZ Year 2000 Calendar 40% off!
+      </div>
+      <div class="layout">
+        <div class="sidebar">
+          <h3>SEARCH</h3>
+          <input type="text">
+          <button onclick="alert('Searching the DBZ Store...')">GO!</button>
+          <h3>YOUR CART</h3>
+          <div class="cart">Empty</div>
+          <h3>NEW ITEMS</h3>
+          <a href="#">Capsule Figures</a>
+          <h3>VIDEOS - DVDS</h3>
+          <a href="#">New Releases</a>
+          <a href="#">VHS Box Sets</a>
+          <a href="#">DVD Box Sets</a>
+          <a href="#">Movie Specials</a>
+          <a href="#">Trailers</a>
+          <h3>CLOTHING</h3>
+          <a href="#">Adult T-Shirts</a>
+          <a href="#">Youth T-Shirts</a>
+          <a href="#">Caps / Hats</a>
+          <a href="#">Sweatshirts</a>
+          <a href="#">Bandanas</a>
+          <h3>SPECIALS</h3>
+          <a href="#">Action Figures</a>
+          <a href="#">Wall Scrolls</a>
+          <a href="#">Posters</a>
+          <a href="#">Calendars</a>
+        </div>
+        <div>
+          <div class="content">
+            <div>
+              <div class="textbox">
+                Here you will be able to search for products, track your packages,
+                and order online with no hassles!
+                <br><br>
+                This store does not allow back-ordering, so if you see the product
+                online, we have it in stock.
+              </div>
+              <div class="notice">
+                IMPORTANT — If you have trouble registering due to the message
+                “this e-mail assigned to another account,” please contact customer service.
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-title">NEW VIDEO RELEASES!</div>
+              <div class="release">
+                Trunks: Mysterious Youth and Trunks: Prelude to Terror are now available.
+                <div class="covers">
+                  <div class="cover blue">
+                    <div class="top">DRAGON BALL Z</div>
+                    <div class="art">⚡</div>
+                    TRUNKS
+                  </div>
+                  <div class="cover">
+                    <div class="top">DRAGON BALL Z</div>
+                    <div class="art">🔥</div>
+                    PRELUDE
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="products">
+            <div class="marquee">
+              <marquee behavior="scroll" direction="left">
+                WELCOME TO THE DRAGON BALL Z STORE — NEW VHS, DVDS, SHIRTS, POSTERS, AND ACTION FIGURES!
+              </marquee>
+            </div>
+            <h2>Featured DBZ Items</h2>
+            <div class="product">
+              <div class="thumb">Z</div>
+              <div>
+                <b>Super Saiyan Goku Action Figure</b><br>
+                Fully poseable collector figure.<br>
+                <b>$12.99</b><br>
+                <button class="buy" onclick="addCart('Super Saiyan Goku Action Figure')">Add To Cart</button>
+              </div>
+            </div>
+            <div class="product">
+              <div class="thumb">★</div>
+              <div>
+                <b>Dragon Ball Z Wall Scroll</b><br>
+                Classic anime wall decoration.<br>
+                <b>$9.99</b><br>
+                <button class="buy" onclick="addCart('Dragon Ball Z Wall Scroll')">Add To Cart</button>
+              </div>
+            </div>
+            <div class="product">
+              <div class="thumb">📼</div>
+              <div>
+                <b>Trunks Saga VHS Tape</b><br>
+                Old-school video release.<br>
+                <b>$14.95</b><br>
+                <button class="buy" onclick="addCart('Trunks Saga VHS Tape')">Add To Cart</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-
-<div id="focusDot"></div>
-<div id="player"></div>
-<div id="message"></div>
-
-<div id="ui">
-  <h1>HYPNO FOCUS</h1>
-  <p>
-    Keep your eyes on the center. Move the blue orb slowly.
-    Dodge the falling shapes. The calmer and smoother you move,
-    the deeper the visual field becomes.
-  </p>
-  <button onclick="startGame()">Start</button>
-</div>
-
 <script>
-const bg = document.getElementById("bg");
-const bctx = bg.getContext("2d");
-
-const game = document.getElementById("game");
-const gctx = game.getContext("2d");
-
-const ui = document.getElementById("ui");
-const hud = document.getElementById("hud");
-const message = document.getElementById("message");
-const playerEl = document.getElementById("player");
-const focusDot = document.getElementById("focusDot");
-
-let W, H;
-let running = false;
-let t = 0;
-let score = 0;
-let depth = 1;
-
-let player = { x: 0, y: 0, r: 17 };
-let target = { x: 0, y: 0 };
-let enemies = [];
-
-let audioCtx;
-let oscillator;
-let gainNode;
-
-function resize() {
-  W = innerWidth;
-  H = innerHeight;
-
-  bg.width = game.width = W * devicePixelRatio;
-  bg.height = game.height = H * devicePixelRatio;
-
-  bctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-  gctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
-
-  if (!running) {
-    player.x = W / 2;
-    player.y = H * .75;
-    target.x = player.x;
-    target.y = player.y;
-  }
+let cart = [];
+function addCart(item) {
+  cart.push(item);
+  document.querySelector(".cart").innerHTML = cart.length + " item(s)";
+  alert(item + " added to your cart!");
 }
-
-resize();
-addEventListener("resize", resize);
-
-function startAudio() {
-  try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-    oscillator = audioCtx.createOscillator();
-    gainNode = audioCtx.createGain();
-
-    oscillator.type = "sine";
-    oscillator.frequency.value = 88;
-    gainNode.gain.value = 0.035;
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
-    oscillator.start();
-  } catch (e) {
-    audioCtx = null;
-  }
-}
-
-function pulseAudio() {
-  if (!audioCtx || !oscillator || !gainNode) return;
-
-  let now = audioCtx.currentTime;
-  oscillator.frequency.setTargetAtTime(80 + depth * 6, now, .35);
-  gainNode.gain.setTargetAtTime(0.025 + depth * .003, now, .5);
-}
-
-function startGame() {
-  ui.style.display = "none";
-  hud.style.display = "flex";
-  focusDot.style.display = "block";
-  playerEl.style.display = "block";
-
-  running = true;
-  t = 0;
-  score = 0;
-  depth = 1;
-  enemies = [];
-
-  player.x = W / 2;
-  player.y = H * .75;
-  target.x = player.x;
-  target.y = player.y;
-
-  startAudio();
-  requestAnimationFrame(loop);
-}
-
-function drawHypnoBackground() {
-  bctx.clearRect(0, 0, W, H);
-
-  const cx = W / 2;
-  const cy = H / 2;
-  const max = Math.sqrt(W * W + H * H);
-  const rings = 32;
-
-  bctx.save();
-  bctx.translate(cx, cy);
-  bctx.rotate(t * 0.0018 * depth);
-
-  for (let i = rings; i > 0; i--) {
-    let radius = (i / rings) * max;
-    let wave = Math.sin(i * .55 + t * .03) * 10 * depth;
-    let alpha = .07 + (i % 2) * .16;
-
-    bctx.beginPath();
-    bctx.arc(0, 0, radius + wave, 0, Math.PI * 2);
-    bctx.strokeStyle = `rgba(${80 + depth * 20}, 180, 255, ${alpha})`;
-    bctx.lineWidth = 2 + depth * .18;
-    bctx.stroke();
-  }
-
-  bctx.restore();
-
-  let grad = bctx.createRadialGradient(cx, cy, 10, cx, cy, max * .7);
-  grad.addColorStop(0, "rgba(255,255,255,.07)");
-  grad.addColorStop(.35, "rgba(0,0,0,.08)");
-  grad.addColorStop(1, "rgba(0,0,0,.82)");
-  bctx.fillStyle = grad;
-  bctx.fillRect(0, 0, W, H);
-}
-
-function spawnEnemy() {
-  enemies.push({
-    x: Math.random() * W,
-    y: -30,
-    r: 14 + Math.random() * 16,
-    speed: 1.4 + Math.random() * depth,
-    phase: Math.random() * 100
-  });
-}
-
-function drawGame() {
-  gctx.clearRect(0, 0, W, H);
-
-  for (let e of enemies) {
-    e.y += e.speed;
-    e.x += Math.sin(t * .02 + e.phase) * .35 * depth;
-
-    gctx.beginPath();
-    gctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
-    gctx.fillStyle = "rgba(255,70,120,.82)";
-    gctx.fill();
-
-    let dx = player.x - e.x;
-    let dy = player.y - e.y;
-    let dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist < player.r + e.r) {
-      endGame();
-      return;
-    }
-  }
-
-  enemies = enemies.filter(e => e.y < H + 60);
-}
-
-function updatePlayer() {
-  player.x += (target.x - player.x) * .08;
-  player.y += (target.y - player.y) * .08;
-
-  playerEl.style.left = player.x + "px";
-  playerEl.style.top = player.y + "px";
-}
-
-function updateText() {
-  const lines = [
-    "Keep your eyes on the center.",
-    "Move slowly. Stay calm.",
-    "Let the pattern pull your attention inward.",
-    "Breathe steady. React smoothly.",
-    "The slower you move, the sharper your focus gets.",
-    "Stay locked in."
-  ];
-
-  message.innerText = lines[Math.floor(t / 210) % lines.length];
-}
-
-function updateScore() {
-  score++;
-  depth = Math.min(9, 1 + Math.floor(score / 700));
-
-  document.getElementById("focusScore").innerText = score;
-  document.getElementById("depth").innerText = depth;
-
-  if (score % 120 === 0) {
-    pulseAudio();
-  }
-}
-
-function endGame() {
-  running = false;
-
-  focusDot.style.display = "none";
-  playerEl.style.display = "none";
-  message.innerText = "";
-
-  if (audioCtx && gainNode) {
-    gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, .2);
-  }
-
-  ui.style.display = "flex";
-  hud.style.display = "none";
-
-  ui.innerHTML = `
-    <h1>SESSION COMPLETE</h1>
-    <p>Focus Score: ${score}</p>
-    <p>You reached Depth Level ${depth}.</p>
-    <button onclick="location.reload()">Restart</button>
-  `;
-}
-
-function loop() {
-  if (!running) return;
-
-  t++;
-
-  drawHypnoBackground();
-  updatePlayer();
-  drawGame();
-  updateText();
-  updateScore();
-
-  if (t % Math.max(22, 60 - depth * 4) === 0) {
-    spawnEnemy();
-  }
-
-  requestAnimationFrame(loop);
-}
-
-function handleMove(x, y) {
-  target.x = Math.max(20, Math.min(W - 20, x));
-  target.y = Math.max(20, Math.min(H - 20, y));
-}
-
-addEventListener("touchmove", e => {
-  e.preventDefault();
-  if (!running) return;
-  const touch = e.touches[0];
-  handleMove(touch.clientX, touch.clientY);
-}, { passive: false });
-
-addEventListener("touchstart", e => {
-  if (!running) return;
-  const touch = e.touches[0];
-  handleMove(touch.clientX, touch.clientY);
-}, { passive: false });
-
-addEventListener("mousemove", e => {
-  if (!running) return;
-  handleMove(e.clientX, e.clientY);
-});
 </script>
-
 </body>
 </html>
