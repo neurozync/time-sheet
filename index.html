@@ -1,890 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <title>Tactical Patrol Tracker</title>
+<title>8-Bit Fighter</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-  <style>
-
-    * {
-      box-sizing: border-box;
-      font-family: Arial, sans-serif;
-    }
-
+<style>
     body {
-      margin: 0;
-      background: #101820;
-      color: white;
+        margin: 0;
+        background: #87ceeb;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
     }
 
-    .app {
-      max-width: 480px;
-      margin: auto;
-      padding: 12px;
+    canvas {
+        border: 4px solid black;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        background: #87ceeb;
     }
-
-    .header {
-      text-align: center;
-      padding: 14px;
-      background: #1f2933;
-      border-radius: 14px;
-      margin-bottom: 12px;
-      border: 1px solid #334155;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 18px;
-      line-height: 1.3;
-      letter-spacing: .3px;
-    }
-
-    .status {
-      margin-top: 6px;
-      font-size: 13px;
-      color: #9ae6b4;
-    }
-
-    #map {
-      height: 360px;
-      border-radius: 14px;
-      overflow: hidden;
-      border: 2px solid #334155;
-      margin-bottom: 12px;
-    }
-
-    .panel {
-      background: #1f2933;
-      border: 1px solid #334155;
-      border-radius: 14px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      font-size: 15px;
-      cursor: pointer;
-    }
-
-    .start {
-      background: #16a34a;
-      color: white;
-    }
-
-    .end {
-      background: #dc2626;
-      color: white;
-    }
-
-    .secondary {
-      background: #334155;
-      color: white;
-    }
-
-    .warning {
-      background: #f59e0b;
-      color: #111;
-    }
-
-    .data-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 7px 0;
-      border-bottom: 1px solid #334155;
-      font-size: 14px;
-    }
-
-    .data-row:last-child {
-      border-bottom: none;
-    }
-
-    .label {
-      color: #cbd5e1;
-    }
-
-    .value {
-      font-weight: bold;
-      text-align: right;
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 80px;
-      resize: vertical;
-      border-radius: 10px;
-      border: 1px solid #475569;
-      background: #0f172a;
-      color: white;
-      padding: 10px;
-      font-size: 14px;
-    }
-
-    .photo-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 10px;
-    }
-
-    .photo-box {
-      border: 1px dashed #64748b;
-      border-radius: 12px;
-      min-height: 140px;
-      padding: 8px;
-      background: #0f172a;
-      text-align: center;
-    }
-
-    .photo-box img {
-      width: 100%;
-      max-height: 130px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-top: 6px;
-    }
-
-    .photo-box input {
-      width: 100%;
-      font-size: 12px;
-      color: white;
-    }
-
-    .checkpoint-list {
-      font-size: 13px;
-      line-height: 1.5;
-      max-height: 120px;
-      overflow-y: auto;
-    }
-
-    .footer-note {
-      font-size: 12px;
-      color: #94a3b8;
-      text-align: center;
-      padding-bottom: 20px;
-    }
-
-    @media print {
-
-      button,
-      input[type="file"] {
-        display: none;
-      }
-
-      body {
-        background: white;
-        color: black;
-      }
-
-      .panel,
-      .header {
-        background: white;
-        color: black;
-        border: 1px solid #999;
-      }
-    }
-
-  </style>
+</style>
 </head>
 
 <body>
 
-  <div class="app" id="captureArea">
+<canvas id="gameCanvas" width="500" height="500"></canvas>
 
-    <div class="header">
-      <h1 id="addressHeader">
-        Waiting for GPS address...
-      </h1>
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
 
-      <div class="status" id="gpsStatus">
-        GPS standing by...
-      </div>
-    </div>
+// PIXEL SIZE
+const p = 8;
 
-    <div id="map"></div>
+// Animation Variables
+let blinkTimer = 0;
+let blink = false;
+let bobOffset = 0;
+let bobDirection = 1;
 
-    <div class="panel">
+// Fighter Position
+const fighter = {
+    x: 180,
+    y: 140
+};
 
-      <div class="grid">
+// Main Animation Loop
+function animate() {
 
-        <button class="start" onclick="startPatrol()">
-          START PATROL
-        </button>
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        <button class="end" onclick="endPatrol()">
-          END PATROL
-        </button>
+    // Bobbing movement
+    bobOffset += 0.2 * bobDirection;
 
-        <button class="secondary" onclick="addCheckpoint()">
-          MARK CHECKPOINT
-        </button>
-
-        <button class="warning" onclick="takeScreenshot()">
-          SCREENSHOT
-        </button>
-
-      </div>
-
-    </div>
-
-    <div class="panel">
-
-      <div class="data-row">
-        <span class="label">Start Time</span>
-        <span class="value" id="startTime">Not started</span>
-      </div>
-
-      <div class="data-row">
-        <span class="label">End Time</span>
-        <span class="value" id="endTime">Not ended</span>
-      </div>
-
-      <div class="data-row">
-        <span class="label">Current Location</span>
-        <span class="value" id="coords">Waiting...</span>
-      </div>
-
-      <div class="data-row">
-        <span class="label">GPS Accuracy</span>
-        <span class="value" id="accuracy">Waiting...</span>
-      </div>
-
-      <div class="data-row">
-        <span class="label">Speed</span>
-        <span class="value" id="speed">Waiting...</span>
-      </div>
-
-      <div class="data-row">
-        <span class="label">Breadcrumb Points</span>
-        <span class="value" id="pointCount">0</span>
-      </div>
-
-    </div>
-
-    <div class="panel">
-      <strong>Patrol Notes / Activity Log</strong>
-
-      <textarea id="notes"
-        placeholder="Example: Checked north gate, vehicle row, stairwell, loading dock..."></textarea>
-    </div>
-
-    <div class="panel">
-
-      <strong>Photo Evidence / Checked Items</strong>
-
-      <div class="photo-grid" id="photoGrid"></div>
-
-    </div>
-
-    <div class="panel">
-
-      <strong>Checkpoints</strong>
-
-      <div class="checkpoint-list" id="checkpointList">
-        No checkpoints marked.
-      </div>
-
-    </div>
-
-    <div class="footer-note">
-      Screenshot this full screen for patrol submission.
-    </div>
-
-  </div>
-
-  <script>
-
-    let map;
-    let watchId = null;
-
-    let patrolActive = false;
-
-    let breadcrumbPoints = [];
-    let breadcrumbLine = null;
-
-    let currentMarker = null;
-    let currentHeading = 0;
-
-    let accuracyCircle = null;
-
-    let checkpoints = [];
-
-    let lastGoodPosition = null;
-    let lastAddressLookupTime = 0;
-
-    function formatTime(date = new Date()) {
-
-      return date.toLocaleString([], {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
-      });
+    if (bobOffset > 4 || bobOffset < -4) {
+        bobDirection *= -1;
     }
 
-    function initMap() {
+    // Blinking
+    blinkTimer++;
 
-      map = L.map("map").setView([33.4484, -112.0740], 18);
+    if (blinkTimer > 100) {
+        blink = true;
+    }
 
-      L.tileLayer(
-        "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-        {
-          maxZoom: 22,
-          attribution: "Tiles © Esri"
+    if (blinkTimer > 110) {
+        blink = false;
+        blinkTimer = 0;
+    }
+
+    drawFighter(fighter.x, fighter.y + bobOffset);
+
+    requestAnimationFrame(animate);
+}
+
+function pixel(x, y, color) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x * p, y * p, p, p);
+}
+
+function drawFighter(offsetX, offsetY) {
+
+    const ox = offsetX / p;
+    const oy = offsetY / p;
+
+    // =========================
+    // HAIR
+    // =========================
+
+    const hair = "#111";
+
+    for(let y = 0; y < 8; y++) {
+        for(let x = 3; x < 11; x++) {
+            pixel(ox + x, oy + y, hair);
         }
-      ).addTo(map);
-
-      breadcrumbLine = L.polyline([], {
-        weight: 5
-      }).addTo(map);
     }
 
-    function startPatrol() {
+    // Ponytail
+    for(let y = 2; y < 12; y++) {
+        pixel(ox + 1, oy + y, hair);
+        pixel(ox + 2, oy + y, hair);
+    }
 
-      if (!navigator.geolocation) {
+    // Red tie
+    pixel(ox + 2, oy + 2, "red");
+    pixel(ox + 3, oy + 2, "red");
+    pixel(ox + 2, oy + 3, "red");
 
-        alert("GPS is not supported on this device/browser.");
-        return;
-      }
+    // =========================
+    // FACE
+    // =========================
 
-      patrolActive = true;
+    const skin = "#f2c7a5";
 
-      breadcrumbPoints = [];
-      checkpoints = [];
-      lastGoodPosition = null;
-
-      document.getElementById("startTime").textContent =
-        formatTime();
-
-      document.getElementById("endTime").textContent =
-        "In progress";
-
-      document.getElementById("checkpointList").textContent =
-        "No checkpoints marked.";
-
-      document.getElementById("gpsStatus").textContent =
-        "GPS tracking active...";
-
-      document.getElementById("pointCount").textContent =
-        "0";
-
-      if (breadcrumbLine) {
-        breadcrumbLine.setLatLngs([]);
-      }
-
-      watchId = navigator.geolocation.watchPosition(
-        updatePosition,
-        gpsError,
-        {
-          enableHighAccuracy: true,
-          maximumAge: 0,
-          timeout: 5000
+    for(let y = 5; y < 11; y++) {
+        for(let x = 4; x < 10; x++) {
+            pixel(ox + x, oy + y, skin);
         }
-      );
     }
 
-    function endPatrol() {
-
-      patrolActive = false;
-
-      document.getElementById("endTime").textContent =
-        formatTime();
-
-      document.getElementById("gpsStatus").textContent =
-        "Patrol ended.";
-
-      if (watchId !== null) {
-
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-      }
+    // Eyes
+    if (!blink) {
+        pixel(ox + 5, oy + 7, "black");
+        pixel(ox + 8, oy + 7, "black");
+    } else {
+        pixel(ox + 5, oy + 7, "#663300");
+        pixel(ox + 8, oy + 7, "#663300");
     }
 
-    function updatePosition(position) {
+    // =========================
+    // BODY
+    // =========================
 
-      const lat = position.coords.latitude;
-      const lng = position.coords.longitude;
+    const shirt = "#444";
 
-      const accuracy = position.coords.accuracy;
-
-      const speed = position.coords.speed || 0;
-
-      const heading = position.coords.heading;
-
-      const timestamp = position.timestamp;
-
-      const point = [lat, lng];
-
-      /*
-        GPS QUALITY FILTERING
-      */
-
-      if (accuracy > 120) {
-
-        document.getElementById("gpsStatus").textContent =
-          "Weak GPS signal — waiting for stabilization...";
-
-        return;
-      }
-
-      if (lastGoodPosition) {
-
-        const distance = getDistanceMeters(
-          lastGoodPosition.lat,
-          lastGoodPosition.lng,
-          lat,
-          lng
-        );
-
-        const timeSeconds =
-          (timestamp - lastGoodPosition.timestamp) / 1000;
-
-        const calculatedSpeed =
-          timeSeconds > 0 ? distance / timeSeconds : 0;
-
-        /*
-          Reject impossible jumps
-        */
-
-        if (distance > 250 && calculatedSpeed > 85) {
-          return;
+    for(let y = 11; y < 16; y++) {
+        for(let x = 4; x < 10; x++) {
+            pixel(ox + x, oy + y, shirt);
         }
+    }
 
-        /*
-          Reject inaccurate spikes while stationary
-        */
+    // Arms
+    for(let y = 11; y < 16; y++) {
+        pixel(ox + 3, oy + y, skin);
+        pixel(ox + 10, oy + y, skin);
+    }
 
-        if (speed < 1 &&
-            distance > 25 &&
-            accuracy > 40) {
+    // =========================
+    // PANTS
+    // =========================
 
-          return;
+    const pants = "#0a7a21";
+
+    // Left leg
+    for(let y = 16; y < 26; y++) {
+        for(let x = 3; x < 6; x++) {
+            pixel(ox + x, oy + y, pants);
         }
-      }
+    }
 
-      lastGoodPosition = {
-        lat,
-        lng,
-        timestamp
-      };
-
-      /*
-        DIRECTION
-      */
-
-      if (heading !== null && !isNaN(heading)) {
-        currentHeading = heading;
-      }
-
-      document.getElementById("coords").textContent =
-        lat.toFixed(6) + ", " + lng.toFixed(6);
-
-      document.getElementById("accuracy").textContent =
-        "± " + Math.round(accuracy) + " meters";
-
-      document.getElementById("speed").textContent =
-        (speed * 2.23694).toFixed(1) + " mph";
-
-      document.getElementById("gpsStatus").textContent =
-        "GPS locked — tactical tracking active.";
-
-      /*
-        BREADCRUMBS
-      */
-
-      if (patrolActive) {
-
-        const shouldAddPoint =
-          breadcrumbPoints.length === 0 ||
-
-          getDistanceMeters(
-            breadcrumbPoints[breadcrumbPoints.length - 1][0],
-            breadcrumbPoints[breadcrumbPoints.length - 1][1],
-            lat,
-            lng
-          ) > 2;
-
-        if (shouldAddPoint) {
-
-          breadcrumbPoints.push(point);
-
-          breadcrumbLine.setLatLngs(breadcrumbPoints);
-
-          document.getElementById("pointCount").textContent =
-            breadcrumbPoints.length;
+    // Right leg
+    for(let y = 16; y < 26; y++) {
+        for(let x = 8; x < 11; x++) {
+            pixel(ox + x, oy + y, pants);
         }
-      }
-
-      /*
-        TACTICAL TRIANGLE
-      */
-
-      const triangleHtml = `
-        <div style="
-          width:0;
-          height:0;
-          border-left:8px solid transparent;
-          border-right:8px solid transparent;
-          border-bottom:16px solid #00ff66;
-          transform: rotate(${currentHeading}deg);
-          filter: drop-shadow(0 0 4px #00ff66);
-        "></div>
-      `;
-
-      const tacticalIcon = L.divIcon({
-        html: triangleHtml,
-        className: '',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8]
-      });
-
-      if (!currentMarker) {
-
-        currentMarker = L.marker(point, {
-          icon: tacticalIcon
-        }).addTo(map);
-
-      } else {
-
-        currentMarker.setLatLng(point);
-        currentMarker.setIcon(tacticalIcon);
-      }
-
-      /*
-        ACCURACY RING
-      */
-
-      if (!accuracyCircle) {
-
-        accuracyCircle = L.circle(point, {
-          radius: accuracy,
-          weight: 1,
-          fillOpacity: 0.10
-        }).addTo(map);
-
-      } else {
-
-        accuracyCircle.setLatLng(point);
-        accuracyCircle.setRadius(accuracy);
-      }
-
-      /*
-        CAMERA FOLLOW
-      */
-
-      map.setView(point, 19, {
-        animate: true
-      });
-
-      /*
-        ADDRESS LOOKUP
-      */
-
-      const now = Date.now();
-
-      if (now - lastAddressLookupTime > 5000) {
-
-        lastAddressLookupTime = now;
-
-        reverseGeocode(lat, lng);
-      }
     }
 
-    function reverseGeocode(lat, lng) {
+    // Spread stance
+    pixel(ox + 2, oy + 23, pants);
+    pixel(ox + 11, oy + 23, pants);
 
-      fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}&zoom=19&addressdetails=1`
-      )
+    // =========================
+    // BOOTS
+    // =========================
 
-      .then(response => response.json())
-
-      .then(data => {
-
-        let finalText = "";
-
-        const name =
-          data.name ||
-          data.namedetails?.name ||
-          "";
-
-        const road =
-          data.address?.road ||
-          "";
-
-        const houseNumber =
-          data.address?.house_number ||
-          "";
-
-        const city =
-          data.address?.city ||
-          data.address?.town ||
-          data.address?.village ||
-          "";
-
-        const state =
-          data.address?.state ||
-          "";
-
-        /*
-          PRIORITY:
-          1. Exact business/building
-          2. Exact address
-          3. Street
-          4. Coordinates
-        */
-
-        if (
-          name &&
-          !name.includes(road) &&
-          name.length < 60
-        ) {
-
-          finalText =
-            `${name} — ${houseNumber} ${road}, ${city}, ${state}`;
-
-        }
-
-        else if (houseNumber && road) {
-
-          finalText =
-            `${houseNumber} ${road}, ${city}, ${state}`;
-        }
-
-        else if (road) {
-
-          finalText =
-            `${road}, ${city}, ${state}`;
-        }
-
-        else {
-
-          finalText =
-            `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-        }
-
-        document.getElementById("addressHeader").textContent =
-          finalText;
-      })
-
-      .catch(() => {
-
-        document.getElementById("addressHeader").textContent =
-          `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
-      });
+    for(let x = 2; x < 6; x++) {
+        pixel(ox + x, oy + 26, "black");
     }
 
-    function getDistanceMeters(lat1, lon1, lat2, lon2) {
-
-      const R = 6371000;
-
-      const toRad =
-        value => value * Math.PI / 180;
-
-      const dLat =
-        toRad(lat2 - lat1);
-
-      const dLon =
-        toRad(lon2 - lon1);
-
-      const a =
-        Math.sin(dLat / 2) *
-        Math.sin(dLat / 2) +
-
-        Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
-
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-
-      const c =
-        2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-      return R * c;
+    for(let x = 8; x < 12; x++) {
+        pixel(ox + x, oy + 26, "black");
     }
 
-    function gpsError(error) {
+    // =========================
+    // FLOOR SHADOW
+    // =========================
 
-      let msg = "GPS error.";
+    ctx.fillStyle = "rgba(0,0,0,0.25)";
+    ctx.fillRect(offsetX - 20, offsetY + 220, 120, 10);
+}
 
-      if (error.code === 1)
-        msg = "GPS permission denied.";
-
-      if (error.code === 2)
-        msg = "GPS position unavailable.";
-
-      if (error.code === 3)
-        msg = "GPS request timed out.";
-
-      document.getElementById("gpsStatus").textContent =
-        msg;
-
-      alert(msg);
-    }
-
-    function addCheckpoint() {
-
-      if (!currentMarker) {
-
-        alert("No GPS location available yet.");
-        return;
-      }
-
-      const location =
-        currentMarker.getLatLng();
-
-      const time =
-        formatTime();
-
-      checkpoints.push({
-        time,
-        lat: location.lat,
-        lng: location.lng
-      });
-
-      L.marker([
-        location.lat,
-        location.lng
-      ])
-
-      .addTo(map)
-
-      .bindPopup(
-        "Checkpoint<br>" + time
-      );
-
-      renderCheckpoints();
-    }
-
-    function renderCheckpoints() {
-
-      const box =
-        document.getElementById("checkpointList");
-
-      if (checkpoints.length === 0) {
-
-        box.textContent =
-          "No checkpoints marked.";
-
-        return;
-      }
-
-      box.innerHTML =
-        checkpoints.map((c, i) => `
-
-        <div>
-          <strong>#${i + 1}</strong> — ${c.time}<br>
-          ${c.lat.toFixed(6)}, ${c.lng.toFixed(6)}
-        </div>
-
-        <br>
-
-      `).join("");
-    }
-
-    function buildPhotoSlots() {
-
-      const grid =
-        document.getElementById("photoGrid");
-
-      for (let i = 1; i <= 6; i++) {
-
-        const box =
-          document.createElement("div");
-
-        box.className =
-          "photo-box";
-
-        box.innerHTML = `
-          <strong>Photo ${i}</strong>
-
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onchange="previewPhoto(event, ${i})">
-
-          <img
-            id="photo${i}"
-            style="display:none;" />
-        `;
-
-        grid.appendChild(box);
-      }
-    }
-
-    function previewPhoto(event, number) {
-
-      const file =
-        event.target.files[0];
-
-      if (!file) return;
-
-      const reader =
-        new FileReader();
-
-      reader.onload = function(e) {
-
-        const img =
-          document.getElementById("photo" + number);
-
-        img.src =
-          e.target.result;
-
-        img.style.display =
-          "block";
-      };
-
-      reader.readAsDataURL(file);
-    }
-
-    function takeScreenshot() {
-
-      html2canvas(
-        document.getElementById("captureArea"),
-        {
-          useCORS: true,
-          scale: 2
-        }
-      )
-
-      .then(canvas => {
-
-        const link =
-          document.createElement("a");
-
-        link.download =
-          "patrol-report.png";
-
-        link.href =
-          canvas.toDataURL("image/png");
-
-        link.click();
-      });
-    }
-
-    initMap();
-
-    buildPhotoSlots();
-
-  </script>
+animate();
+</script>
 
 </body>
 </html>
