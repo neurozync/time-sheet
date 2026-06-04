@@ -1,680 +1,937 @@
-Copy this into index.html and run it in your browser.
+Built around federal-style UI patterns: mobile-first, accessible, dashboard/cards/forms/tables, and font-size:16px on inputs so iPhone/Android won’t auto-zoom. USWDS is the federal design reference for accessible, mobile-friendly government sites; FBI UCR/NIBRS concepts informed the activity categories.      
 
-<!DOCTYPE html>
+Copy this into one file named:
+
+police-dar-system.html
+
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Puente Security Group | Report Writing System</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="theme-color" content="#0b1f3a" />
+  <title>Police DAR System | Daily Activity Report</title>
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: Arial, Helvetica, sans-serif;
+    :root {
+      --navy:#0b1f3a;
+      --navy-2:#132f55;
+      --blue:#1f5fae;
+      --gold:#c99700;
+      --bg:#f4f6f9;
+      --card:#ffffff;
+      --line:#d8dee8;
+      --text:#1b1f24;
+      --muted:#5f6b7a;
+      --green:#16794c;
+      --red:#b42318;
+      --orange:#b75e00;
+      --radius:14px;
+      --shadow:0 10px 28px rgba(9, 30, 66, .12);
+    }
+    * { box-sizing:border-box; }
+    html {
+      -webkit-text-size-adjust:100%;
+      text-size-adjust:100%;
     }
     body {
-      margin: 0;
-      background: #0b111c;
-      color: #e5e7eb;
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    input, select, textarea, button {
+      font-size:16px;
+      font-family:inherit;
+    }
+    button {
+      cursor:pointer;
+      border:0;
     }
     .topbar {
-      background: #020617;
-      border-bottom: 2px solid #2563eb;
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background:var(--navy);
+      color:white;
+      border-bottom:4px solid var(--gold);
+    }
+    .gov-strip {
+      font-size:12px;
+      background:#07172c;
+      padding:7px 16px;
+      color:#dbe7f5;
+      letter-spacing:.02em;
+    }
+    .header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:18px 20px;
     }
     .brand {
-      font-size: 22px;
-      font-weight: bold;
-      letter-spacing: 1px;
-      color: #93c5fd;
+      display:flex;
+      align-items:center;
+      gap:14px;
     }
-    .status {
-      font-size: 13px;
-      color: #9ca3af;
+    .seal {
+      width:48px;
+      height:48px;
+      border-radius:50%;
+      background:linear-gradient(145deg, #e6b800, #8b6500);
+      display:grid;
+      place-items:center;
+      color:#081b33;
+      font-weight:900;
+      border:2px solid #fff;
+    }
+    .brand h1 {
+      margin:0;
+      font-size:20px;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+    }
+    .brand p {
+      margin:3px 0 0;
+      color:#c9d6e6;
+      font-size:13px;
+    }
+    .status-pill {
+      background:#143b6d;
+      border:1px solid #315b8e;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      white-space:nowrap;
     }
     .layout {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      min-height: calc(100vh - 58px);
+      display:grid;
+      grid-template-columns:260px 1fr;
+      min-height:calc(100vh - 103px);
     }
     .sidebar {
-      background: #111827;
-      border-right: 1px solid #374151;
-      padding: 18px;
+      background:#102844;
+      color:white;
+      padding:16px;
     }
-    .sidebar h3 {
-      margin-top: 0;
-      color: #93c5fd;
-      font-size: 15px;
-      border-bottom: 1px solid #374151;
-      padding-bottom: 8px;
+    .nav-btn {
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:white;
+      background:transparent;
+      padding:13px 12px;
+      border-radius:10px;
+      text-align:left;
+      margin-bottom:6px;
+      font-weight:700;
     }
-    .sidebar button {
-      width: 100%;
-      margin-bottom: 10px;
-      padding: 11px;
-      border: none;
-      background: #1d4ed8;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
-      border-radius: 4px;
+    .nav-btn:hover,
+    .nav-btn.active {
+      background:#1d4775;
     }
-    .sidebar button:hover {
-      background: #2563eb;
+    .content {
+      padding:22px;
+      overflow:auto;
     }
-    .main {
-      padding: 20px;
+    .view { display:none; }
+    .view.active { display:block; }
+    .page-title {
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:flex-start;
+      margin-bottom:18px;
     }
-    .cad-header {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 18px;
+    .page-title h2 {
+      margin:0;
+      font-size:24px;
+      color:var(--navy);
+    }
+    .page-title p {
+      margin:4px 0 0;
+      color:var(--muted);
+    }
+    .grid {
+      display:grid;
+      gap:16px;
+    }
+    .grid.cards {
+      grid-template-columns:repeat(4, minmax(0, 1fr));
+    }
+    .grid.two {
+      grid-template-columns:1.2fr .8fr;
     }
     .card {
-      background: #111827;
-      border: 1px solid #374151;
-      border-radius: 6px;
-      padding: 14px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
     }
-    .card-title {
-      color: #93c5fd;
-      font-size: 14px;
-      font-weight: bold;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      border-bottom: 1px solid #374151;
-      padding-bottom: 6px;
+    .metric {
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .metric .label {
+      color:var(--muted);
+      font-size:13px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+    .metric .value {
+      font-size:30px;
+      font-weight:900;
+      color:var(--navy);
+      margin-top:8px;
+    }
+    .metric .icon {
+      width:42px;
+      height:42px;
+      border-radius:12px;
+      background:#e8f0fb;
+      color:var(--blue);
+      display:grid;
+      place-items:center;
+      font-weight:900;
+    }
+    .section-title {
+      margin:0 0 12px;
+      color:var(--navy);
+      font-size:17px;
+      border-bottom:1px solid var(--line);
+      padding-bottom:10px;
     }
     label {
-      font-size: 12px;
-      color: #cbd5e1;
-      display: block;
-      margin-bottom: 5px;
-      margin-top: 10px;
+      display:block;
+      font-weight:800;
+      color:#263241;
+      margin:0 0 6px;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
     }
     input, select, textarea {
-      width: 100%;
-      background: #020617;
-      color: #e5e7eb;
-      border: 1px solid #475569;
-      border-radius: 4px;
-      padding: 9px;
-      font-size: 14px;
+      width:100%;
+      border:1px solid #b9c4d2;
+      border-radius:10px;
+      padding:12px;
+      background:white;
+      color:var(--text);
+      outline:none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color:var(--blue);
+      box-shadow:0 0 0 3px rgba(31,95,174,.18);
     }
     textarea {
-      min-height: 160px;
-      resize: vertical;
-      line-height: 1.5;
+      min-height:120px;
+      resize:vertical;
     }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+    .form-grid {
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:14px;
     }
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
+    .form-grid.two {
+      grid-template-columns:repeat(2, minmax(0, 1fr));
     }
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-    }
-    .section {
-      margin-bottom: 18px;
-    }
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-      flex-wrap: wrap;
+    .full { grid-column:1 / -1; }
+    .actions {
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:14px;
     }
     .btn {
-      padding: 11px 16px;
-      border: none;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
+      padding:12px 14px;
+      border-radius:10px;
+      font-weight:900;
+      background:var(--blue);
+      color:white;
     }
-    .btn-primary {
-      background: #2563eb;
-      color: white;
+    .btn.dark { background:var(--navy); }
+    .btn.good { background:var(--green); }
+    .btn.warn { background:var(--orange); }
+    .btn.danger { background:var(--red); }
+    .btn.light {
+      background:#eef3f9;
+      color:var(--navy);
+      border:1px solid var(--line);
     }
-    .btn-green {
-      background: #047857;
-      color: white;
+    .table-wrap {
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:12px;
     }
-    .btn-red {
-      background: #991b1b;
-      color: white;
+    table {
+      width:100%;
+      border-collapse:collapse;
+      min-width:760px;
+      background:white;
     }
-    .btn-gray {
-      background: #374151;
-      color: white;
+    th {
+      background:#e8eef6;
+      color:#162942;
+      text-align:left;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      padding:12px;
     }
-    .checkbox-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-top: 10px;
+    td {
+      border-top:1px solid var(--line);
+      padding:12px;
+      vertical-align:top;
+      font-size:14px;
     }
-    .checkbox-item {
-      background: #020617;
-      border: 1px solid #374151;
-      padding: 10px;
-      border-radius: 4px;
-      font-size: 13px;
+    .tag {
+      display:inline-block;
+      padding:5px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:900;
+      background:#e8f0fb;
+      color:#164b87;
     }
-    .checkbox-item input {
-      width: auto;
-      margin-right: 6px;
+    .tag.green { background:#e7f5ee; color:#11643e; }
+    .tag.red { background:#fde8e7; color:#9b1c13; }
+    .tag.orange { background:#fff1db; color:#9a4f00; }
+    .timeline {
+      display:grid;
+      gap:10px;
     }
-    .person-entry, .vehicle-entry {
-      border: 1px solid #374151;
-      padding: 12px;
-      margin-top: 10px;
-      border-radius: 5px;
-      background: #0f172a;
+    .timeline-item {
+      border-left:4px solid var(--blue);
+      background:#f8fafc;
+      padding:12px;
+      border-radius:10px;
     }
-    #reportPreview {
-      display: none;
-      background: white;
-      color: black;
-      padding: 35px;
-      width: 8.5in;
-      min-height: 11in;
+    .timeline-item strong {
+      color:var(--navy);
     }
-    .pdf-header {
-      text-align: center;
-      border-bottom: 3px solid black;
-      padding-bottom: 14px;
-      margin-bottom: 20px;
+    .small {
+      color:var(--muted);
+      font-size:13px;
     }
-    .pdf-header h1 {
-      margin: 0;
-      font-size: 24px;
-      letter-spacing: 1px;
+    .footer-note {
+      margin-top:18px;
+      font-size:12px;
+      color:var(--muted);
     }
-    .pdf-header h2 {
-      margin: 6px 0 0 0;
-      font-size: 18px;
+    .mobile-nav {
+      display:none;
+      padding:10px;
+      background:#102844;
+      gap:8px;
+      overflow:auto;
     }
-    .pdf-section {
-      margin-bottom: 18px;
-      page-break-inside: avoid;
+    .mobile-nav button {
+      white-space:nowrap;
+      color:white;
+      background:#1d4775;
+      padding:10px 12px;
+      border-radius:999px;
+      font-weight:800;
     }
-    .pdf-section h3 {
-      background: #e5e7eb;
-      padding: 7px;
-      font-size: 14px;
-      border: 1px solid #111;
-      margin-bottom: 8px;
+    @media (max-width: 980px) {
+      .layout { grid-template-columns:1fr; }
+      .sidebar { display:none; }
+      .mobile-nav { display:flex; }
+      .grid.cards { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+      .grid.two { grid-template-columns:1fr; }
+      .form-grid,
+      .form-grid.two {
+        grid-template-columns:1fr;
+      }
+      .header {
+        align-items:flex-start;
+        flex-direction:column;
+      }
+      .status-pill { white-space:normal; }
     }
-    .pdf-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px 18px;
-      font-size: 12px;
-    }
-    .pdf-text {
-      font-size: 12px;
-      line-height: 1.5;
-      white-space: pre-wrap;
-    }
-    .signature-line {
-      margin-top: 35px;
-      border-top: 1px solid black;
-      width: 260px;
-      font-size: 11px;
-      padding-top: 5px;
+    @media (max-width: 560px) {
+      .content { padding:14px; }
+      .grid.cards { grid-template-columns:1fr; }
+      .page-title { flex-direction:column; }
+      .brand h1 { font-size:17px; }
+      .seal { width:42px; height:42px; }
+      .card { padding:14px; }
+      .actions .btn { width:100%; }
     }
     @media print {
-      body {
-        background: white;
-      }
+      .sidebar, .mobile-nav, .actions, .topbar { display:none !important; }
+      .layout { display:block; }
+      body { background:white; }
+      .card { box-shadow:none; border:1px solid #999; }
+      .view { display:block; page-break-after:always; }
     }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="brand">PUENTE SECURITY GROUP | REPORT WRITING SYSTEM</div>
-    <div class="status" id="liveClock">SYSTEM ACTIVE</div>
-  </div>
-  <div class="layout">
+  <header class="topbar">
+    <div class="gov-strip">OFFICIAL DAILY ACTIVITY REPORT SYSTEM · LOCAL BROWSER BUILD · TRAINING / OPERATIONS TEMPLATE</div>
+    <div class="header">
+      <div class="brand">
+        <div class="seal">DAR</div>
+        <div>
+          <h1>Police Daily Activity Report System</h1>
+          <p>Operations dashboard · Patrol logs · Incidents · Supervisor review</p>
+        </div>
+      </div>
+      <div class="status-pill" id="clock">System Time Loading...</div>
+    </div>
+  </header>
+  <nav class="mobile-nav">
+    <button onclick="showView('dashboard')">Dashboard</button>
+    <button onclick="showView('newReport')">New DAR</button>
+    <button onclick="showView('reports')">Reports</button>
+    <button onclick="showView('incidents')">Incidents</button>
+    <button onclick="showView('supervisor')">Supervisor</button>
+  </nav>
+  <main class="layout">
     <aside class="sidebar">
-      <h3>REPORT COMMANDS</h3>
-      <button onclick="generateReportNumber()">New Report #</button>
-      <button onclick="saveDraft()">Save Draft</button>
-      <button onclick="loadDraft()">Load Draft</button>
-      <button onclick="clearForm()">Clear Report</button>
-      <button onclick="generatePDF()">Generate PDF</button>
-      <h3>REPORT STATUS</h3>
-      <p><strong>System:</strong> Local Browser</p>
-      <p><strong>PDF Engine:</strong> HTML2PDF.js</p>
-      <p><strong>Storage:</strong> LocalStorage</p>
+      <button class="nav-btn active" onclick="showView('dashboard', this)">▣ Dashboard</button>
+      <button class="nav-btn" onclick="showView('newReport', this)">✚ New DAR</button>
+      <button class="nav-btn" onclick="showView('reports', this)">▤ Report Log</button>
+      <button class="nav-btn" onclick="showView('incidents', this)">⚠ Incident Matrix</button>
+      <button class="nav-btn" onclick="showView('supervisor', this)">✓ Supervisor Review</button>
     </aside>
-    <main class="main">
-      <div class="cad-header">
-        <div class="card">
-          <div class="card-title">Report Number</div>
-          <input id="reportNumber" readonly />
+    <section class="content">
+      <section id="dashboard" class="view active">
+        <div class="page-title">
+          <div>
+            <h2>Command Dashboard</h2>
+            <p>Daily operational summary for patrol, calls, contacts, reports, and security checks.</p>
+          </div>
+          <button class="btn dark" onclick="print()">Print System View</button>
+        </div>
+        <div class="grid cards">
+          <div class="card metric">
+            <div><div class="label">DAR Entries</div><div class="value" id="metricReports">0</div></div>
+            <div class="icon">R</div>
+          </div>
+          <div class="card metric">
+            <div><div class="label">Incidents</div><div class="value" id="metricIncidents">0</div></div>
+            <div class="icon">I</div>
+          </div>
+          <div class="card metric">
+            <div><div class="label">Contacts</div><div class="value" id="metricContacts">0</div></div>
+            <div class="icon">C</div>
+          </div>
+          <div class="card metric">
+            <div><div class="label">Pending Review</div><div class="value" id="metricPending">0</div></div>
+            <div class="icon">S</div>
+          </div>
+        </div>
+        <div class="grid two" style="margin-top:16px;">
+          <div class="card">
+            <h3 class="section-title">Recent Activity Timeline</h3>
+            <div id="timeline" class="timeline"></div>
+          </div>
+          <div class="card">
+            <h3 class="section-title">System Notes</h3>
+            <p class="small">
+              This single-file system stores entries in browser localStorage.
+              For real agency deployment, connect it to authenticated backend storage,
+              audit logging, role-based access, CJIS-aligned controls, and agency policy review.
+            </p>
+            <div class="actions">
+              <button class="btn light" onclick="exportJSON()">Export JSON</button>
+              <button class="btn light" onclick="downloadCSV()">Export CSV</button>
+              <button class="btn danger" onclick="clearAll()">Clear Local Data</button>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section id="newReport" class="view">
+        <div class="page-title">
+          <div>
+            <h2>New Daily Activity Report</h2>
+            <p>Enter patrol activity, calls for service, contacts, reports, and shift notes.</p>
+          </div>
+        </div>
+        <form class="card" id="darForm">
+          <h3 class="section-title">Officer / Shift Information</h3>
+          <div class="form-grid">
+            <div>
+              <label>Officer Name</label>
+              <input id="officer" required placeholder="Officer / Deputy / Agent Name" />
+            </div>
+            <div>
+              <label>Badge / ID</label>
+              <input id="badge" required placeholder="Badge or employee ID" />
+            </div>
+            <div>
+              <label>Unit / Call Sign</label>
+              <input id="unit" placeholder="Unit number" />
+            </div>
+            <div>
+              <label>Agency / Division</label>
+              <input id="agency" placeholder="Agency or division" />
+            </div>
+            <div>
+              <label>Shift Date</label>
+              <input id="shiftDate" type="date" required />
+            </div>
+            <div>
+              <label>Shift</label>
+              <select id="shift">
+                <option>Day Shift</option>
+                <option>Swing Shift</option>
+                <option>Night Shift</option>
+                <option>Special Detail</option>
+                <option>Overtime</option>
+              </select>
+            </div>
+          </div>
+          <h3 class="section-title" style="margin-top:18px;">Activity Entry</h3>
+          <div class="form-grid">
+            <div>
+              <label>Start Time</label>
+              <input id="startTime" type="time" required />
+            </div>
+            <div>
+              <label>End Time</label>
+              <input id="endTime" type="time" required />
+            </div>
+            <div>
+              <label>Activity Type</label>
+              <select id="activityType">
+                <option>Patrol</option>
+                <option>Call for Service</option>
+                <option>Traffic Stop</option>
+                <option>Subject Contact</option>
+                <option>Security Check</option>
+                <option>Incident Report</option>
+                <option>Arrest / Detention</option>
+                <option>Evidence / Property</option>
+                <option>Administrative</option>
+                <option>Training</option>
+              </select>
+            </div>
+            <div>
+              <label>Location</label>
+              <input id="location" placeholder="Address, sector, beat, or landmark" />
+            </div>
+            <div>
+              <label>Case / CAD Number</label>
+              <input id="caseNumber" placeholder="Optional" />
+            </div>
+            <div>
+              <label>Disposition</label>
+              <select id="disposition">
+                <option>Completed</option>
+                <option>Report Taken</option>
+                <option>Warning Issued</option>
+                <option>Citation Issued</option>
+                <option>Arrest Made</option>
+                <option>Unable to Locate</option>
+                <option>Referred</option>
+                <option>Pending Follow-Up</option>
+              </select>
+            </div>
+            <div>
+              <label>Public Contacts</label>
+              <input id="contacts" type="number" min="0" value="0" />
+            </div>
+            <div>
+              <label>Priority</label>
+              <select id="priority">
+                <option>Routine</option>
+                <option>Priority</option>
+                <option>Emergency</option>
+              </select>
+            </div>
+            <div>
+              <label>Review Status</label>
+              <select id="reviewStatus">
+                <option>Pending Review</option>
+                <option>Approved</option>
+                <option>Needs Correction</option>
+              </select>
+            </div>
+            <div class="full">
+              <label>Narrative</label>
+              <textarea id="narrative" required placeholder="Write clear facts: who, what, when, where, actions taken, disposition, and follow-up needed."></textarea>
+            </div>
+            <div class="full">
+              <label>Supervisor Notes</label>
+              <textarea id="supervisorNotes" placeholder="Optional supervisor comments or correction notes."></textarea>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn good" type="submit">Save DAR Entry</button>
+            <button class="btn light" type="button" onclick="darForm.reset(); setToday();">Reset Form</button>
+          </div>
+        </form>
+      </section>
+      <section id="reports" class="view">
+        <div class="page-title">
+          <div>
+            <h2>Report Log</h2>
+            <p>Search, filter, review, print, and export all saved DAR entries.</p>
+          </div>
         </div>
         <div class="card">
-          <div class="card-title">Priority</div>
-          <select id="priority">
-            <option>Low</option>
-            <option>Medium</option>
-            <option>High</option>
-            <option>Emergency</option>
-          </select>
+          <div class="form-grid two">
+            <div>
+              <label>Search</label>
+              <input id="searchBox" oninput="renderAll()" placeholder="Search officer, location, case number, narrative..." />
+            </div>
+            <div>
+              <label>Filter Activity Type</label>
+              <select id="filterType" onchange="renderAll()">
+                <option value="">All Activity Types</option>
+                <option>Patrol</option>
+                <option>Call for Service</option>
+                <option>Traffic Stop</option>
+                <option>Subject Contact</option>
+                <option>Security Check</option>
+                <option>Incident Report</option>
+                <option>Arrest / Detention</option>
+                <option>Evidence / Property</option>
+                <option>Administrative</option>
+                <option>Training</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap" style="margin-top:14px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Time</th>
+                  <th>Officer</th>
+                  <th>Type</th>
+                  <th>Location</th>
+                  <th>Disposition</th>
+                  <th>Review</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="reportRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section id="incidents" class="view">
+        <div class="page-title">
+          <div>
+            <h2>Incident Matrix</h2>
+            <p>Priority, emergency, report, arrest, and pending follow-up activity.</p>
+          </div>
         </div>
         <div class="card">
-          <div class="card-title">Status</div>
-          <select id="caseStatus">
-            <option>Open</option>
-            <option>Closed</option>
-            <option>Pending Review</option>
-            <option>Referred to Law Enforcement</option>
-          </select>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Case / CAD</th>
+                  <th>Priority</th>
+                  <th>Type</th>
+                  <th>Location</th>
+                  <th>Narrative</th>
+                  <th>Disposition</th>
+                </tr>
+              </thead>
+              <tbody id="incidentRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <section id="supervisor" class="view">
+        <div class="page-title">
+          <div>
+            <h2>Supervisor Review</h2>
+            <p>Entries pending approval, correction, or command review.</p>
+          </div>
         </div>
         <div class="card">
-          <div class="card-title">Incident Type</div>
-          <select id="incidentType">
-            <option>General Incident</option>
-            <option>Trespassing</option>
-            <option>Disturbance</option>
-            <option>Theft</option>
-            <option>Assault</option>
-            <option>Medical</option>
-            <option>Property Damage</option>
-            <option>Suspicious Activity</option>
-            <option>Vehicle Incident</option>
-            <option>Use of Force</option>
-            <option>Other</option>
-          </select>
-        </div>
-      </div>
-      <div class="section card">
-        <div class="card-title">Incident Information</div>
-        <div class="grid-4">
-          <div>
-            <label>Date</label>
-            <input type="date" id="incidentDate" />
-          </div>
-          <div>
-            <label>Time</label>
-            <input type="time" id="incidentTime" />
-          </div>
-          <div>
-            <label>Location</label>
-            <input id="location" placeholder="Property / address / post location" />
-          </div>
-          <div>
-            <label>Client / Site</label>
-            <input id="clientSite" placeholder="Client or site name" />
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Officer</th>
+                  <th>Activity</th>
+                  <th>Status</th>
+                  <th>Notes</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="reviewRows"></tbody>
+            </table>
           </div>
         </div>
+      </section>
+      <div class="footer-note">
+        Local HTML5 prototype. Not a certified records-management system. Use agency-approved storage, retention, security, and review policy for official records.
       </div>
-      <div class="section card">
-        <div class="card-title">Reporting Officer</div>
-        <div class="grid-4">
-          <div>
-            <label>Officer Name</label>
-            <input id="officerName" />
-          </div>
-          <div>
-            <label>Badge / Employee ID</label>
-            <input id="badgeId" />
-          </div>
-          <div>
-            <label>Shift</label>
-            <select id="shift">
-              <option>Day Shift</option>
-              <option>Swing Shift</option>
-              <option>Night Shift</option>
-              <option>Special Assignment</option>
-            </select>
-          </div>
-          <div>
-            <label>Supervisor</label>
-            <input id="supervisor" />
-          </div>
-        </div>
-      </div>
-      <div class="section card">
-        <div class="card-title">Persons Involved</div>
-        <div id="personsContainer"></div>
-        <div class="btn-row">
-          <button class="btn btn-gray" onclick="addPerson()">Add Person</button>
-        </div>
-      </div>
-      <div class="section card">
-        <div class="card-title">Vehicles</div>
-        <div id="vehiclesContainer"></div>
-        <div class="btn-row">
-          <button class="btn btn-gray" onclick="addVehicle()">Add Vehicle</button>
-        </div>
-      </div>
-      <div class="section card">
-        <div class="card-title">Narrative</div>
-        <label>Detailed Incident Narrative</label>
-        <textarea id="narrative" spellcheck="true" placeholder="Write the report narrative here. Include who, what, when, where, why, how, actions taken, and final disposition."></textarea>
-      </div>
-      <div class="section card">
-        <div class="card-title">Actions Taken</div>
-        <div class="checkbox-grid">
-          <label class="checkbox-item"><input type="checkbox" value="Verbal warning issued"> Verbal warning issued</label>
-          <label class="checkbox-item"><input type="checkbox" value="Subject removed from property"> Subject removed from property</label>
-          <label class="checkbox-item"><input type="checkbox" value="Trespass notice issued"> Trespass notice issued</label>
-          <label class="checkbox-item"><input type="checkbox" value="Law enforcement notified"> Law enforcement notified</label>
-          <label class="checkbox-item"><input type="checkbox" value="Medical assistance requested"> Medical assistance requested</label>
-          <label class="checkbox-item"><input type="checkbox" value="Client notified"> Client notified</label>
-          <label class="checkbox-item"><input type="checkbox" value="Supervisor notified"> Supervisor notified</label>
-          <label class="checkbox-item"><input type="checkbox" value="Photos taken"> Photos taken</label>
-          <label class="checkbox-item"><input type="checkbox" value="Report completed"> Report completed</label>
-        </div>
-        <label>Additional Actions</label>
-        <textarea id="additionalActions"></textarea>
-      </div>
-      <div class="section card">
-        <div class="card-title">Evidence / Property</div>
-        <label>Evidence / Property Description</label>
-        <textarea id="evidence"></textarea>
-      </div>
-      <div class="section card">
-        <div class="card-title">Supervisor Review</div>
-        <label>Supervisor Notes</label>
-        <textarea id="supervisorNotes"></textarea>
-        <div class="grid-2">
-          <div>
-            <label>Reviewed By</label>
-            <input id="reviewedBy" />
-          </div>
-          <div>
-            <label>Review Date</label>
-            <input type="date" id="reviewDate" />
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
-  <div id="reportPreview">
-    <div class="pdf-header">
-      <h1>PUENTE SECURITY GROUP</h1>
-      <h2>INCIDENT REPORT</h2>
-      <p>Professional Security Report</p>
-    </div>
-    <div class="pdf-section">
-      <h3>Report Information</h3>
-      <div class="pdf-grid">
-        <div><strong>Report Number:</strong> <span id="pdfReportNumber"></span></div>
-        <div><strong>Incident Type:</strong> <span id="pdfIncidentType"></span></div>
-        <div><strong>Priority:</strong> <span id="pdfPriority"></span></div>
-        <div><strong>Status:</strong> <span id="pdfCaseStatus"></span></div>
-        <div><strong>Date:</strong> <span id="pdfIncidentDate"></span></div>
-        <div><strong>Time:</strong> <span id="pdfIncidentTime"></span></div>
-        <div><strong>Location:</strong> <span id="pdfLocation"></span></div>
-        <div><strong>Client / Site:</strong> <span id="pdfClientSite"></span></div>
-      </div>
-    </div>
-    <div class="pdf-section">
-      <h3>Reporting Officer</h3>
-      <div class="pdf-grid">
-        <div><strong>Officer:</strong> <span id="pdfOfficerName"></span></div>
-        <div><strong>Badge / Employee ID:</strong> <span id="pdfBadgeId"></span></div>
-        <div><strong>Shift:</strong> <span id="pdfShift"></span></div>
-        <div><strong>Supervisor:</strong> <span id="pdfSupervisor"></span></div>
-      </div>
-    </div>
-    <div class="pdf-section">
-      <h3>Persons Involved</h3>
-      <div class="pdf-text" id="pdfPersons"></div>
-    </div>
-    <div class="pdf-section">
-      <h3>Vehicles</h3>
-      <div class="pdf-text" id="pdfVehicles"></div>
-    </div>
-    <div class="pdf-section">
-      <h3>Narrative</h3>
-      <div class="pdf-text" id="pdfNarrative"></div>
-    </div>
-    <div class="pdf-section">
-      <h3>Actions Taken</h3>
-      <div class="pdf-text" id="pdfActions"></div>
-    </div>
-    <div class="pdf-section">
-      <h3>Evidence / Property</h3>
-      <div class="pdf-text" id="pdfEvidence"></div>
-    </div>
-    <div class="pdf-section">
-      <h3>Supervisor Review</h3>
-      <div class="pdf-text" id="pdfSupervisorNotes"></div>
-      <div class="pdf-grid">
-        <div><strong>Reviewed By:</strong> <span id="pdfReviewedBy"></span></div>
-        <div><strong>Review Date:</strong> <span id="pdfReviewDate"></span></div>
-      </div>
-    </div>
-    <div class="pdf-section">
-      <h3>Certification</h3>
-      <p class="pdf-text">
-        I certify that the above information is true and accurate to the best of my knowledge.
-      </p>
-      <div class="signature-line">Reporting Officer Signature / Date</div>
-      <div class="signature-line">Supervisor Signature / Date</div>
-    </div>
-  </div>
+    </section>
+  </main>
   <script>
+    const STORAGE_KEY = "police_dar_entries_v1";
+    let entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    const $ = id => document.getElementById(id);
+    function saveEntries() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+    }
+    function setToday() {
+      const today = new Date().toISOString().split("T")[0];
+      $("shiftDate").value = today;
+    }
     function updateClock() {
       const now = new Date();
-      document.getElementById("liveClock").innerText =
-        "SYSTEM ACTIVE | " + now.toLocaleDateString() + " " + now.toLocaleTimeString();
+      $("clock").textContent = "SYSTEM TIME · " + now.toLocaleString();
     }
     setInterval(updateClock, 1000);
     updateClock();
-    function generateReportNumber() {
-      const year = new Date().getFullYear();
-      const random = Math.floor(Math.random() * 999999).toString().padStart(6, "0");
-      document.getElementById("reportNumber").value = `PSG-${year}-${random}`;
+    setToday();
+    function showView(id, btn) {
+      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+      $(id).classList.add("active");
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      renderAll();
     }
-    function setCurrentDateTime() {
-      const now = new Date();
-      document.getElementById("incidentDate").value = now.toISOString().split("T")[0];
-      document.getElementById("incidentTime").value = now.toTimeString().slice(0, 5);
-    }
-    function addPerson() {
-      const container = document.getElementById("personsContainer");
-      const div = document.createElement("div");
-      div.className = "person-entry";
-      div.innerHTML = `
-        <div class="grid-4">
-          <div>
-            <label>Name</label>
-            <input class="personName">
-          </div>
-          <div>
-            <label>DOB</label>
-            <input class="personDob">
-          </div>
-          <div>
-            <label>Phone</label>
-            <input class="personPhone">
-          </div>
-          <div>
-            <label>Role</label>
-            <select class="personRole">
-              <option>Victim</option>
-              <option>Suspect</option>
-              <option>Witness</option>
-              <option>Complainant</option>
-              <option>Reporting Party</option>
-              <option>Other</option>
-            </select>
-          </div>
-        </div>
-        <label>Address / Description</label>
-        <input class="personDescription">
-        <div class="btn-row">
-          <button class="btn btn-red" onclick="this.closest('.person-entry').remove()">Remove Person</button>
-        </div>
-      `;
-      container.appendChild(div);
-    }
-    function addVehicle() {
-      const container = document.getElementById("vehiclesContainer");
-      const div = document.createElement("div");
-      div.className = "vehicle-entry";
-      div.innerHTML = `
-        <div class="grid-4">
-          <div>
-            <label>Year</label>
-            <input class="vehicleYear">
-          </div>
-          <div>
-            <label>Make</label>
-            <input class="vehicleMake">
-          </div>
-          <div>
-            <label>Model</label>
-            <input class="vehicleModel">
-          </div>
-          <div>
-            <label>Plate</label>
-            <input class="vehiclePlate">
-          </div>
-        </div>
-        <label>Vehicle Notes</label>
-        <input class="vehicleNotes">
-        <div class="btn-row">
-          <button class="btn btn-red" onclick="this.closest('.vehicle-entry').remove()">Remove Vehicle</button>
-        </div>
-      `;
-      container.appendChild(div);
-    }
-    function getValue(id) {
-      return document.getElementById(id).value || "N/A";
-    }
-    function fillPdfPreview() {
-      document.getElementById("pdfReportNumber").innerText = getValue("reportNumber");
-      document.getElementById("pdfIncidentType").innerText = getValue("incidentType");
-      document.getElementById("pdfPriority").innerText = getValue("priority");
-      document.getElementById("pdfCaseStatus").innerText = getValue("caseStatus");
-      document.getElementById("pdfIncidentDate").innerText = getValue("incidentDate");
-      document.getElementById("pdfIncidentTime").innerText = getValue("incidentTime");
-      document.getElementById("pdfLocation").innerText = getValue("location");
-      document.getElementById("pdfClientSite").innerText = getValue("clientSite");
-      document.getElementById("pdfOfficerName").innerText = getValue("officerName");
-      document.getElementById("pdfBadgeId").innerText = getValue("badgeId");
-      document.getElementById("pdfShift").innerText = getValue("shift");
-      document.getElementById("pdfSupervisor").innerText = getValue("supervisor");
-      document.getElementById("pdfNarrative").innerText = getValue("narrative");
-      document.getElementById("pdfEvidence").innerText = getValue("evidence");
-      document.getElementById("pdfSupervisorNotes").innerText = getValue("supervisorNotes");
-      document.getElementById("pdfReviewedBy").innerText = getValue("reviewedBy");
-      document.getElementById("pdfReviewDate").innerText = getValue("reviewDate");
-      const persons = [...document.querySelectorAll(".person-entry")].map((entry, index) => {
-        return `Person ${index + 1}
-Name: ${entry.querySelector(".personName").value || "N/A"}
-DOB: ${entry.querySelector(".personDob").value || "N/A"}
-Phone: ${entry.querySelector(".personPhone").value || "N/A"}
-Role: ${entry.querySelector(".personRole").value || "N/A"}
-Description: ${entry.querySelector(".personDescription").value || "N/A"}`;
-      }).join("\n\n");
-      document.getElementById("pdfPersons").innerText = persons || "N/A";
-      const vehicles = [...document.querySelectorAll(".vehicle-entry")].map((entry, index) => {
-        return `Vehicle ${index + 1}
-Year: ${entry.querySelector(".vehicleYear").value || "N/A"}
-Make: ${entry.querySelector(".vehicleMake").value || "N/A"}
-Model: ${entry.querySelector(".vehicleModel").value || "N/A"}
-Plate: ${entry.querySelector(".vehiclePlate").value || "N/A"}
-Notes: ${entry.querySelector(".vehicleNotes").value || "N/A"}`;
-      }).join("\n\n");
-      document.getElementById("pdfVehicles").innerText = vehicles || "N/A";
-      const checkedActions = [...document.querySelectorAll(".checkbox-item input:checked")]
-        .map(box => "- " + box.value);
-      const additional = getValue("additionalActions");
-      document.getElementById("pdfActions").innerText =
-        checkedActions.join("\n") + "\n\nAdditional Actions:\n" + additional;
-    }
-    function generatePDF() {
-      fillPdfPreview();
-      const report = document.getElementById("reportPreview");
-      report.style.display = "block";
-      const fileName = `${getValue("reportNumber")}-Incident-Report.pdf`;
-      const options = {
-        margin: 0.4,
-        filename: fileName,
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: { scale: 2 },
-        jsPDF: {
-          unit: "in",
-          format: "letter",
-          orientation: "portrait"
-        }
+    $("darForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const entry = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()),
+        createdAt: new Date().toISOString(),
+        officer: $("officer").value.trim(),
+        badge: $("badge").value.trim(),
+        unit: $("unit").value.trim(),
+        agency: $("agency").value.trim(),
+        shiftDate: $("shiftDate").value,
+        shift: $("shift").value,
+        startTime: $("startTime").value,
+        endTime: $("endTime").value,
+        activityType: $("activityType").value,
+        location: $("location").value.trim(),
+        caseNumber: $("caseNumber").value.trim(),
+        disposition: $("disposition").value,
+        contacts: Number($("contacts").value || 0),
+        priority: $("priority").value,
+        reviewStatus: $("reviewStatus").value,
+        narrative: $("narrative").value.trim(),
+        supervisorNotes: $("supervisorNotes").value.trim()
       };
-      html2pdf().set(options).from(report).save().then(() => {
-        report.style.display = "none";
+      entries.unshift(entry);
+      saveEntries();
+      this.reset();
+      setToday();
+      renderAll();
+      showView("reports");
+    });
+    function getFilteredEntries() {
+      const q = ($("searchBox")?.value || "").toLowerCase();
+      const type = $("filterType")?.value || "";
+      return entries.filter(e => {
+        const haystack = Object.values(e).join(" ").toLowerCase();
+        const matchesSearch = !q || haystack.includes(q);
+        const matchesType = !type || e.activityType === type;
+        return matchesSearch && matchesType;
       });
     }
-    function saveDraft() {
-      const data = {
-        reportNumber: getValue("reportNumber"),
-        priority: getValue("priority"),
-        caseStatus: getValue("caseStatus"),
-        incidentType: getValue("incidentType"),
-        incidentDate: getValue("incidentDate"),
-        incidentTime: getValue("incidentTime"),
-        location: getValue("location"),
-        clientSite: getValue("clientSite"),
-        officerName: getValue("officerName"),
-        badgeId: getValue("badgeId"),
-        shift: getValue("shift"),
-        supervisor: getValue("supervisor"),
-        narrative: getValue("narrative"),
-        additionalActions: getValue("additionalActions"),
-        evidence: getValue("evidence"),
-        supervisorNotes: getValue("supervisorNotes"),
-        reviewedBy: getValue("reviewedBy"),
-        reviewDate: getValue("reviewDate")
-      };
-      localStorage.setItem("psgReportDraft", JSON.stringify(data));
-      alert("Draft saved.");
+    function tagForPriority(priority) {
+      if (priority === "Emergency") return "tag red";
+      if (priority === "Priority") return "tag orange";
+      return "tag green";
     }
-    function loadDraft() {
-      const data = JSON.parse(localStorage.getItem("psgReportDraft"));
-      if (!data) {
-        alert("No saved draft found.");
+    function tagForReview(status) {
+      if (status === "Approved") return "tag green";
+      if (status === "Needs Correction") return "tag red";
+      return "tag orange";
+    }
+    function renderAll() {
+      renderMetrics();
+      renderTimeline();
+      renderReports();
+      renderIncidents();
+      renderSupervisor();
+    }
+    function renderMetrics() {
+      $("metricReports").textContent = entries.length;
+      $("metricIncidents").textContent = entries.filter(e =>
+        ["Incident Report", "Arrest / Detention", "Call for Service"].includes(e.activityType)
+      ).length;
+      $("metricContacts").textContent = entries.reduce((sum, e) => sum + Number(e.contacts || 0), 0);
+      $("metricPending").textContent = entries.filter(e => e.reviewStatus !== "Approved").length;
+    }
+    function renderTimeline() {
+      const box = $("timeline");
+      const recent = entries.slice(0, 7);
+      if (!recent.length) {
+        box.innerHTML = `<p class="small">No activity entered yet.</p>`;
         return;
       }
-      Object.keys(data).forEach(key => {
-        if (document.getElementById(key)) {
-          document.getElementById(key).value = data[key];
-        }
-      });
-      alert("Draft loaded.");
+      box.innerHTML = recent.map(e => `
+        <div class="timeline-item">
+          <strong>${escapeHTML(e.shiftDate)} · ${escapeHTML(e.startTime)}-${escapeHTML(e.endTime)}</strong><br>
+          <span class="small">${escapeHTML(e.activityType)} · ${escapeHTML(e.location || "No location listed")}</span><br>
+          ${escapeHTML(e.narrative).slice(0, 150)}${e.narrative.length > 150 ? "..." : ""}
+        </div>
+      `).join("");
     }
-    function clearForm() {
-      if (!confirm("Clear the entire report?")) return;
-      document.querySelectorAll("input, textarea, select").forEach(field => {
-        if (field.type === "checkbox") {
-          field.checked = false;
-        } else {
-          field.value = "";
-        }
-      });
-      document.getElementById("personsContainer").innerHTML = "";
-      document.getElementById("vehiclesContainer").innerHTML = "";
-      generateReportNumber();
-      setCurrentDateTime();
+    function renderReports() {
+      const rows = $("reportRows");
+      const data = getFilteredEntries();
+      if (!data.length) {
+        rows.innerHTML = `<tr><td colspan="8">No reports found.</td></tr>`;
+        return;
+      }
+      rows.innerHTML = data.map(e => `
+        <tr>
+          <td>${escapeHTML(e.shiftDate)}</td>
+          <td>${escapeHTML(e.startTime)}-${escapeHTML(e.endTime)}</td>
+          <td>${escapeHTML(e.officer)}<br><span class="small">${escapeHTML(e.badge)} · ${escapeHTML(e.unit)}</span></td>
+          <td><span class="tag">${escapeHTML(e.activityType)}</span></td>
+          <td>${escapeHTML(e.location)}</td>
+          <td>${escapeHTML(e.disposition)}</td>
+          <td><span class="${tagForReview(e.reviewStatus)}">${escapeHTML(e.reviewStatus)}</span></td>
+          <td>
+            <button class="btn light" onclick="viewEntry('${e.id}')">View</button>
+            <button class="btn danger" onclick="deleteEntry('${e.id}')">Delete</button>
+          </td>
+        </tr>
+      `).join("");
     }
-    generateReportNumber();
-    setCurrentDateTime();
-    addPerson();
+    function renderIncidents() {
+      const rows = $("incidentRows");
+      const data = entries.filter(e =>
+        e.priority !== "Routine" ||
+        ["Incident Report", "Arrest / Detention", "Call for Service"].includes(e.activityType) ||
+        e.disposition === "Pending Follow-Up"
+      );
+      if (!data.length) {
+        rows.innerHTML = `<tr><td colspan="7">No priority incidents found.</td></tr>`;
+        return;
+      }
+      rows.innerHTML = data.map(e => `
+        <tr>
+          <td>${escapeHTML(e.shiftDate)}</td>
+          <td>${escapeHTML(e.caseNumber || "N/A")}</td>
+          <td><span class="${tagForPriority(e.priority)}">${escapeHTML(e.priority)}</span></td>
+          <td>${escapeHTML(e.activityType)}</td>
+          <td>${escapeHTML(e.location)}</td>
+          <td>${escapeHTML(e.narrative).slice(0, 220)}${e.narrative.length > 220 ? "..." : ""}</td>
+          <td>${escapeHTML(e.disposition)}</td>
+        </tr>
+      `).join("");
+    }
+    function renderSupervisor() {
+      const rows = $("reviewRows");
+      const data = entries.filter(e => e.reviewStatus !== "Approved");
+      if (!data.length) {
+        rows.innerHTML = `<tr><td colspan="6">No entries pending supervisor review.</td></tr>`;
+        return;
+      }
+      rows.innerHTML = data.map(e => `
+        <tr>
+          <td>${escapeHTML(e.shiftDate)}</td>
+          <td>${escapeHTML(e.officer)}<br><span class="small">${escapeHTML(e.badge)}</span></td>
+          <td>${escapeHTML(e.activityType)}<br><span class="small">${escapeHTML(e.location)}</span></td>
+          <td><span class="${tagForReview(e.reviewStatus)}">${escapeHTML(e.reviewStatus)}</span></td>
+          <td>${escapeHTML(e.supervisorNotes || "No notes entered.")}</td>
+          <td>
+            <button class="btn good" onclick="approveEntry('${e.id}')">Approve</button>
+            <button class="btn warn" onclick="correctionEntry('${e.id}')">Correction</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+    function viewEntry(id) {
+      const e = entries.find(x => x.id === id);
+      if (!e) return;
+      const detail =
+`DAILY ACTIVITY REPORT
+Officer: ${e.officer}
+Badge / ID: ${e.badge}
+Unit: ${e.unit}
+Agency / Division: ${e.agency}
+Date: ${e.shiftDate}
+Shift: ${e.shift}
+Time: ${e.startTime} - ${e.endTime}
+Activity Type: ${e.activityType}
+Location: ${e.location}
+Case / CAD: ${e.caseNumber || "N/A"}
+Disposition: ${e.disposition}
+Priority: ${e.priority}
+Public Contacts: ${e.contacts}
+Review Status: ${e.reviewStatus}
+Narrative:
+${e.narrative}
+Supervisor Notes:
+${e.supervisorNotes || "N/A"}`;
+      alert(detail);
+    }
+    function approveEntry(id) {
+      const e = entries.find(x => x.id === id);
+      if (!e) return;
+      e.reviewStatus = "Approved";
+      saveEntries();
+      renderAll();
+    }
+    function correctionEntry(id) {
+      const e = entries.find(x => x.id === id);
+      if (!e) return;
+      const note = prompt("Enter correction note:", e.supervisorNotes || "");
+      if (note === null) return;
+      e.reviewStatus = "Needs Correction";
+      e.supervisorNotes = note;
+      saveEntries();
+      renderAll();
+    }
+    function deleteEntry(id) {
+      if (!confirm("Delete this DAR entry from local storage?")) return;
+      entries = entries.filter(e => e.id !== id);
+      saveEntries();
+      renderAll();
+    }
+    function exportJSON() {
+      const blob = new Blob([JSON.stringify(entries, null, 2)], { type:"application/json" });
+      downloadBlob(blob, "police-dar-export.json");
+    }
+    function downloadCSV() {
+      const headers = [
+        "shiftDate","startTime","endTime","officer","badge","unit","agency",
+        "shift","activityType","location","caseNumber","disposition",
+        "contacts","priority","reviewStatus","narrative","supervisorNotes"
+      ];
+      const csv = [
+        headers.join(","),
+        ...entries.map(e => headers.map(h => `"${String(e[h] ?? "").replaceAll('"', '""')}"`).join(","))
+      ].join("\n");
+      const blob = new Blob([csv], { type:"text/csv" });
+      downloadBlob(blob, "police-dar-export.csv");
+    }
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    function clearAll() {
+      if (!confirm("Clear all local DAR data from this browser?")) return;
+      entries = [];
+      saveEntries();
+      renderAll();
+    }
+    function escapeHTML(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+    renderAll();
   </script>
 </body>
 </html>
