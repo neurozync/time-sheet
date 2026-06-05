@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Driver Command Center</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #f5f5f5;
+    }
+
+    header {
+      padding: 15px;
+      background: #1f1f1f;
+      border-bottom: 1px solid #333;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      height: calc(100vh - 58px);
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    aside {
+      overflow-y: auto;
+      padding: 15px;
+      background: #181818;
+      border-left: 1px solid #333;
+    }
+
+    .card {
+      background: #222;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      margin-top: 8px;
+      font-size: 13px;
+      color: #ccc;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 9px;
+      margin-top: 4px;
+      border-radius: 6px;
+      border: 1px solid #444;
+      background: #111;
+      color: white;
+      box-sizing: border-box;
+    }
+
+    button {
+      cursor: pointer;
+      background: #2d6cdf;
+      border: none;
+      font-weight: bold;
+    }
+
+    button.secondary {
+      background: #444;
+    }
+
+    .good {
+      color: #48d16f;
+      font-weight: bold;
+    }
+
+    .bad {
+      color: #ff5b5b;
+      font-weight: bold;
+    }
+
+    .warn {
+      color: #ffcc33;
+      font-weight: bold;
+    }
+
+    .metric {
+      display: flex;
+      justify-content: space-between;
+      margin: 6px 0;
+      font-size: 14px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    @media (max-width: 850px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      #map {
+        height: 45vh;
+      }
+
+      aside {
+        height: 55vh;
+        border-left: none;
+        border-top: 1px solid #333;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>Driver Command Center — Lyft / DoorDash Helper</h1>
+  <div class="small">Safe mode: manual inputs only. No app automation. No scraping. No account login.</div>
+</header>
+
+<div class="grid">
+  <div id="map"></div>
+
+  <aside>
+    <div class="card">
+      <h3>Live GPS</h3>
+      <div class="metric"><span>Status:</span><span id="gpsStatus">Waiting</span></div>
+      <div class="metric"><span>Lat:</span><span id="lat">—</span></div>
+      <div class="metric"><span>Lng:</span><span id="lng">—</span></div>
+      <div class="metric"><span>Speed:</span><span id="speed">—</span></div>
+      <button onclick="startGPS()">Start GPS</button>
+    </div>
+
+    <div class="card">
+      <h3>Manual Offer Analyzer</h3>
+
+      <label>Platform</label>
+      <select id="platform">
+        <option>Lyft</option>
+        <option>DoorDash</option>
+        <option>Uber</option>
+        <option>Uber Eats</option>
+        <option>Other</option>
+      </select>
+
+      <label>Offer Pay ($)</label>
+      <input id="pay" type="number" step="0.01" placeholder="Example: 14.75">
+
+      <label>Total Miles</label>
+      <input id="miles" type="number" step="0.1" placeholder="Example: 7.2">
+
+      <label>Estimated Minutes</label>
+      <input id="minutes" type="number" step="1" placeholder="Example: 22">
+
+      <label>Your Minimum $/Mile</label>
+      <input id="minPerMile" type="number" step="0.01" value="1.50">
+
+      <label>Your Minimum $/Hour</label>
+      <input id="minPerHour" type="number" step="1" value="25">
+
+      <button onclick="analyzeOffer()">Analyze Offer</button>
+
+      <div id="offerResult" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="card">
+      <h3>Trip Logger</h3>
+
+      <label>Trip Name</label>
+      <input id="tripName" placeholder="Example: Lyft airport run">
+
+      <label>Actual Earnings ($)</label>
+      <input id="tripEarnings" type="number" step="0.01">
+
+      <label>Actual Miles</label>
+      <input id="tripMiles" type="number" step="0.1">
+
+      <label>Actual Minutes</label>
+      <input id="tripMinutes" type="number" step="1">
+
+      <button onclick="saveTrip()">Save Trip</button>
+      <button class="secondary" onclick="clearTrips()">Clear Trips</button>
+    </div>
+
+    <div class="card">
+      <h3>Shift Stats</h3>
+      <div class="metric"><span>Total Earnings:</span><span id="totalEarnings">$0.00</span></div>
+      <div class="metric"><span>Total Miles:</span><span id="totalMiles">0</span></div>
+      <div class="metric"><span>Total Time:</span><span id="totalTime">0 min</span></div>
+      <div class="metric"><span>Average $/Mile:</span><span id="avgPerMile">$0.00</span></div>
+      <div class="metric"><span>Average $/Hour:</span><span id="avgPerHour">$0.00</span></div>
+    </div>
+
+    <div class="card">
+      <h3>Route / Dead-Mile Tool</h3>
+
+      <label>Destination Address</label>
+      <input id="destination" placeholder="Example: Phoenix Sky Harbor Airport">
+
+      <button onclick="routeToDestination()">Route With Google Traffic</button>
+
+      <div id="routeResult" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="card">
+      <h3>Saved Trips</h3>
+      <div id="tripList"></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+  let map;
+  let marker;
+  let currentPosition = null;
+  let directionsService;
+  let directionsRenderer;
+
+  let trips = JSON.parse(localStorage.getItem("driverTrips") || "[]");
+
+  function initMap() {
+    const defaultCenter = { lat: 33.4484, lng: -112.0740 };
+
+    map = new google.maps.Map(document.getElementById("map"), {
+      center: defaultCenter,
+      zoom: 12,
+      mapTypeId: "roadmap"
+    });
+
+    marker = new google.maps.Marker({
+      position: defaultCenter,
+      map,
+      title: "Current Position"
+    });
+
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({
+      map: map
+    });
+
+    updateStats();
+    renderTrips();
+  }
+
+  function startGPS() {
+    if (!navigator.geolocation) {
+      document.getElementById("gpsStatus").textContent = "Not supported";
+      return;
+    }
+
+    document.getElementById("gpsStatus").textContent = "Tracking";
+
+    navigator.geolocation.watchPosition(
+      position => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const speedMps = position.coords.speed;
+
+        currentPosition = { lat, lng };
+
+        document.getElementById("lat").textContent = lat.toFixed(6);
+        document.getElementById("lng").textContent = lng.toFixed(6);
+
+        if (speedMps !== null) {
+          const mph = speedMps * 2.23694;
+          document.getElementById("speed").textContent = mph.toFixed(1) + " mph";
+        } else {
+          document.getElementById("speed").textContent = "Unavailable";
+        }
+
+        marker.setPosition(currentPosition);
+        map.setCenter(currentPosition);
+      },
+      error => {
+        document.getElementById("gpsStatus").textContent = "GPS error";
+        alert("GPS error: " + error.message);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 1000,
+        timeout: 10000
+      }
+    );
+  }
+
+  function analyzeOffer() {
+    const platform = document.getElementById("platform").value;
+    const pay = Number(document.getElementById("pay").value);
+    const miles = Number(document.getElementById("miles").value);
+    const minutes = Number(document.getElementById("minutes").value);
+    const minPerMile = Number(document.getElementById("minPerMile").value);
+    const minPerHour = Number(document.getElementById("minPerHour").value);
+
+    if (!pay || !miles || !minutes) {
+      alert("Enter pay, miles, and minutes.");
+      return;
+    }
+
+    const perMile = pay / miles;
+    const perHour = pay / (minutes / 60);
+
+    let decision = "";
+    let className = "";
+
+    if (perMile >= minPerMile && perHour >= minPerHour) {
+      decision = "TAKE IT";
+      className = "good";
+    } else if (perMile >= minPerMile || perHour >= minPerHour) {
+      decision = "BORDERLINE";
+      className = "warn";
+    } else {
+      decision = "PASS";
+      className = "bad";
+    }
+
+    document.getElementById("offerResult").innerHTML = `
+      <div class="metric"><span>Platform:</span><span>${platform}</span></div>
+      <div class="metric"><span>$/Mile:</span><span>$${perMile.toFixed(2)}</span></div>
+      <div class="metric"><span>$/Hour:</span><span>$${perHour.toFixed(2)}</span></div>
+      <div class="metric"><span>Decision:</span><span class="${className}">${decision}</span></div>
+      <div class="small">Manual decision helper only. It does not accept, reject, scrape, or control any gig app.</div>
+    `;
+  }
+
+  function saveTrip() {
+    const name = document.getElementById("tripName").value || "Trip";
+    const earnings = Number(document.getElementById("tripEarnings").value);
+    const miles = Number(document.getElementById("tripMiles").value);
+    const minutes = Number(document.getElementById("tripMinutes").value);
+
+    if (!earnings || !miles || !minutes) {
+      alert("Enter earnings, miles, and minutes.");
+      return;
+    }
+
+    const trip = {
+      id: Date.now(),
+      name,
+      earnings,
+      miles,
+      minutes,
+      date: new Date().toLocaleString()
+    };
+
+    trips.push(trip);
+    localStorage.setItem("driverTrips", JSON.stringify(trips));
+
+    updateStats();
+    renderTrips();
+
+    document.getElementById("tripName").value = "";
+    document.getElementById("tripEarnings").value = "";
+    document.getElementById("tripMiles").value = "";
+    document.getElementById("tripMinutes").value = "";
+  }
+
+  function updateStats() {
+    const totalEarnings = trips.reduce((sum, t) => sum + t.earnings, 0);
+    const totalMiles = trips.reduce((sum, t) => sum + t.miles, 0);
+    const totalMinutes = trips.reduce((sum, t) => sum + t.minutes, 0);
+
+    const avgPerMile = totalMiles ? totalEarnings / totalMiles : 0;
+    const avgPerHour = totalMinutes ? totalEarnings / (totalMinutes / 60) : 0;
+
+    document.getElementById("totalEarnings").textContent = "$" + totalEarnings.toFixed(2);
+    document.getElementById("totalMiles").textContent = totalMiles.toFixed(1);
+    document.getElementById("totalTime").textContent = totalMinutes.toFixed(0) + " min";
+    document.getElementById("avgPerMile").textContent = "$" + avgPerMile.toFixed(2);
+    document.getElementById("avgPerHour").textContent = "$" + avgPerHour.toFixed(2);
+  }
+
+  function renderTrips() {
+    const tripList = document.getElementById("tripList");
+
+    if (!trips.length) {
+      tripList.innerHTML = `<div class="small">No trips saved yet.</div>`;
+      return;
+    }
+
+    tripList.innerHTML = trips.slice().reverse().map(t => {
+      const perMile = t.earnings / t.miles;
+      const perHour = t.earnings / (t.minutes / 60);
+
+      return `
+        <div style="border-bottom:1px solid #333; padding:8px 0;">
+          <strong>${t.name}</strong><br>
+          <span class="small">${t.date}</span>
+          <div class="metric"><span>Earnings:</span><span>$${t.earnings.toFixed(2)}</span></div>
+          <div class="metric"><span>Miles:</span><span>${t.miles.toFixed(1)}</span></div>
+          <div class="metric"><span>$/Mile:</span><span>$${perMile.toFixed(2)}</span></div>
+          <div class="metric"><span>$/Hour:</span><span>$${perHour.toFixed(2)}</span></div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function clearTrips() {
+    if (!confirm("Clear all saved trips?")) return;
+
+    trips = [];
+    localStorage.removeItem("driverTrips");
+    updateStats();
+    renderTrips();
+  }
+
+  function routeToDestination() {
+    const destination = document.getElementById("destination").value;
+
+    if (!destination) {
+      alert("Enter a destination.");
+      return;
+    }
+
+    if (!currentPosition) {
+      alert("Start GPS first.");
+      return;
+    }
+
+    const request = {
+      origin: currentPosition,
+      destination: destination,
+      travelMode: google.maps.TravelMode.DRIVING,
+      drivingOptions: {
+        departureTime: new Date(),
+        trafficModel: google.maps.TrafficModel.BEST_GUESS
+      }
+    };
+
+    directionsService.route(request, (result, status) => {
+      if (status !== "OK") {
+        alert("Route error: " + status);
+        return;
+      }
+
+      directionsRenderer.setDirections(result);
+
+      const leg = result.routes[0].legs[0];
+      const distance = leg.distance.text;
+      const duration = leg.duration.text;
+      const durationTraffic = leg.duration_in_traffic
+        ? leg.duration_in_traffic.text
+        : duration;
+
+      document.getElementById("routeResult").innerHTML = `
+        <div class="metric"><span>Distance:</span><span>${distance}</span></div>
+        <div class="metric"><span>Normal ETA:</span><span>${duration}</span></div>
+        <div class="metric"><span>Traffic ETA:</span><span>${durationTraffic}</span></div>
+        <div class="small">Use this for dead-mile planning, airport runs, zone changes, and hotspot positioning.</div>
+      `;
+    });
+  }
+</script>
+
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap"
+  async
+  defer>
+</script>
+
+</body>
+</html>
