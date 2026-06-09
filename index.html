@@ -1,473 +1,950 @@
+Yes. Copy this into a file named:
+
+personal-cad.html
+
+Then open it in Firefox/Chrome.
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Driver Command Center</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #f5f5f5;
-    }
-
-    header {
-      padding: 15px;
-      background: #1f1f1f;
-      border-bottom: 1px solid #333;
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 380px;
-      height: calc(100vh - 58px);
-    }
-
-    #map {
-      width: 100%;
-      height: 100%;
-    }
-
-    aside {
-      overflow-y: auto;
-      padding: 15px;
-      background: #181818;
-      border-left: 1px solid #333;
-    }
-
-    .card {
-      background: #222;
-      border: 1px solid #333;
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-
-    label {
-      display: block;
-      margin-top: 8px;
-      font-size: 13px;
-      color: #ccc;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 9px;
-      margin-top: 4px;
-      border-radius: 6px;
-      border: 1px solid #444;
-      background: #111;
-      color: white;
-      box-sizing: border-box;
-    }
-
-    button {
-      cursor: pointer;
-      background: #2d6cdf;
-      border: none;
-      font-weight: bold;
-    }
-
-    button.secondary {
-      background: #444;
-    }
-
-    .good {
-      color: #48d16f;
-      font-weight: bold;
-    }
-
-    .bad {
-      color: #ff5b5b;
-      font-weight: bold;
-    }
-
-    .warn {
-      color: #ffcc33;
-      font-weight: bold;
-    }
-
-    .metric {
-      display: flex;
-      justify-content: space-between;
-      margin: 6px 0;
-      font-size: 14px;
-    }
-
-    .small {
-      font-size: 12px;
-      color: #aaa;
-    }
-
-    @media (max-width: 850px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      #map {
-        height: 45vh;
-      }
-
-      aside {
-        height: 55vh;
-        border-left: none;
-        border-top: 1px solid #333;
-      }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Personal CAD/RMS</title>
+<style>
+:root{
+  --bg:#06111b;
+  --panel:#0d1f2d;
+  --panel2:#132b3d;
+  --line:#2a4f68;
+  --text:#e8f4ff;
+  --muted:#9fb8cb;
+  --blue:#2f9bff;
+  --green:#28d17c;
+  --yellow:#ffd34d;
+  --orange:#ff9f43;
+  --red:#ff5555;
+  --purple:#b388ff;
+}
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  touch-action:manipulation;
+}
+input,select,textarea,button{
+  font-size:16px;
+  font-family:inherit;
+}
+button{
+  background:#17334a;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:9px 12px;
+  cursor:pointer;
+}
+button:hover{background:#22506e}
+input,select,textarea{
+  width:100%;
+  background:#071722;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:8px;
+  padding:9px;
+}
+textarea{min-height:90px}
+.app{
+  display:grid;
+  grid-template-columns:250px 1fr;
+  min-height:100vh;
+}
+.sidebar{
+  background:#071722;
+  border-right:1px solid var(--line);
+  padding:14px;
+}
+.logo{
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:12px;
+  background:#0b2233;
+}
+.logo h1{
+  margin:0;
+  font-size:18px;
+  letter-spacing:.08em;
+}
+.logo p{
+  margin:4px 0 0;
+  color:var(--muted);
+  font-size:12px;
+}
+.nav button{
+  width:100%;
+  text-align:left;
+  margin-bottom:6px;
+}
+.nav button.active{
+  border-color:var(--blue);
+  background:#123a58;
+}
+.main{
+  padding:16px;
+}
+.top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+}
+.two{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+.card{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:14px;
+}
+.card h2,.card h3{
+  margin:0 0 10px;
+}
+.kpi{
+  font-size:30px;
+  font-weight:bold;
+}
+.small{font-size:12px;color:var(--muted)}
+.table{
+  width:100%;
+  border-collapse:collapse;
+}
+.table th,.table td{
+  border-bottom:1px solid #254459;
+  padding:9px;
+  text-align:left;
+  vertical-align:top;
+}
+.table th{
+  font-size:12px;
+  color:#b9d9ef;
+  text-transform:uppercase;
+}
+.badge{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  font-size:12px;
+}
+.Open{color:#ffaaaa;border-color:var(--red)}
+.Assigned{color:#d5c2ff;border-color:var(--purple)}
+.EnRoute{color:#ffe48c;border-color:var(--yellow)}
+.OnScene{color:#ffc38b;border-color:var(--orange)}
+.Closed{color:#a8ffca;border-color:var(--green)}
+.Available{color:#a8ffca;border-color:var(--green)}
+.OffDuty{color:#c7c7c7}
+.section{display:none}
+.section.active{display:block}
+.formgrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.full{grid-column:1/-1}
+.actions{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  padding:20px;
+  overflow:auto;
+  z-index:50;
+}
+.modal.show{display:block}
+.modalbox{
+  max-width:950px;
+  margin:auto;
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:15px;
+}
+.danger{background:#451b24}
+.good{background:#123d2b}
+.warn{background:#49380f}
+@media(max-width:850px){
+  .app{grid-template-columns:1fr}
+  .grid,.two,.formgrid{grid-template-columns:1fr}
+}
+@media print{
+  body{background:white;color:black}
+  .app,.modal{display:none!important}
+  #printArea{display:block!important;color:black}
+  .printdoc{font-family:Arial,Helvetica,sans-serif}
+  .printhead{
+    border-bottom:3px solid black;
+    padding-bottom:8px;
+    margin-bottom:10px;
+  }
+  .printhead h1{
+    margin:0;
+    font-size:18px;
+    text-transform:uppercase;
+  }
+  .printsection{
+    border:1px solid black;
+    padding:8px;
+    margin:8px 0;
+  }
+  .printsection h2{
+    margin:0 0 6px;
+    font-size:13px;
+    text-transform:uppercase;
+    background:#eee;
+    padding:4px;
+  }
+}
+#printArea{display:none}
+</style>
 </head>
-
 <body>
-<header>
-  <h1>Driver Command Center — Lyft / DoorDash Helper</h1>
-  <div class="small">Safe mode: manual inputs only. No app automation. No scraping. No account login.</div>
-</header>
-
-<div class="grid">
-  <div id="map"></div>
-
-  <aside>
-    <div class="card">
-      <h3>Live GPS</h3>
-      <div class="metric"><span>Status:</span><span id="gpsStatus">Waiting</span></div>
-      <div class="metric"><span>Lat:</span><span id="lat">—</span></div>
-      <div class="metric"><span>Lng:</span><span id="lng">—</span></div>
-      <div class="metric"><span>Speed:</span><span id="speed">—</span></div>
-      <button onclick="startGPS()">Start GPS</button>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">
+      <h1>CAD/RMS</h1>
+      <p>Personal Security Dispatch</p>
+      <p class="small">Offline • Local • Backup Ready</p>
     </div>
-
-    <div class="card">
-      <h3>Manual Offer Analyzer</h3>
-
-      <label>Platform</label>
-      <select id="platform">
-        <option>Lyft</option>
-        <option>DoorDash</option>
-        <option>Uber</option>
-        <option>Uber Eats</option>
-        <option>Other</option>
-      </select>
-
-      <label>Offer Pay ($)</label>
-      <input id="pay" type="number" step="0.01" placeholder="Example: 14.75">
-
-      <label>Total Miles</label>
-      <input id="miles" type="number" step="0.1" placeholder="Example: 7.2">
-
-      <label>Estimated Minutes</label>
-      <input id="minutes" type="number" step="1" placeholder="Example: 22">
-
-      <label>Your Minimum $/Mile</label>
-      <input id="minPerMile" type="number" step="0.01" value="1.50">
-
-      <label>Your Minimum $/Hour</label>
-      <input id="minPerHour" type="number" step="1" value="25">
-
-      <button onclick="analyzeOffer()">Analyze Offer</button>
-
-      <div id="offerResult" style="margin-top:12px;"></div>
+    <div class="nav">
+      <button onclick="show('dashboard')" class="active">Dashboard</button>
+      <button onclick="show('calls')">Calls for Service</button>
+      <button onclick="show('units')">Unit Status</button>
+      <button onclick="show('log')">CAD Log</button>
+      <button onclick="show('bolos')">BOLOs</button>
+      <button onclick="show('clients')">Clients / Sites</button>
+      <button onclick="show('reports')">Reports</button>
+      <button onclick="show('backup')">Backup / Export</button>
     </div>
-
-    <div class="card">
-      <h3>Trip Logger</h3>
-
-      <label>Trip Name</label>
-      <input id="tripName" placeholder="Example: Lyft airport run">
-
-      <label>Actual Earnings ($)</label>
-      <input id="tripEarnings" type="number" step="0.01">
-
-      <label>Actual Miles</label>
-      <input id="tripMiles" type="number" step="0.1">
-
-      <label>Actual Minutes</label>
-      <input id="tripMinutes" type="number" step="1">
-
-      <button onclick="saveTrip()">Save Trip</button>
-      <button class="secondary" onclick="clearTrips()">Clear Trips</button>
-    </div>
-
-    <div class="card">
-      <h3>Shift Stats</h3>
-      <div class="metric"><span>Total Earnings:</span><span id="totalEarnings">$0.00</span></div>
-      <div class="metric"><span>Total Miles:</span><span id="totalMiles">0</span></div>
-      <div class="metric"><span>Total Time:</span><span id="totalTime">0 min</span></div>
-      <div class="metric"><span>Average $/Mile:</span><span id="avgPerMile">$0.00</span></div>
-      <div class="metric"><span>Average $/Hour:</span><span id="avgPerHour">$0.00</span></div>
-    </div>
-
-    <div class="card">
-      <h3>Route / Dead-Mile Tool</h3>
-
-      <label>Destination Address</label>
-      <input id="destination" placeholder="Example: Phoenix Sky Harbor Airport">
-
-      <button onclick="routeToDestination()">Route With Google Traffic</button>
-
-      <div id="routeResult" style="margin-top:12px;"></div>
-    </div>
-
-    <div class="card">
-      <h3>Saved Trips</h3>
-      <div id="tripList"></div>
-    </div>
+    <hr>
+    <button class="good" onclick="newCall()">+ New Call</button>
+    <button onclick="exportBackup()">Export Backup</button>
+    <button onclick="document.getElementById('importFile').click()">Import Backup</button>
+    <input id="importFile" type="file" accept=".json" style="display:none" onchange="importBackup(event)">
   </aside>
+  <main class="main">
+    <div class="top">
+      <div>
+        <h2 id="title">Dashboard</h2>
+        <div class="small" id="clock"></div>
+      </div>
+      <input id="search" placeholder="Search records..." oninput="render()" style="max-width:420px">
+    </div>
+    <section id="dashboard" class="section active"></section>
+    <section id="calls" class="section"></section>
+    <section id="units" class="section"></section>
+    <section id="log" class="section"></section>
+    <section id="bolos" class="section"></section>
+    <section id="clients" class="section"></section>
+    <section id="reports" class="section"></section>
+    <section id="backup" class="section"></section>
+  </main>
 </div>
-
+<div id="modal" class="modal">
+  <div class="modalbox">
+    <div class="top">
+      <h2 id="modalTitle"></h2>
+      <button onclick="closeModal()">Close</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+<div id="printArea"></div>
 <script>
-  let map;
-  let marker;
-  let currentPosition = null;
-  let directionsService;
-  let directionsRenderer;
-
-  let trips = JSON.parse(localStorage.getItem("driverTrips") || "[]");
-
-  function initMap() {
-    const defaultCenter = { lat: 33.4484, lng: -112.0740 };
-
-    map = new google.maps.Map(document.getElementById("map"), {
-      center: defaultCenter,
-      zoom: 12,
-      mapTypeId: "roadmap"
-    });
-
-    marker = new google.maps.Marker({
-      position: defaultCenter,
-      map,
-      title: "Current Position"
-    });
-
-    directionsService = new google.maps.DirectionsService();
-    directionsRenderer = new google.maps.DirectionsRenderer({
-      map: map
-    });
-
-    updateStats();
-    renderTrips();
+const KEY = "personal_cad_rms_v2";
+let db = JSON.parse(localStorage.getItem(KEY)) || {
+  agency:"PERSONAL CAD/RMS",
+  operator:"Dispatcher",
+  nextCall:1,
+  nextReport:1,
+  calls:[],
+  units:[
+    {id:id(), unit:"Unit 1", guard:"Primary Guard", phone:"", status:"Available", notes:""}
+  ],
+  log:[],
+  bolos:[],
+  clients:[],
+  reports:[]
+};
+function id(){
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+function save(){
+  localStorage.setItem(KEY, JSON.stringify(db));
+}
+function esc(v){
+  return String(v ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[m]));
+}
+function now(){
+  return new Date().toLocaleString();
+}
+function callNumber(){
+  return new Date().getFullYear() + "-" + String(db.nextCall++).padStart(4,"0");
+}
+function reportNumber(){
+  return "RPT-" + new Date().getFullYear() + "-" + String(db.nextReport++).padStart(4,"0");
+}
+function addLog(callNo, entry){
+  db.log.unshift({
+    id:id(),
+    time:now(),
+    callNo:callNo || "",
+    entry
+  });
+  save();
+}
+function badge(status){
+  let cls = String(status).replace(/\s/g,"");
+  return `<span class="badge ${cls}">${esc(status)}</span>`;
+}
+function show(name){
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(name).classList.add("active");
+  document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+  document.getElementById("title").textContent = event.target.textContent;
+  render();
+}
+function closeModal(){
+  document.getElementById("modal").classList.remove("show");
+}
+function openModal(title, body){
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalBody").innerHTML = body;
+  document.getElementById("modal").classList.add("show");
+}
+function searchFilter(arr, fields){
+  let q = document.getElementById("search").value.toLowerCase().trim();
+  if(!q) return arr;
+  return arr.filter(x => fields.some(f => String(x[f] || "").toLowerCase().includes(q)));
+}
+function render(){
+  renderDashboard();
+  renderCalls();
+  renderUnits();
+  renderLog();
+  renderBolos();
+  renderClients();
+  renderReports();
+  renderBackup();
+}
+function renderDashboard(){
+  let active = db.calls.filter(c => c.status !== "Closed" && c.status !== "Cancelled");
+  let available = db.units.filter(u => u.status === "Available");
+  document.getElementById("dashboard").innerHTML = `
+    <div class="grid">
+      <div class="card"><div class="small">Active Calls</div><div class="kpi">${active.length}</div></div>
+      <div class="card"><div class="small">Available Units</div><div class="kpi">${available.length}</div></div>
+      <div class="card"><div class="small">Open BOLOs</div><div class="kpi">${db.bolos.filter(b=>b.status==="Active").length}</div></div>
+      <div class="card"><div class="small">Reports</div><div class="kpi">${db.reports.length}</div></div>
+    </div>
+    <div class="two" style="margin-top:12px">
+      <div class="card">
+        <h3>Active Calls</h3>
+        ${active.length ? active.map(c => `
+          <div style="border:1px solid var(--line);padding:10px;border-radius:10px;margin-bottom:8px">
+            <b>${esc(c.callNo)}</b> — ${esc(c.type)}<br>
+            <span class="small">${esc(c.client)} • ${esc(c.location)}</span><br>
+            ${badge(c.status)} ${badge(c.priority)}
+            <div class="actions" style="margin-top:8px">
+              <button onclick="editCall('${c.id}')">Open</button>
+              <button onclick="quickStatus('${c.id}')">Status</button>
+            </div>
+          </div>
+        `).join("") : `<p class="small">No active calls.</p>`}
+      </div>
+      <div class="card">
+        <h3>Unit Board</h3>
+        ${db.units.map(u => `
+          <div style="border:1px solid var(--line);padding:10px;border-radius:10px;margin-bottom:8px">
+            <b>${esc(u.unit)}</b> — ${esc(u.guard)}<br>
+            ${badge(u.status)}
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+function renderCalls(){
+  let calls = searchFilter(db.calls, ["callNo","client","location","type","unit","status","notes","disposition"]);
+  document.getElementById("calls").innerHTML = `
+    <div class="card">
+      <div class="top">
+        <h3>Calls for Service</h3>
+        <button class="good" onclick="newCall()">+ New Call</button>
+      </div>
+      <table class="table">
+        <tr>
+          <th>Call #</th>
+          <th>Call Details</th>
+          <th>Status</th>
+          <th>Unit</th>
+          <th>Actions</th>
+        </tr>
+        ${calls.map(c => `
+          <tr>
+            <td><b>${esc(c.callNo)}</b><br><span class="small">${esc(c.created)}</span></td>
+            <td>${esc(c.type)}<br><span class="small">${esc(c.client)} • ${esc(c.location)}</span></td>
+            <td>${badge(c.status)}<br>${badge(c.priority)}</td>
+            <td>${esc(c.unit || "Unassigned")}</td>
+            <td class="actions">
+              <button onclick="editCall('${c.id}')">Edit</button>
+              <button onclick="makeReport('${c.id}')">Report</button>
+              <button onclick="printCall('${c.id}')">PDF</button>
+              <button class="danger" onclick="deleteRecord('calls','${c.id}')">Delete</button>
+            </td>
+          </tr>
+        `).join("")}
+      </table>
+    </div>
+  `;
+}
+function newCall(){
+  let c = {
+    id:id(),
+    callNo:callNumber(),
+    created:now(),
+    client:"",
+    location:"",
+    type:"Suspicious Person",
+    priority:"Routine",
+    status:"Open",
+    unit:"",
+    caller:"",
+    phone:"",
+    notes:"",
+    disposition:""
+  };
+  callForm(c, false);
+}
+function editCall(callId){
+  let c = db.calls.find(x => x.id === callId);
+  callForm(c, true);
+}
+function callForm(c, existing){
+  openModal("Call Entry / Dispatch", `
+    <div class="formgrid">
+      <label>Call #<input id="callNo" value="${esc(c.callNo)}"></label>
+      <label>Status
+        <select id="status">
+          ${["Open","Assigned","En Route","On Scene","Pending Report","Closed","Cancelled"].map(s => `<option ${c.status===s?"selected":""}>${s}</option>`).join("")}
+        </select>
+      </label>
+      <label>Client / Site<input id="client" value="${esc(c.client)}"></label>
+      <label>Location<input id="location" value="${esc(c.location)}"></label>
+      <label>Call Type
+        <select id="type">
+          ${["Alarm","Trespassing","Suspicious Person","Disturbance","Theft","Property Damage","Escort","Patrol Check","Welfare Check","Other"].map(s => `<option ${c.type===s?"selected":""}>${s}</option>`).join("")}
+        </select>
+      </label>
+      <label>Priority
+        <select id="priority">
+          ${["Routine","Priority","Emergency"].map(s => `<option ${c.priority===s?"selected":""}>${s}</option>`).join("")}
+        </select>
+      </label>
+      <label>Assigned Unit
+        <select id="unit">
+          <option value="">Unassigned</option>
+          ${db.units.map(u => `<option ${c.unit===u.unit?"selected":""}>${esc(u.unit)}</option>`).join("")}
+        </select>
+      </label>
+      <label>Caller / RP<input id="caller" value="${esc(c.caller)}"></label>
+      <label>Caller Phone<input id="phone" value="${esc(c.phone)}"></label>
+      <label>Disposition<input id="disposition" value="${esc(c.disposition)}"></label>
+      <label class="full">CAD Notes / Narrative
+        <textarea id="notes">${esc(c.notes)}</textarea>
+      </label>
+    </div>
+    <div class="actions" style="margin-top:10px">
+      <button class="good" onclick="saveCall('${c.id}', ${existing})">Save Call</button>
+      <button onclick="addCallLog('${c.callNo}')">Add CAD Log</button>
+      <button onclick="printCall('${c.id}')">Print/PDF</button>
+    </div>
+  `);
+  window.tempCall = c;
+}
+function saveCall(callId, existing){
+  let c = existing ? db.calls.find(x => x.id === callId) : window.tempCall;
+  c.callNo = document.getElementById("callNo").value;
+  c.status = document.getElementById("status").value;
+  c.client = document.getElementById("client").value;
+  c.location = document.getElementById("location").value;
+  c.type = document.getElementById("type").value;
+  c.priority = document.getElementById("priority").value;
+  c.unit = document.getElementById("unit").value;
+  c.caller = document.getElementById("caller").value;
+  c.phone = document.getElementById("phone").value;
+  c.notes = document.getElementById("notes").value;
+  c.disposition = document.getElementById("disposition").value;
+  c.updated = now();
+  if(!existing) db.calls.unshift(c);
+  addLog(c.callNo, `Call saved. Status: ${c.status}. Unit: ${c.unit || "Unassigned"}.`);
+  save();
+  closeModal();
+  render();
+}
+function quickStatus(callId){
+  let c = db.calls.find(x => x.id === callId);
+  let s = prompt("New status:", c.status);
+  if(!s) return;
+  c.status = s;
+  addLog(c.callNo, "Status changed to " + s);
+  save();
+  render();
+}
+function addCallLog(callNo){
+  let entry = prompt("CAD log entry:");
+  if(entry){
+    addLog(callNo, entry);
+    render();
   }
-
-  function startGPS() {
-    if (!navigator.geolocation) {
-      document.getElementById("gpsStatus").textContent = "Not supported";
-      return;
-    }
-
-    document.getElementById("gpsStatus").textContent = "Tracking";
-
-    navigator.geolocation.watchPosition(
-      position => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        const speedMps = position.coords.speed;
-
-        currentPosition = { lat, lng };
-
-        document.getElementById("lat").textContent = lat.toFixed(6);
-        document.getElementById("lng").textContent = lng.toFixed(6);
-
-        if (speedMps !== null) {
-          const mph = speedMps * 2.23694;
-          document.getElementById("speed").textContent = mph.toFixed(1) + " mph";
-        } else {
-          document.getElementById("speed").textContent = "Unavailable";
-        }
-
-        marker.setPosition(currentPosition);
-        map.setCenter(currentPosition);
-      },
-      error => {
-        document.getElementById("gpsStatus").textContent = "GPS error";
-        alert("GPS error: " + error.message);
-      },
-      {
-        enableHighAccuracy: true,
-        maximumAge: 1000,
-        timeout: 10000
-      }
-    );
-  }
-
-  function analyzeOffer() {
-    const platform = document.getElementById("platform").value;
-    const pay = Number(document.getElementById("pay").value);
-    const miles = Number(document.getElementById("miles").value);
-    const minutes = Number(document.getElementById("minutes").value);
-    const minPerMile = Number(document.getElementById("minPerMile").value);
-    const minPerHour = Number(document.getElementById("minPerHour").value);
-
-    if (!pay || !miles || !minutes) {
-      alert("Enter pay, miles, and minutes.");
-      return;
-    }
-
-    const perMile = pay / miles;
-    const perHour = pay / (minutes / 60);
-
-    let decision = "";
-    let className = "";
-
-    if (perMile >= minPerMile && perHour >= minPerHour) {
-      decision = "TAKE IT";
-      className = "good";
-    } else if (perMile >= minPerMile || perHour >= minPerHour) {
-      decision = "BORDERLINE";
-      className = "warn";
-    } else {
-      decision = "PASS";
-      className = "bad";
-    }
-
-    document.getElementById("offerResult").innerHTML = `
-      <div class="metric"><span>Platform:</span><span>${platform}</span></div>
-      <div class="metric"><span>$/Mile:</span><span>$${perMile.toFixed(2)}</span></div>
-      <div class="metric"><span>$/Hour:</span><span>$${perHour.toFixed(2)}</span></div>
-      <div class="metric"><span>Decision:</span><span class="${className}">${decision}</span></div>
-      <div class="small">Manual decision helper only. It does not accept, reject, scrape, or control any gig app.</div>
-    `;
-  }
-
-  function saveTrip() {
-    const name = document.getElementById("tripName").value || "Trip";
-    const earnings = Number(document.getElementById("tripEarnings").value);
-    const miles = Number(document.getElementById("tripMiles").value);
-    const minutes = Number(document.getElementById("tripMinutes").value);
-
-    if (!earnings || !miles || !minutes) {
-      alert("Enter earnings, miles, and minutes.");
-      return;
-    }
-
-    const trip = {
-      id: Date.now(),
-      name,
-      earnings,
-      miles,
-      minutes,
-      date: new Date().toLocaleString()
-    };
-
-    trips.push(trip);
-    localStorage.setItem("driverTrips", JSON.stringify(trips));
-
-    updateStats();
-    renderTrips();
-
-    document.getElementById("tripName").value = "";
-    document.getElementById("tripEarnings").value = "";
-    document.getElementById("tripMiles").value = "";
-    document.getElementById("tripMinutes").value = "";
-  }
-
-  function updateStats() {
-    const totalEarnings = trips.reduce((sum, t) => sum + t.earnings, 0);
-    const totalMiles = trips.reduce((sum, t) => sum + t.miles, 0);
-    const totalMinutes = trips.reduce((sum, t) => sum + t.minutes, 0);
-
-    const avgPerMile = totalMiles ? totalEarnings / totalMiles : 0;
-    const avgPerHour = totalMinutes ? totalEarnings / (totalMinutes / 60) : 0;
-
-    document.getElementById("totalEarnings").textContent = "$" + totalEarnings.toFixed(2);
-    document.getElementById("totalMiles").textContent = totalMiles.toFixed(1);
-    document.getElementById("totalTime").textContent = totalMinutes.toFixed(0) + " min";
-    document.getElementById("avgPerMile").textContent = "$" + avgPerMile.toFixed(2);
-    document.getElementById("avgPerHour").textContent = "$" + avgPerHour.toFixed(2);
-  }
-
-  function renderTrips() {
-    const tripList = document.getElementById("tripList");
-
-    if (!trips.length) {
-      tripList.innerHTML = `<div class="small">No trips saved yet.</div>`;
-      return;
-    }
-
-    tripList.innerHTML = trips.slice().reverse().map(t => {
-      const perMile = t.earnings / t.miles;
-      const perHour = t.earnings / (t.minutes / 60);
-
-      return `
-        <div style="border-bottom:1px solid #333; padding:8px 0;">
-          <strong>${t.name}</strong><br>
-          <span class="small">${t.date}</span>
-          <div class="metric"><span>Earnings:</span><span>$${t.earnings.toFixed(2)}</span></div>
-          <div class="metric"><span>Miles:</span><span>${t.miles.toFixed(1)}</span></div>
-          <div class="metric"><span>$/Mile:</span><span>$${perMile.toFixed(2)}</span></div>
-          <div class="metric"><span>$/Hour:</span><span>$${perHour.toFixed(2)}</span></div>
+}
+function renderUnits(){
+  document.getElementById("units").innerHTML = `
+    <div class="card">
+      <div class="top">
+        <h3>Unit Status</h3>
+        <button class="good" onclick="newUnit()">+ Unit</button>
+      </div>
+      <table class="table">
+        <tr><th>Unit</th><th>Guard</th><th>Status</th><th>Phone</th><th>Actions</th></tr>
+        ${db.units.map(u => `
+          <tr>
+            <td><b>${esc(u.unit)}</b></td>
+            <td>${esc(u.guard)}</td>
+            <td>${badge(u.status)}</td>
+            <td>${esc(u.phone)}</td>
+            <td class="actions">
+              <button onclick="editUnit('${u.id}')">Edit</button>
+              <button class="danger" onclick="deleteRecord('units','${u.id}')">Delete</button>
+            </td>
+          </tr>
+        `).join("")}
+      </table>
+    </div>
+  `;
+}
+function newUnit(){
+  unitForm({id:id(), unit:"", guard:"", phone:"", status:"Available", notes:""}, false);
+}
+function editUnit(unitId){
+  unitForm(db.units.find(x => x.id === unitId), true);
+}
+function unitForm(u, existing){
+  openModal("Unit Record", `
+    <div class="formgrid">
+      <label>Unit<input id="u_unit" value="${esc(u.unit)}"></label>
+      <label>Guard<input id="u_guard" value="${esc(u.guard)}"></label>
+      <label>Phone<input id="u_phone" value="${esc(u.phone)}"></label>
+      <label>Status
+        <select id="u_status">
+          ${["Available","Assigned","En Route","On Scene","Clear","Off Duty","Out of Service"].map(s => `<option ${u.status===s?"selected":""}>${s}</option>`).join("")}
+        </select>
+      </label>
+      <label class="full">Notes<textarea id="u_notes">${esc(u.notes)}</textarea></label>
+    </div>
+    <button class="good" onclick="saveUnit('${u.id}', ${existing})">Save Unit</button>
+  `);
+  window.tempUnit = u;
+}
+function saveUnit(unitId, existing){
+  let u = existing ? db.units.find(x => x.id === unitId) : window.tempUnit;
+  u.unit = document.getElementById("u_unit").value;
+  u.guard = document.getElementById("u_guard").value;
+  u.phone = document.getElementById("u_phone").value;
+  u.status = document.getElementById("u_status").value;
+  u.notes = document.getElementById("u_notes").value;
+  if(!existing) db.units.push(u);
+  addLog("", `Unit ${u.unit} updated to ${u.status}.`);
+  save();
+  closeModal();
+  render();
+}
+function renderLog(){
+  document.getElementById("log").innerHTML = `
+    <div class="card">
+      <h3>CAD Activity Log</h3>
+      <table class="table">
+        <tr><th>Time</th><th>Call #</th><th>Entry</th></tr>
+        ${db.log.map(l => `
+          <tr>
+            <td>${esc(l.time)}</td>
+            <td>${esc(l.callNo)}</td>
+            <td>${esc(l.entry)}</td>
+          </tr>
+        `).join("")}
+      </table>
+    </div>
+  `;
+}
+function renderBolos(){
+  document.getElementById("bolos").innerHTML = `
+    <div class="card">
+      <div class="top">
+        <h3>BOLOs</h3>
+        <button class="good" onclick="newBolo()">+ BOLO</button>
+      </div>
+      <table class="table">
+        <tr><th>Title</th><th>Description</th><th>Status</th><th>Actions</th></tr>
+        ${db.bolos.map(b => `
+          <tr>
+            <td><b>${esc(b.title)}</b><br><span class="small">${esc(b.created)}</span></td>
+            <td>${esc(b.description)}</td>
+            <td>${badge(b.status)}</td>
+            <td class="actions">
+              <button onclick="editBolo('${b.id}')">Edit</button>
+              <button class="danger" onclick="deleteRecord('bolos','${b.id}')">Delete</button>
+            </td>
+          </tr>
+        `).join("")}
+      </table>
+    </div>
+  `;
+}
+function newBolo(){
+  boloForm({id:id(), title:"", description:"", status:"Active", created:now()}, false);
+}
+function editBolo(boloId){
+  boloForm(db.bolos.find(x => x.id === boloId), true);
+}
+function boloForm(b, existing){
+  openModal("BOLO Entry", `
+    <label>Title<input id="b_title" value="${esc(b.title)}"></label>
+    <label>Description<textarea id="b_description">${esc(b.description)}</textarea></label>
+    <label>Status
+      <select id="b_status">
+        ${["Active","Inactive","Closed"].map(s => `<option ${b.status===s?"selected":""}>${s}</option>`).join("")}
+      </select>
+    </label>
+    <button class="good" onclick="saveBolo('${b.id}', ${existing})">Save BOLO</button>
+  `);
+  window.tempBolo = b;
+}
+function saveBolo(boloId, existing){
+  let b = existing ? db.bolos.find(x => x.id === boloId) : window.tempBolo;
+  b.title = document.getElementById("b_title").value;
+  b.description = document.getElementById("b_description").value;
+  b.status = document.getElementById("b_status").value;
+  if(!existing) db.bolos.unshift(b);
+  save();
+  closeModal();
+  render();
+}
+function renderClients(){
+  document.getElementById("clients").innerHTML = `
+    <div class="card">
+      <div class="top">
+        <h3>Clients / Sites</h3>
+        <button class="good" onclick="newClient()">+ Client</button>
+      </div>
+      <table class="table">
+        <tr><th>Name</th><th>Location</th><th>Contact</th><th>Actions</th></tr>
+        ${db.clients.map(c => `
+          <tr>
+            <td><b>${esc(c.name)}</b></td>
+            <td>${esc(c.location)}</td>
+            <td>${esc(c.contact)}</td>
+            <td class="actions">
+              <button onclick="editClient('${c.id}')">Edit</button>
+              <button class="danger" onclick="deleteRecord('clients','${c.id}')">Delete</button>
+            </td>
+          </tr>
+        `).join("")}
+      </table>
+    </div>
+  `;
+}
+function newClient(){
+  clientForm({id:id(), name:"", location:"", contact:"", notes:""}, false);
+}
+function editClient(clientId){
+  clientForm(db.clients.find(x => x.id === clientId), true);
+}
+function clientForm(c, existing){
+  openModal("Client / Site", `
+    <div class="formgrid">
+      <label>Name<input id="c_name" value="${esc(c.name)}"></label>
+      <label>Location<input id="c_location" value="${esc(c.location)}"></label>
+      <label>Contact<input id="c_contact" value="${esc(c.contact)}"></label>
+      <label class="full">Notes<textarea id="c_notes">${esc(c.notes)}</textarea></label>
+    </div>
+    <button class="good" onclick="saveClient('${c.id}', ${existing})">Save Client</button>
+  `);
+  window.tempClient = c;
+}
+function saveClient(clientId, existing){
+  let c = existing ? db.clients.find(x => x.id === clientId) : window.tempClient;
+  c.name = document.getElementById("c_name").value;
+  c.location = document.getElementById("c_location").value;
+  c.contact = document.getElementById("c_contact").value;
+  c.notes = document.getElementById("c_notes").value;
+  if(!existing) db.clients.push(c);
+  save();
+  closeModal();
+  render();
+}
+function renderReports(){
+  document.getElementById("reports").innerHTML = `
+    <div class="card">
+      <div class="top">
+        <h3>Incident Reports</h3>
+        <button class="good" onclick="newReport()">+ Report</button>
+      </div>
+      <table class="table">
+        <tr><th>Report #</th><th>Call #</th><th>Type</th><th>Disposition</th><th>Actions</th></tr>
+        ${db.reports.map(r => `
+          <tr>
+            <td><b>${esc(r.reportNo)}</b><br><span class="small">${esc(r.created)}</span></td>
+            <td>${esc(r.callNo)}</td>
+            <td>${esc(r.type)}</td>
+            <td>${esc(r.disposition)}</td>
+            <td class="actions">
+              <button onclick="editReport('${r.id}')">Edit</button>
+              <button onclick="printReport('${r.id}')">PDF</button>
+              <button class="danger" onclick="deleteRecord('reports','${r.id}')">Delete</button>
+            </td>
+          </tr>
+        `).join("")}
+      </table>
+    </div>
+  `;
+}
+function newReport(){
+  reportForm({
+    id:id(),
+    reportNo:reportNumber(),
+    created:now(),
+    callNo:"",
+    officer:db.operator,
+    type:"",
+    location:"",
+    narrative:"",
+    disposition:"",
+    supplemental:""
+  }, false);
+}
+function makeReport(callId){
+  let c = db.calls.find(x => x.id === callId);
+  reportForm({
+    id:id(),
+    reportNo:reportNumber(),
+    created:now(),
+    callNo:c.callNo,
+    officer:db.operator,
+    type:c.type,
+    location:c.location,
+    narrative:c.notes,
+    disposition:c.disposition,
+    supplemental:""
+  }, false);
+}
+function editReport(reportId){
+  reportForm(db.reports.find(x => x.id === reportId), true);
+}
+function reportForm(r, existing){
+  openModal("Incident Report", `
+    <div class="formgrid">
+      <label>Report #<input id="r_reportNo" value="${esc(r.reportNo)}"></label>
+      <label>Call #<input id="r_callNo" value="${esc(r.callNo)}"></label>
+      <label>Reporting Officer<input id="r_officer" value="${esc(r.officer)}"></label>
+      <label>Type<input id="r_type" value="${esc(r.type)}"></label>
+      <label class="full">Location<input id="r_location" value="${esc(r.location)}"></label>
+      <label class="full">Narrative<textarea id="r_narrative">${esc(r.narrative)}</textarea></label>
+      <label class="full">Supplemental / Evidence Notes<textarea id="r_supplemental">${esc(r.supplemental)}</textarea></label>
+      <label class="full">Disposition<input id="r_disposition" value="${esc(r.disposition)}"></label>
+    </div>
+    <div class="actions" style="margin-top:10px">
+      <button class="good" onclick="saveReport('${r.id}', ${existing})">Save Report</button>
+      <button onclick="printReport('${r.id}')">Print/PDF</button>
+    </div>
+  `);
+  window.tempReport = r;
+}
+function saveReport(reportId, existing){
+  let r = existing ? db.reports.find(x => x.id === reportId) : window.tempReport;
+  r.reportNo = document.getElementById("r_reportNo").value;
+  r.callNo = document.getElementById("r_callNo").value;
+  r.officer = document.getElementById("r_officer").value;
+  r.type = document.getElementById("r_type").value;
+  r.location = document.getElementById("r_location").value;
+  r.narrative = document.getElementById("r_narrative").value;
+  r.supplemental = document.getElementById("r_supplemental").value;
+  r.disposition = document.getElementById("r_disposition").value;
+  if(!existing) db.reports.unshift(r);
+  addLog(r.callNo, `Report ${r.reportNo} saved.`);
+  save();
+  closeModal();
+  render();
+}
+function printDoc(title, meta, sections){
+  document.getElementById("printArea").innerHTML = `
+    <div class="printdoc">
+      <div class="printhead">
+        <h1>${esc(db.agency)} — ${esc(title)}</h1>
+        ${meta.map(m => `<div><b>${esc(m[0])}:</b> ${esc(m[1])}</div>`).join("")}
+      </div>
+      ${sections.map(s => `
+        <div class="printsection">
+          <h2>${esc(s[0])}</h2>
+          <div>${String(s[1] || "").replace(/\n/g,"<br>")}</div>
         </div>
-      `;
-    }).join("");
-  }
-
-  function clearTrips() {
-    if (!confirm("Clear all saved trips?")) return;
-
-    trips = [];
-    localStorage.removeItem("driverTrips");
-    updateStats();
-    renderTrips();
-  }
-
-  function routeToDestination() {
-    const destination = document.getElementById("destination").value;
-
-    if (!destination) {
-      alert("Enter a destination.");
-      return;
+      `).join("")}
+      <p style="font-size:10px;text-align:center">
+        Generated ${now()} • Operator: ${esc(db.operator)} • Personal CAD/RMS
+      </p>
+    </div>
+  `;
+  window.print();
+}
+function printCall(callId){
+  let c = db.calls.find(x => x.id === callId) || window.tempCall;
+  printDoc("Call for Service", [
+    ["Call #", c.callNo],
+    ["Created", c.created],
+    ["Status", c.status],
+    ["Priority", c.priority],
+    ["Assigned Unit", c.unit],
+    ["Disposition", c.disposition]
+  ], [
+    ["Call Details", `Client/Site: ${esc(c.client)}<br>Location: ${esc(c.location)}<br>Type: ${esc(c.type)}<br>Caller/RP: ${esc(c.caller)} ${esc(c.phone)}`],
+    ["Narrative / CAD Notes", esc(c.notes)],
+    ["CAD Log", db.log.filter(l => l.callNo === c.callNo).map(l => `${l.time} — ${esc(l.entry)}`).join("<br>")]
+  ]);
+}
+function printReport(reportId){
+  let r = db.reports.find(x => x.id === reportId) || window.tempReport;
+  printDoc("Incident Report", [
+    ["Report #", r.reportNo],
+    ["Call #", r.callNo],
+    ["Officer", r.officer],
+    ["Type", r.type],
+    ["Location", r.location],
+    ["Disposition", r.disposition]
+  ], [
+    ["Narrative", esc(r.narrative)],
+    ["Supplemental / Evidence Notes", esc(r.supplemental)]
+  ]);
+}
+function renderBackup(){
+  document.getElementById("backup").innerHTML = `
+    <div class="card">
+      <h3>Backup / Export</h3>
+      <p>This system saves to your browser local storage. Refreshing does not erase it. Clearing browser data may erase it.</p>
+      <div class="actions">
+        <button class="good" onclick="exportBackup()">Export Full Backup JSON</button>
+        <button onclick="document.getElementById('importFile').click()">Import Backup JSON</button>
+        <button onclick="exportCallsCSV()">Export Calls CSV</button>
+        <button class="warn" onclick="loadSample()">Load Sample Data</button>
+        <button class="danger" onclick="wipeAll()">Wipe Everything</button>
+      </div>
+    </div>
+  `;
+}
+function exportBackup(){
+  download("personal-cad-backup.json", JSON.stringify(db,null,2), "application/json");
+}
+function importBackup(e){
+  let file = e.target.files[0];
+  if(!file) return;
+  let reader = new FileReader();
+  reader.onload = () => {
+    try{
+      db = JSON.parse(reader.result);
+      save();
+      render();
+      alert("Backup imported.");
+    }catch{
+      alert("Invalid backup file.");
     }
-
-    if (!currentPosition) {
-      alert("Start GPS first.");
-      return;
-    }
-
-    const request = {
-      origin: currentPosition,
-      destination: destination,
-      travelMode: google.maps.TravelMode.DRIVING,
-      drivingOptions: {
-        departureTime: new Date(),
-        trafficModel: google.maps.TrafficModel.BEST_GUESS
-      }
-    };
-
-    directionsService.route(request, (result, status) => {
-      if (status !== "OK") {
-        alert("Route error: " + status);
-        return;
-      }
-
-      directionsRenderer.setDirections(result);
-
-      const leg = result.routes[0].legs[0];
-      const distance = leg.distance.text;
-      const duration = leg.duration.text;
-      const durationTraffic = leg.duration_in_traffic
-        ? leg.duration_in_traffic.text
-        : duration;
-
-      document.getElementById("routeResult").innerHTML = `
-        <div class="metric"><span>Distance:</span><span>${distance}</span></div>
-        <div class="metric"><span>Normal ETA:</span><span>${duration}</span></div>
-        <div class="metric"><span>Traffic ETA:</span><span>${durationTraffic}</span></div>
-        <div class="small">Use this for dead-mile planning, airport runs, zone changes, and hotspot positioning.</div>
-      `;
-    });
+  };
+  reader.readAsText(file);
+}
+function exportCallsCSV(){
+  let cols = ["callNo","created","client","location","type","priority","unit","status","disposition","notes"];
+  let csv = cols.join(",") + "\n" + db.calls.map(c =>
+    cols.map(k => `"${String(c[k] || "").replace(/"/g,'""')}"`).join(",")
+  ).join("\n");
+  download("calls-export.csv", csv, "text/csv");
+}
+function download(name, data, type){
+  let blob = new Blob([data], {type});
+  let a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function deleteRecord(table, recordId){
+  if(!confirm("Delete this record?")) return;
+  db[table] = db[table].filter(x => x.id !== recordId);
+  save();
+  render();
+}
+function wipeAll(){
+  if(confirm("This deletes all local CAD data. Export a backup first. Continue?")){
+    localStorage.removeItem(KEY);
+    location.reload();
   }
+}
+function loadSample(){
+  db.calls.unshift({
+    id:id(),
+    callNo:callNumber(),
+    created:now(),
+    client:"ABC Apartments",
+    location:"123 Main St",
+    type:"Trespassing",
+    priority:"Routine",
+    status:"En Route",
+    unit:"Unit 1",
+    caller:"Property Manager",
+    phone:"",
+    notes:"Client reports a subject refusing to leave near the laundry room.",
+    disposition:""
+  });
+  db.bolos.unshift({
+    id:id(),
+    title:"White Ford F150",
+    description:"Seen near rear lot after hours. Verify lawful purpose before contact.",
+    status:"Active",
+    created:now()
+  });
+  addLog(db.calls[0].callNo, "Call received and Unit 1 notified.");
+  save();
+  render();
+}
+setInterval(() => {
+  document.getElementById("clock").textContent = now();
+}, 1000);
+render();
 </script>
-
-<script
-  src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap"
-  async
-  defer>
-</script>
-
 </body>
 </html>
