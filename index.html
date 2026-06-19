@@ -1,206 +1,589 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Prank Button</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Federal ID Intake System</title>
+
 <style>
-  body{font-family:Arial;margin:0;background:#111;color:white;text-align:center;overflow:hidden}
-  #app{padding:25px}
-  button{font-size:22px;padding:16px 22px;border-radius:14px;border:0;margin:10px}
-  #main{background:#ff3b3b;color:white}
-  #exit{background:#444;color:white;position:fixed;bottom:12px;left:12px;z-index:9999}
-  .popup,.thing{position:fixed;z-index:1000}
-  .popup{background:white;color:black;padding:15px;border-radius:12px;box-shadow:0 0 20px #000}
-  .thing{font-size:34px;pointer-events:none}
+:root{
+  --bg:#070b0f;
+  --panel:#101820;
+  --panel2:#16212c;
+  --line:#2f3e4f;
+  --text:#e6edf3;
+  --muted:#8ea0b3;
+  --green:#21c45a;
+  --yellow:#f6c945;
+  --red:#ff3b3b;
+  --blue:#38bdf8;
+}
+
+*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+body{
+  margin:0;
+  background:radial-gradient(circle at top,#17212c,#05080c 70%);
+  color:var(--text);
+}
+
+header{
+  padding:18px;
+  border-bottom:1px solid var(--line);
+  background:#081018;
+  text-align:center;
+  letter-spacing:2px;
+}
+
+header h1{margin:0;font-size:22px}
+header p{margin:6px 0 0;color:var(--muted);font-size:12px}
+
+.container{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  padding:16px;
+}
+
+.card{
+  background:linear-gradient(180deg,var(--panel),#0b1118);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:16px;
+  box-shadow:0 0 20px #0008;
+}
+
+.card h2{
+  margin:0 0 12px;
+  font-size:15px;
+  color:var(--blue);
+  letter-spacing:1px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:8px;
+}
+
+video,canvas,img{
+  width:100%;
+  border-radius:10px;
+  background:#000;
+  border:1px solid var(--line);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+label{
+  font-size:11px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+
+input,select,textarea,button{
+  width:100%;
+  padding:11px;
+  border-radius:8px;
+  border:1px solid var(--line);
+  background:#071018;
+  color:var(--text);
+  margin-top:4px;
+}
+
+input[readonly]{
+  background:#0b141d;
+  color:#d7e2ee;
+  border-color:#26384a;
+}
+
+textarea{min-height:90px;resize:vertical}
+
+button{
+  cursor:pointer;
+  font-weight:bold;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  transition:.2s;
+}
+
+button:hover{filter:brightness(1.2)}
+
+.primary{background:#12324a;border-color:#2d8fbd}
+.green{background:#123d24;border-color:#25c46a}
+.red{background:#421616;border-color:#ff4a4a}
+.yellow{background:#403410;border-color:#f6c945}
+
+.status{
+  text-align:center;
+  padding:20px;
+  border-radius:14px;
+  border:2px solid var(--line);
+  font-size:26px;
+  font-weight:900;
+  letter-spacing:2px;
+  animation:pulse 1.4s infinite;
+}
+
+.good{border-color:var(--green);color:var(--green);box-shadow:0 0 25px #21c45a55}
+.review{border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 25px #f6c94555}
+.bad{border-color:var(--red);color:var(--red);box-shadow:0 0 25px #ff3b3b55}
+.neutral{border-color:var(--blue);color:var(--blue)}
+
+@keyframes pulse{
+  0%{opacity:.75}
+  50%{opacity:1}
+  100%{opacity:.75}
+}
+
+.scanline{
+  height:5px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent);
+  animation:scan 2s infinite;
+  margin:12px 0;
+}
+
+@keyframes scan{
+  0%{transform:translateY(0)}
+  50%{transform:translateY(20px)}
+  100%{transform:translateY(0)}
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:12px;
+}
+
+th,td{
+  border-bottom:1px solid var(--line);
+  padding:8px;
+  text-align:left;
+}
+
+th{color:var(--blue)}
+
+.badge{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:bold;
+}
+
+.notice{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+
+@media(max-width:900px){
+  .container{grid-template-columns:1fr}
+}
 </style>
 </head>
+
 <body>
-<div id="app">
-  <h1>Do NOT Press This Button</h1>
-  <p>Seriously. Nothing good happens.</p>
-  <button id="main">Press Me</button>
+
+<header>
+  <h1>FEDERAL-STYLE ID INTAKE / VISITOR CONTROL SYSTEM</h1>
+  <p>Offline Web-Based Security Intake • Local Device Storage • No External APIs</p>
+</header>
+
+<div class="container">
+
+  <section class="card">
+    <h2>1. CAMERA CAPTURE</h2>
+    <video id="video" autoplay playsinline></video>
+    <div class="scanline"></div>
+    <div class="grid">
+      <button class="primary" onclick="startCamera()">Start Camera</button>
+      <button class="green" onclick="captureImage()">Capture ID Image</button>
+    </div>
+    <br>
+    <canvas id="canvas" style="display:none"></canvas>
+    <img id="snapshot" alt="Captured ID Preview"/>
+  </section>
+
+  <section class="card">
+    <h2>2. SCAN / IMPORT DATA</h2>
+    <p class="notice">
+      Paste raw AAMVA driver-license barcode text or passport MRZ text below.
+      Without external libraries, this system parses pasted barcode/MRZ data and performs risk checks.
+    </p>
+    <textarea id="rawData" placeholder="Paste PDF417 AAMVA data or passport MRZ here..."></textarea>
+    <div class="grid">
+      <button class="primary" onclick="parseAAMVA()">Parse U.S. ID</button>
+      <button class="primary" onclick="parseMRZ()">Parse Passport MRZ</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. LOCKED IDENTITY FIELDS</h2>
+    <div class="grid">
+      <div><label>Status</label><input id="statusField" readonly></div>
+      <div><label>ID Type</label><input id="idType" readonly></div>
+      <div><label>First Name</label><input id="firstName" readonly></div>
+      <div><label>Last Name</label><input id="lastName" readonly></div>
+      <div><label>Date of Birth</label><input id="dob" readonly></div>
+      <div><label>Age</label><input id="age" readonly></div>
+      <div><label>ID Number</label><input id="idNumber" readonly></div>
+      <div><label>Expiration Date</label><input id="expDate" readonly></div>
+      <div><label>Issuing State/Country</label><input id="issuer" readonly></div>
+      <div><label>Address</label><input id="address" readonly></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4. SYSTEM DECISION</h2>
+    <div id="statusBox" class="status neutral">AWAITING SCAN</div>
+    <br>
+    <div id="riskNotes" class="notice">No scan completed.</div>
+    <br>
+    <button class="yellow" onclick="runAssessment()">Run Assessment</button>
+  </section>
+
+  <section class="card">
+    <h2>5. VISITOR INTAKE</h2>
+    <div class="grid">
+      <div><label>Reason for Visit</label><input id="reason"></div>
+      <div><label>Company / Agency</label><input id="company"></div>
+      <div><label>Vehicle Plate</label><input id="plate"></div>
+      <div><label>Badge Number</label><input id="badgeNo"></div>
+    </div>
+    <br>
+    <textarea id="notes" placeholder="Officer notes / observations / access-control comments..."></textarea>
+    <br><br>
+    <div class="grid">
+      <button class="green" onclick="saveVisitor()">Save Visitor Log</button>
+      <button class="red" onclick="clearCurrent()">Clear Current</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>6. WATCHLIST</h2>
+    <p class="notice">Local-only watchlist. Add names or ID numbers, one per line.</p>
+    <textarea id="watchlist" placeholder="Example: JOHN SMITH&#10;D12345678"></textarea>
+    <button class="primary" onclick="saveWatchlist()">Save Watchlist</button>
+  </section>
+
+  <section class="card" style="grid-column:1/-1">
+    <h2>7. VISITOR LOG</h2>
+    <div class="grid">
+      <button class="primary" onclick="loadLogs()">Refresh Log</button>
+      <button class="primary" onclick="exportCSV()">Export CSV</button>
+    </div>
+    <br>
+    <table>
+      <thead>
+        <tr>
+          <th>Time</th>
+          <th>Name</th>
+          <th>DOB</th>
+          <th>ID</th>
+          <th>Status</th>
+          <th>Reason</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody id="logTable"></tbody>
+    </table>
+  </section>
+
 </div>
-<button id="exit" onclick="resetPrank()">Exit / Reset</button>
 
 <script>
-let count = 0;
-let timers = [];
+let capturedImage = "";
+let currentRecord = {};
 
-const jokes = [
-  fakeLoading,
-  moveButton,
-  popupStorm,
-  emojiRain,
-  fakeError,
-  rotateScreen,
-  colorFlash,
-  tinyText,
-  hugeText,
-  reverseText,
-  fakeCrack,
-  runawayMessage,
-  randomBuzz,
-  fakeUpdate,
-  clownMode,
-  buttonMultiply,
-  screenShake,
-  passwordJoke,
-  fakeBattery,
-  finalBoss
-];
+function $(id){ return document.getElementById(id); }
 
-const main = document.getElementById("main");
+async function startCamera(){
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:"environment" },
+      audio:false
+    });
+    $("video").srcObject = stream;
+  }catch(e){
+    alert("Camera unavailable. Use HTTPS or GitHub Pages.");
+  }
+}
 
-main.onclick = () => {
-  jokes[count % jokes.length]();
-  count++;
+function captureImage(){
+  const video = $("video");
+  const canvas = $("canvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = video.videoWidth || 1280;
+  canvas.height = video.videoHeight || 720;
+  ctx.drawImage(video,0,0,canvas.width,canvas.height);
+  capturedImage = canvas.toDataURL("image/jpeg",0.85);
+  $("snapshot").src = capturedImage;
+}
+
+function setField(id,val){
+  $(id).value = val || "";
+}
+
+function normalizeDate(v){
+  if(!v) return "";
+  v = String(v).replace(/\D/g,"");
+  if(v.length === 8){
+    if(v.startsWith("19") || v.startsWith("20")){
+      return v.slice(0,4)+"-"+v.slice(4,6)+"-"+v.slice(6,8);
+    } else {
+      return v.slice(4,8)+"-"+v.slice(0,2)+"-"+v.slice(2,4);
+    }
+  }
+  if(v.length === 6){
+    let yy = parseInt(v.slice(0,2),10);
+    let year = yy > 40 ? "19"+v.slice(0,2) : "20"+v.slice(0,2);
+    return year+"-"+v.slice(2,4)+"-"+v.slice(4,6);
+  }
+  return v;
+}
+
+function calcAge(dob){
+  if(!dob) return "";
+  const d = new Date(dob);
+  if(isNaN(d)) return "";
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if(m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+  return age;
+}
+
+function isExpired(date){
+  if(!date) return true;
+  const d = new Date(date + "T23:59:59");
+  return isNaN(d) || d < new Date();
+}
+
+function parseAAMVA(){
+  const raw = $("rawData").value;
+  if(!raw.trim()){
+    alert("Paste AAMVA/PDF417 data first.");
+    return;
+  }
+
+  const get = code => {
+    const match = raw.match(new RegExp(code + "([^\\n\\r]+)"));
+    return match ? match[1].trim() : "";
+  };
+
+  const first = get("DAC") || get("DCT");
+  const last = get("DCS");
+  const dob = normalizeDate(get("DBB"));
+  const exp = normalizeDate(get("DBA"));
+  const id = get("DAQ");
+  const street = get("DAG");
+  const city = get("DAI");
+  const state = get("DAJ");
+  const zip = get("DAK");
+
+  currentRecord = {
+    type:"U.S. Driver License / State ID",
+    first:first,
+    last:last,
+    dob:dob,
+    exp:exp,
+    id:id,
+    issuer:state,
+    address:[street,city,state,zip].filter(Boolean).join(", "),
+    source:"AAMVA"
+  };
+
+  fillRecord();
+}
+
+function parseMRZ(){
+  const raw = $("rawData").value.replace(/\s+/g,"\n").trim();
+  const lines = raw.split("\n").filter(x=>x.length>20);
+
+  if(lines.length < 2){
+    alert("Paste two MRZ lines from a passport.");
+    return;
+  }
+
+  const l1 = lines[0];
+  const l2 = lines[1];
+
+  let names = l1.substring(5).split("<<");
+  let last = names[0].replace(/</g," ").trim();
+  let first = (names[1] || "").replace(/</g," ").trim();
+
+  let passportNo = l2.substring(0,9).replace(/</g,"");
+  let nationality = l2.substring(10,13).replace(/</g,"");
+  let dob = normalizeDate(l2.substring(13,19));
+  let exp = normalizeDate(l2.substring(21,27));
+
+  currentRecord = {
+    type:"Passport",
+    first:first,
+    last:last,
+    dob:dob,
+    exp:exp,
+    id:passportNo,
+    issuer:nationality,
+    address:"",
+    source:"MRZ"
+  };
+
+  fillRecord();
+}
+
+function fillRecord(){
+  setField("idType",currentRecord.type);
+  setField("firstName",currentRecord.first);
+  setField("lastName",currentRecord.last);
+  setField("dob",currentRecord.dob);
+  setField("age",calcAge(currentRecord.dob));
+  setField("idNumber",currentRecord.id);
+  setField("expDate",currentRecord.exp);
+  setField("issuer",currentRecord.issuer);
+  setField("address",currentRecord.address);
+  runAssessment();
+}
+
+function runAssessment(){
+  let risks = [];
+  let status = "GOOD TO GO";
+  let cls = "good";
+
+  const first = $("firstName").value;
+  const last = $("lastName").value;
+  const dob = $("dob").value;
+  const age = Number($("age").value);
+  const id = $("idNumber").value;
+  const exp = $("expDate").value;
+
+  if(!first || !last || !dob || !id){
+    risks.push("Incomplete identity data. Manual review required.");
+    status = "REVIEW REQUIRED";
+    cls = "review";
+  }
+
+  if(isExpired(exp)){
+    risks.push("ID appears expired or expiration date is unreadable.");
+    status = "EXPIRED / DENY";
+    cls = "bad";
+  }
+
+  if(age && age < 18){
+    risks.push("Subject appears under 18.");
+    status = "REVIEW REQUIRED";
+    cls = "review";
+  }
+
+  const wl = ($("watchlist").value || "").toUpperCase().split(/\n+/).map(x=>x.trim()).filter(Boolean);
+  const fullName = (first + " " + last).toUpperCase();
+  const idUpper = id.toUpperCase();
+
+  if(wl.includes(fullName) || wl.includes(idUpper)){
+    risks.push("WATCHLIST MATCH. Escalate per site policy.");
+    status = "WATCHLIST HIT";
+    cls = "bad";
+  }
+
+  if(!currentRecord.source){
+    risks.push("No barcode/MRZ source confirmed. Document is unverified.");
+    status = "UNVERIFIED";
+    cls = "review";
+  }
+
+  if(risks.length === 0){
+    risks.push("No local risk indicators detected. This is not government authentication.");
+  }
+
+  $("statusField").value = status;
+  $("statusBox").className = "status " + cls;
+  $("statusBox").textContent = status;
+  $("riskNotes").innerHTML = risks.map(r=>"• "+r).join("<br>");
+}
+
+function saveVisitor(){
+  runAssessment();
+
+  const record = {
+    time:new Date().toLocaleString(),
+    first:$("firstName").value,
+    last:$("lastName").value,
+    dob:$("dob").value,
+    age:$("age").value,
+    id:$("idNumber").value,
+    exp:$("expDate").value,
+    type:$("idType").value,
+    issuer:$("issuer").value,
+    address:$("address").value,
+    status:$("statusField").value,
+    reason:$("reason").value,
+    company:$("company").value,
+    plate:$("plate").value,
+    badge:$("badgeNo").value,
+    notes:$("notes").value,
+    image:capturedImage
+  };
+
+  const logs = JSON.parse(localStorage.getItem("visitorLogs") || "[]");
+  logs.unshift(record);
+  localStorage.setItem("visitorLogs",JSON.stringify(logs));
+  loadLogs();
+  alert("Visitor log saved locally.");
+}
+
+function loadLogs(){
+  const logs = JSON.parse(localStorage.getItem("visitorLogs") || "[]");
+  $("logTable").innerHTML = logs.map(r=>`
+    <tr>
+      <td>${r.time}</td>
+      <td>${r.first} ${r.last}</td>
+      <td>${r.dob}</td>
+      <td>${r.id}</td>
+      <td><span class="badge">${r.status}</span></td>
+      <td>${r.reason || ""}</td>
+      <td>${r.company || ""}</td>
+    </tr>
+  `).join("");
+}
+
+function exportCSV(){
+  const logs = JSON.parse(localStorage.getItem("visitorLogs") || "[]");
+  const headers = ["Time","First","Last","DOB","Age","ID","Expiration","Type","Issuer","Address","Status","Reason","Company","Plate","Badge","Notes"];
+  const rows = logs.map(r=>[
+    r.time,r.first,r.last,r.dob,r.age,r.id,r.exp,r.type,r.issuer,r.address,r.status,r.reason,r.company,r.plate,r.badge,r.notes
+  ]);
+
+  const csv = [headers,...rows].map(row =>
+    row.map(v => `"${String(v || "").replace(/"/g,'""')}"`).join(",")
+  ).join("\n");
+
+  const blob = new Blob([csv],{type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "visitor-log.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function saveWatchlist(){
+  localStorage.setItem("watchlist",$("watchlist").value);
+  alert("Watchlist saved locally.");
+}
+
+function clearCurrent(){
+  ["rawData","statusField","idType","firstName","lastName","dob","age","idNumber","expDate","issuer","address","reason","company","plate","badgeNo","notes"].forEach(id=>$(id).value="");
+  $("statusBox").className = "status neutral";
+  $("statusBox").textContent = "AWAITING SCAN";
+  $("riskNotes").textContent = "No scan completed.";
+  currentRecord = {};
+}
+
+window.onload = function(){
+  $("watchlist").value = localStorage.getItem("watchlist") || "";
+  loadLogs();
 };
-
-function rand(max){ return Math.floor(Math.random()*max); }
-
-function fakeLoading(){
-  document.body.insertAdjacentHTML("beforeend",
-    `<div class="popup" style="top:30%;left:15%">Loading prank... 99%</div>`);
-}
-
-function moveButton(){
-  main.style.position="fixed";
-  main.style.left=rand(innerWidth-140)+"px";
-  main.style.top=rand(innerHeight-100)+"px";
-  main.innerText="Too slow";
-}
-
-function popupStorm(){
-  for(let i=0;i<5;i++){
-    document.body.insertAdjacentHTML("beforeend",
-      `<div class="popup" style="top:${rand(80)}%;left:${rand(70)}%">Are you sure?</div>`);
-  }
-}
-
-function emojiRain(){
-  let t=setInterval(()=>{
-    let e=document.createElement("div");
-    e.className="thing";
-    e.innerText=["😂","🤡","💀","👀","🚨"][rand(5)];
-    e.style.left=rand(innerWidth)+"px";
-    e.style.top="-40px";
-    document.body.appendChild(e);
-    let y=-40;
-    let fall=setInterval(()=>{
-      y+=8; e.style.top=y+"px";
-      if(y>innerHeight){e.remove();clearInterval(fall);}
-    },30);
-  },150);
-  timers.push(t);
-}
-
-function fakeError(){
-  alert("ERROR: User pressed the forbidden button.");
-}
-
-function rotateScreen(){
-  document.body.style.transform="rotate(3deg)";
-}
-
-function colorFlash(){
-  let colors=["red","blue","purple","green","orange","black"];
-  let t=setInterval(()=>document.body.style.background=colors[rand(colors.length)],200);
-  timers.push(t);
-}
-
-function tinyText(){
-  document.body.style.fontSize="8px";
-  main.innerText="I got smaller";
-}
-
-function hugeText(){
-  document.body.style.fontSize="40px";
-  main.innerText="BIG MISTAKE";
-}
-
-function reverseText(){
-  document.getElementById("app").style.transform="scaleX(-1)";
-}
-
-function fakeCrack(){
-  document.body.insertAdjacentHTML("beforeend",
-    `<div class="thing" style="top:20%;left:10%;font-size:120px">💥</div>`);
-}
-
-function runawayMessage(){
-  let d=document.createElement("div");
-  d.className="popup";
-  d.innerText="Catch me";
-  document.body.appendChild(d);
-  let t=setInterval(()=>{
-    d.style.left=rand(innerWidth-100)+"px";
-    d.style.top=rand(innerHeight-80)+"px";
-  },400);
-  timers.push(t);
-}
-
-function randomBuzz(){
-  if(navigator.vibrate) navigator.vibrate([100,50,100,50,200]);
-}
-
-function fakeUpdate(){
-  document.body.insertAdjacentHTML("beforeend",
-    `<div class="popup" style="top:25%;left:10%;right:10%">
-      Installing joke update...<br><progress max="100" value="99"></progress><br>Stuck at 99%
-    </div>`);
-}
-
-function clownMode(){
-  main.innerText="HONK";
-  document.body.insertAdjacentHTML("beforeend",
-    `<div class="thing" style="top:35%;left:35%;font-size:90px">🤡</div>`);
-}
-
-function buttonMultiply(){
-  for(let i=0;i<6;i++){
-    let b=document.createElement("button");
-    b.innerText="Nope";
-    b.style.position="fixed";
-    b.style.left=rand(innerWidth-100)+"px";
-    b.style.top=rand(innerHeight-80)+"px";
-    b.onclick=moveButton;
-    document.body.appendChild(b);
-  }
-}
-
-function screenShake(){
-  let t=setInterval(()=>{
-    document.body.style.transform=`translate(${rand(10)-5}px,${rand(10)-5}px)`;
-  },50);
-  timers.push(t);
-}
-
-function passwordJoke(){
-  let p=prompt("Enter the secret password:");
-  alert(p === "password" ? "Wrong. Too obvious." : "Wrong. Obviously.");
-}
-
-function fakeBattery(){
-  document.body.insertAdjacentHTML("beforeend",
-    `<div class="popup" style="top:15%;left:8%;right:8%">
-      Warning: Comedy battery critically low.
-    </div>`);
-}
-
-function finalBoss(){
-  document.body.innerHTML = `
-    <div id="app">
-      <h1>FINAL BOSS MODE</h1>
-      <p>You survived the prank gauntlet.</p>
-      <button onclick="location.reload()">Escape</button>
-    </div>
-  `;
-}
-
-function resetPrank(){
-  timers.forEach(clearInterval);
-  location.reload();
-}
 </script>
+
 </body>
 </html>
