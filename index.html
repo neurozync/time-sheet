@@ -2,30 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>SKY OPS RADAR</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 :root{
-  --bg:#05080c;
-  --panel:#0d1621;
-  --panel2:#111f2e;
-  --line:#2d4158;
+  --bg:#02060a;
+  --panel:#07111d;
+  --panel2:#0d1b2a;
+  --line:#28435f;
   --blue:#38bdf8;
-  --green:#21c45a;
-  --amber:#f6c945;
-  --red:#ff3b3b;
-  --text:#e8f1f8;
-  --muted:#91a4b8;
+  --green:#22c55e;
+  --amber:#facc15;
+  --red:#ef4444;
+  --purple:#a855f7;
+  --text:#e5eef8;
+  --muted:#94a3b8;
 }
 
 *{box-sizing:border-box}
 
 body{
   margin:0;
-  background:var(--bg);
+  background:#02060a;
   color:var(--text);
   font-family:Arial,Helvetica,sans-serif;
   overflow:hidden;
@@ -34,20 +35,20 @@ body{
 #map{
   height:100vh;
   width:100vw;
-  background:#020407;
+  background:#02060a;
 }
 
-.header{
+.hud{
   position:absolute;
   top:10px;
   left:10px;
   right:10px;
   z-index:1000;
-  background:linear-gradient(180deg,#101d2b,#08111b);
+  background:linear-gradient(180deg,#0e1d2d,#07111d);
   border:1px solid var(--line);
-  border-radius:14px;
+  border-radius:16px;
   padding:10px;
-  box-shadow:0 0 25px #000;
+  box-shadow:0 0 30px #000;
 }
 
 .title{
@@ -64,19 +65,19 @@ body{
   color:var(--blue);
 }
 
-.status{
+.live{
   font-size:10px;
   color:var(--green);
   border:1px solid var(--green);
-  padding:4px 7px;
+  padding:4px 8px;
   border-radius:999px;
   animation:pulse 1.5s infinite;
 }
 
 @keyframes pulse{
-  0%{opacity:.6}
+  0%{opacity:.55}
   50%{opacity:1}
-  100%{opacity:.6}
+  100%{opacity:.55}
 }
 
 .metrics{
@@ -87,7 +88,7 @@ body{
 }
 
 .metric{
-  background:#07101a;
+  background:#030b13;
   border:1px solid var(--line);
   border-radius:10px;
   padding:7px;
@@ -101,21 +102,21 @@ body{
 }
 
 .metric span{
-  color:var(--muted);
   font-size:9px;
+  color:var(--muted);
 }
 
 .controls{
   position:absolute;
-  bottom:14px;
+  bottom:12px;
   left:10px;
   right:10px;
   z-index:1000;
-  background:linear-gradient(180deg,#101d2b,#08111b);
+  background:linear-gradient(180deg,#0e1d2d,#07111d);
   border:1px solid var(--line);
-  border-radius:14px;
+  border-radius:16px;
   padding:10px;
-  box-shadow:0 0 25px #000;
+  box-shadow:0 0 30px #000;
 }
 
 .row{
@@ -129,45 +130,42 @@ button,select{
   padding:11px;
   border-radius:10px;
   border:1px solid var(--line);
-  background:#07101a;
+  background:#030b13;
   color:var(--text);
   font-weight:bold;
   letter-spacing:.5px;
 }
 
-button{
-  cursor:pointer;
-}
+button{cursor:pointer}
 
-.primary{
-  border-color:var(--blue);
-  color:var(--blue);
-}
+.blue{border-color:var(--blue);color:var(--blue)}
+.green{border-color:var(--green);color:var(--green)}
+.amber{border-color:var(--amber);color:var(--amber)}
 
-.green{
-  border-color:var(--green);
-  color:var(--green);
-}
-
-.amber{
-  border-color:var(--amber);
-  color:var(--amber);
+.notice{
+  margin-top:7px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.3;
 }
 
 .aircraft-icon{
-  color:#38bdf8;
   font-size:24px;
-  text-shadow:0 0 8px #38bdf8;
   transform-origin:center;
+}
+
+.fireball-icon{
+  font-size:24px;
+  filter:drop-shadow(0 0 8px #f97316);
 }
 
 .user-dot{
   width:18px;
   height:18px;
-  background:#38bdf8;
+  background:var(--blue);
   border:3px solid white;
   border-radius:50%;
-  box-shadow:0 0 20px #38bdf8;
+  box-shadow:0 0 20px var(--blue);
 }
 
 .popup{
@@ -175,18 +173,10 @@ button{
   line-height:1.5;
 }
 
-.popup b{
-  color:#38bdf8;
-}
+.popup b{color:var(--blue)}
+.popup .fire{color:#fb923c}
 
-.warning{
-  margin-top:8px;
-  font-size:10px;
-  color:var(--muted);
-  line-height:1.3;
-}
-
-@media(max-width:480px){
+@media(max-width:520px){
   .metrics{grid-template-columns:repeat(2,1fr)}
   .row{grid-template-columns:1fr 1fr}
   .title h1{font-size:14px}
@@ -198,28 +188,28 @@ button{
 
 <div id="map"></div>
 
-<div class="header">
+<div class="hud">
   <div class="title">
     <h1>SKY OPS RADAR</h1>
-    <div class="status" id="systemStatus">STANDBY</div>
+    <div class="live" id="systemStatus">STANDBY</div>
   </div>
 
   <div class="metrics">
     <div class="metric"><b id="aircraftCount">0</b><span>AIRCRAFT</span></div>
+    <div class="metric"><b id="fireballCount">0</b><span>FIREBALLS</span></div>
     <div class="metric"><b id="gpsAccuracy">--</b><span>GPS ACCURACY</span></div>
-    <div class="metric"><b id="radiusText">50 MI</b><span>SCAN RADIUS</span></div>
-    <div class="metric"><b id="lastUpdate">--</b><span>LAST UPDATE</span></div>
+    <div class="metric"><b id="lastUpdate">--</b><span>UPDATED</span></div>
   </div>
 
-  <div class="warning">
-    Public ADS-B only. Military/government aircraft appear only when broadcasting public position data.
+  <div class="notice">
+    Public ADS-B only. Military/government aircraft show only when publicly broadcasting and tagged. NASA fireballs are reported events, not live meteor radar.
   </div>
 </div>
 
 <div class="controls">
   <div class="row">
     <button class="green" onclick="startSystem()">START GPS</button>
-    <button class="primary" onclick="fetchAircraft()">REFRESH</button>
+    <button class="blue" onclick="refreshAll()">REFRESH</button>
     <select id="radius" onchange="updateRadius()">
       <option value="10">10 MI</option>
       <option value="25">25 MI</option>
@@ -228,72 +218,107 @@ button{
       <option value="200">200 MI</option>
     </select>
   </div>
+  <div class="row" style="margin-top:8px">
+    <button class="blue" onclick="toggleAircraft()">AIRCRAFT</button>
+    <button class="amber" onclick="toggleFireballs()">FIREBALLS</button>
+    <button class="blue" onclick="centerOnUser()">CENTER</button>
+  </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
 let map;
-let userMarker;
-let accuracyCircle;
-let aircraftLayer;
-let radarRings = [];
 let userLat = 33.4484;
 let userLon = -112.0740;
 let scanRadiusMiles = 50;
-let autoRefresh;
-let watchId;
+
+let userMarker;
+let accuracyCircle;
+let aircraftLayer;
+let fireballLayer;
+let radarRings = [];
+let aircraftVisible = true;
+let fireballsVisible = true;
+let autoAircraftTimer;
+let autoFireballTimer;
+
+function $(id){ return document.getElementById(id); }
 
 function initMap(){
-  map = L.map("map", {
-    zoomControl:false
-  }).setView([userLat,userLon], 9);
+  map = L.map("map",{zoomControl:false}).setView([userLat,userLon],9);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
     maxZoom:19,
-    attribution:"© OpenStreetMap | OpenSky Network"
+    attribution:"© OpenStreetMap | Airplanes.live | NASA/JPL CNEOS"
   }).addTo(map);
 
   aircraftLayer = L.layerGroup().addTo(map);
+  fireballLayer = L.layerGroup().addTo(map);
+
   L.control.zoom({position:"topright"}).addTo(map);
+
   drawUserPosition(userLat,userLon,1000);
   drawRadarRings();
 }
 
 function startSystem(){
-  document.getElementById("systemStatus").textContent = "ACQUIRING GPS";
+  $("systemStatus").textContent = "GPS LOCKING";
 
   if(!navigator.geolocation){
-    alert("GPS not supported on this device/browser.");
+    alert("GPS not supported.");
     return;
   }
 
-  watchId = navigator.geolocation.watchPosition(pos => {
+  navigator.geolocation.watchPosition(pos=>{
     userLat = pos.coords.latitude;
     userLon = pos.coords.longitude;
 
-    const accuracy = pos.coords.accuracy || 0;
-    document.getElementById("gpsAccuracy").textContent =
-      accuracy < 1609 ? Math.round(accuracy * 3.28084) + " FT" : (accuracy / 1609.34).toFixed(1) + " MI";
+    const acc = pos.coords.accuracy || 0;
+    $("gpsAccuracy").textContent =
+      acc < 1609 ? Math.round(acc * 3.28084) + " FT" : (acc/1609.34).toFixed(1) + " MI";
 
-    drawUserPosition(userLat,userLon,accuracy);
+    drawUserPosition(userLat,userLon,acc);
     drawRadarRings();
-    map.setView([userLat,userLon], getZoomForRadius(scanRadiusMiles));
+    centerOnUser();
 
-    document.getElementById("systemStatus").textContent = "LIVE";
-    fetchAircraft();
+    $("systemStatus").textContent = "LIVE";
 
-    clearInterval(autoRefresh);
-    autoRefresh = setInterval(fetchAircraft, 10000);
+    refreshAll();
 
-  }, err => {
-    alert("GPS permission denied or unavailable. Enable location permission and use HTTPS.");
-    document.getElementById("systemStatus").textContent = "GPS ERROR";
-  }, {
+    clearInterval(autoAircraftTimer);
+    clearInterval(autoFireballTimer);
+
+    autoAircraftTimer = setInterval(fetchAircraft,15000);
+    autoFireballTimer = setInterval(fetchFireballs,300000);
+
+  },err=>{
+    $("systemStatus").textContent = "GPS ERROR";
+    alert("Enable location permission and use HTTPS/GitHub Pages.");
+  },{
     enableHighAccuracy:true,
     maximumAge:0,
     timeout:15000
   });
+}
+
+function centerOnUser(){
+  map.setView([userLat,userLon],zoomForRadius(scanRadiusMiles));
+}
+
+function updateRadius(){
+  scanRadiusMiles = Number($("radius").value);
+  drawRadarRings();
+  fetchAircraft();
+  centerOnUser();
+}
+
+function zoomForRadius(mi){
+  if(mi <= 10) return 11;
+  if(mi <= 25) return 10;
+  if(mi <= 50) return 9;
+  if(mi <= 100) return 8;
+  return 7;
 }
 
 function drawUserPosition(lat,lon,accuracy){
@@ -325,16 +350,16 @@ function drawUserPosition(lat,lon,accuracy){
 }
 
 function drawRadarRings(){
-  radarRings.forEach(r => map.removeLayer(r));
+  radarRings.forEach(r=>map.removeLayer(r));
   radarRings = [];
 
-  [5,10,25,50,100].forEach(mi => {
+  [5,10,25,50,100,200].forEach(mi=>{
     if(mi <= scanRadiusMiles){
       const ring = L.circle([userLat,userLon],{
         radius:mi * 1609.34,
         color:"#38bdf8",
         fill:false,
-        opacity:.35,
+        opacity:.28,
         weight:1,
         dashArray:"4,8"
       }).addTo(map);
@@ -343,147 +368,221 @@ function drawRadarRings(){
   });
 }
 
-function updateRadius(){
-  scanRadiusMiles = Number(document.getElementById("radius").value);
-  document.getElementById("radiusText").textContent = scanRadiusMiles + " MI";
-  drawRadarRings();
+function refreshAll(){
   fetchAircraft();
-}
-
-function getZoomForRadius(mi){
-  if(mi <= 10) return 11;
-  if(mi <= 25) return 10;
-  if(mi <= 50) return 9;
-  if(mi <= 100) return 8;
-  return 7;
-}
-
-function milesToDegreesLat(mi){
-  return mi / 69;
-}
-
-function milesToDegreesLon(mi,lat){
-  return mi / (69 * Math.cos(lat * Math.PI / 180));
+  fetchFireballs();
 }
 
 async function fetchAircraft(){
-  document.getElementById("systemStatus").textContent = "SCANNING";
-
-  const latDelta = milesToDegreesLat(scanRadiusMiles);
-  const lonDelta = milesToDegreesLon(scanRadiusMiles,userLat);
-
-  const lamin = userLat - latDelta;
-  const lamax = userLat + latDelta;
-  const lomin = userLon - lonDelta;
-  const lomax = userLon + lonDelta;
-
-  const url = `https://opensky-network.org/api/states/all?lamin=${lamin}&lomin=${lomin}&lamax=${lamax}&lomax=${lomax}`;
+  $("systemStatus").textContent = "SCANNING";
 
   try{
+    const radiusNm = Math.min(250, Math.round(scanRadiusMiles * 0.868976));
+    const url = `https://api.airplanes.live/v2/point/${userLat}/${userLon}/${radiusNm}`;
+
     const res = await fetch(url);
-    if(!res.ok) throw new Error("OpenSky request failed");
+    if(!res.ok) throw new Error("Aircraft HTTP " + res.status);
+
     const data = await res.json();
+    const aircraft = data.ac || [];
 
     aircraftLayer.clearLayers();
 
-    const states = data.states || [];
     let count = 0;
 
-    states.forEach(s => {
-      const aircraft = parseAircraft(s);
-      if(!aircraft.lat || !aircraft.lon) return;
+    aircraft.forEach(ac=>{
+      let lat = ac.lat;
+      let lon = ac.lon;
+
+      if((!lat || !lon) && ac.lastPosition){
+        lat = ac.lastPosition.lat;
+        lon = ac.lastPosition.lon;
+      }
+
+      if(!lat || !lon) return;
 
       count++;
-      addAircraftMarker(aircraft);
+
+      addAircraft({
+        icao:ac.hex || "",
+        callsign:(ac.flight || "UNKNOWN").trim(),
+        lat:lat,
+        lon:lon,
+        alt:ac.alt_geom || ac.alt_baro,
+        speed:ac.gs,
+        heading:ac.track || 0,
+        squawk:ac.squawk,
+        type:ac.t || "",
+        reg:ac.r || "",
+        category:ac.category || "",
+        dbFlags:ac.dbFlags || 0,
+        seen:ac.seen_pos
+      });
     });
 
-    document.getElementById("aircraftCount").textContent = count;
-    document.getElementById("lastUpdate").textContent = new Date().toLocaleTimeString();
-    document.getElementById("systemStatus").textContent = "LIVE";
+    $("aircraftCount").textContent = count;
+    $("lastUpdate").textContent = new Date().toLocaleTimeString();
+    $("systemStatus").textContent = "LIVE";
 
   }catch(e){
-    document.getElementById("systemStatus").textContent = "API ERROR";
     console.error(e);
+    $("systemStatus").textContent = "AIR API ERROR";
+    $("lastUpdate").textContent = e.message;
   }
 }
 
-function parseAircraft(s){
-  return {
-    icao:s[0],
-    callsign:(s[1] || "UNKNOWN").trim(),
-    country:s[2] || "UNKNOWN",
-    lon:s[5],
-    lat:s[6],
-    baroAlt:s[7],
-    onGround:s[8],
-    velocity:s[9],
-    heading:s[10],
-    verticalRate:s[11],
-    geoAlt:s[13],
-    squawk:s[14],
-    lastContact:s[4]
-  };
-}
-
 function classifyAircraft(a){
-  const c = a.callsign.toUpperCase();
+  const flags = a.dbFlags || 0;
+  const cs = (a.callsign || "").toUpperCase();
 
-  if(c.includes("RCH") || c.includes("REACH") || c.includes("AF") || c.includes("NAVY") || c.includes("ARMY")) return "POSSIBLE MIL/GOV";
-  if(c.includes("LIFE") || c.includes("MEDEVAC") || c.includes("AIRCARE")) return "POSSIBLE MEDICAL";
-  if(c.includes("POL") || c.includes("SHERIFF") || c.includes("DPS")) return "POSSIBLE LAW ENFORCEMENT";
-  if((a.baroAlt || 0) < 6000 && (a.velocity || 0) < 90) return "LOW/SLOW AIRCRAFT";
-  return "PUBLIC ADS-B";
+  if(flags & 1) return {label:"MILITARY / GOV TAGGED", color:"#facc15"};
+  if(cs.includes("POL") || cs.includes("DPS") || cs.includes("SHERIFF")) return {label:"POSSIBLE LAW ENFORCEMENT", color:"#ef4444"};
+  if(cs.includes("LIFE") || cs.includes("MEDEVAC") || cs.includes("AIRCARE")) return {label:"POSSIBLE MEDICAL", color:"#22c55e"};
+  if((a.alt || 0) < 6000 && (a.speed || 0) < 120) return {label:"LOW / SLOW AIRCRAFT", color:"#a855f7"};
+  return {label:"PUBLIC ADS-B AIRCRAFT", color:"#38bdf8"};
 }
 
-function addAircraftMarker(a){
-  const heading = a.heading || 0;
-  const type = classifyAircraft(a);
-
-  let color = "#38bdf8";
-  if(type.includes("MIL")) color = "#f6c945";
-  if(type.includes("LAW")) color = "#ff3b3b";
-  if(type.includes("MEDICAL")) color = "#21c45a";
+function addAircraft(a){
+  const c = classifyAircraft(a);
 
   const icon = L.divIcon({
     className:"",
-    html:`<div class="aircraft-icon" style="color:${color};text-shadow:0 0 8px ${color};transform:rotate(${heading}deg)">✈</div>`,
+    html:`<div class="aircraft-icon" style="color:${c.color};text-shadow:0 0 10px ${c.color};transform:rotate(${a.heading}deg)">✈</div>`,
     iconSize:[28,28],
     iconAnchor:[14,14]
   });
 
-  const distance = distanceMiles(userLat,userLon,a.lat,a.lon).toFixed(1);
-  const altitude = a.geoAlt || a.baroAlt;
-  const altitudeFt = altitude ? Math.round(altitude * 3.28084).toLocaleString() + " FT" : "UNKNOWN";
-  const speedMph = a.velocity ? Math.round(a.velocity * 2.23694) + " MPH" : "UNKNOWN";
+  const dist = distanceMiles(userLat,userLon,a.lat,a.lon).toFixed(1);
+  const altFt = a.alt ? Math.round(a.alt * 3.28084).toLocaleString() + " FT" : "UNKNOWN";
+  const speedMph = a.speed ? Math.round(a.speed * 1.15078) + " MPH" : "UNKNOWN";
 
   L.marker([a.lat,a.lon],{icon})
     .addTo(aircraftLayer)
     .bindPopup(`
       <div class="popup">
-        <b>${a.callsign || "UNKNOWN"}</b><br>
-        TYPE: ${type}<br>
-        ICAO: ${a.icao}<br>
-        COUNTRY: ${a.country}<br>
-        ALTITUDE: ${altitudeFt}<br>
+        <b>${a.callsign}</b><br>
+        CLASS: ${c.label}<br>
+        ICAO: ${a.icao || "N/A"}<br>
+        REG: ${a.reg || "N/A"}<br>
+        TYPE: ${a.type || "N/A"}<br>
+        ALTITUDE: ${altFt}<br>
         SPEED: ${speedMph}<br>
-        HEADING: ${Math.round(heading)}°<br>
-        DISTANCE: ${distance} MI<br>
+        HEADING: ${Math.round(a.heading)}°<br>
+        DISTANCE: ${dist} MI<br>
         SQUAWK: ${a.squawk || "N/A"}<br>
-        ON GROUND: ${a.onGround ? "YES" : "NO"}
+        SEEN: ${a.seen != null ? a.seen + " SEC AGO" : "N/A"}
       </div>
     `);
+}
+
+async function fetchFireballs(){
+  try{
+    const url = "https://ssd-api.jpl.nasa.gov/fireball.api?limit=25&req-loc=true";
+
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("NASA HTTP " + res.status);
+
+    const data = await res.json();
+
+    fireballLayer.clearLayers();
+
+    const fields = data.fields || [];
+    const rows = data.data || [];
+
+    const idx = {};
+    fields.forEach((f,i)=>idx[f]=i);
+
+    let count = 0;
+
+    rows.forEach(r=>{
+      const latRaw = r[idx["lat"]];
+      const lonRaw = r[idx["lon"]];
+      const latDir = r[idx["lat-dir"]];
+      const lonDir = r[idx["lon-dir"]];
+
+      if(!latRaw || !lonRaw || !latDir || !lonDir) return;
+
+      let lat = parseFloat(latRaw);
+      let lon = parseFloat(lonRaw);
+
+      if(latDir === "S") lat *= -1;
+      if(lonDir === "W") lon *= -1;
+
+      count++;
+
+      const date = r[idx["date"]] || "UNKNOWN";
+      const alt = r[idx["alt"]] || "N/A";
+      const vel = r[idx["vel"]] || "N/A";
+      const energy = r[idx["energy"]] || "N/A";
+      const impact = r[idx["impact-e"]] || "N/A";
+
+      addFireball({lat,lon,date,alt,vel,energy,impact});
+    });
+
+    $("fireballCount").textContent = count;
+
+  }catch(e){
+    console.error(e);
+  }
+}
+
+function addFireball(f){
+  const icon = L.divIcon({
+    className:"",
+    html:"<div class='fireball-icon'>☄</div>",
+    iconSize:[28,28],
+    iconAnchor:[14,14]
+  });
+
+  L.marker([f.lat,f.lon],{icon})
+    .addTo(fireballLayer)
+    .bindPopup(`
+      <div class="popup">
+        <b class="fire">NASA/JPL FIREBALL EVENT</b><br>
+        DATE/TIME UTC: ${f.date}<br>
+        LOCATION: ${f.lat.toFixed(2)}, ${f.lon.toFixed(2)}<br>
+        ALTITUDE: ${f.alt} KM<br>
+        VELOCITY: ${f.vel} KM/S<br>
+        RADIATED ENERGY: ${f.energy} KT<br>
+        IMPACT ENERGY: ${f.impact} KT<br>
+        NOTE: Reported atmospheric-entry event, not live radar.
+      </div>
+    `);
+}
+
+function toggleAircraft(){
+  if(aircraftVisible){
+    map.removeLayer(aircraftLayer);
+    aircraftVisible = false;
+  }else{
+    map.addLayer(aircraftLayer);
+    aircraftVisible = true;
+  }
+}
+
+function toggleFireballs(){
+  if(fireballsVisible){
+    map.removeLayer(fireballLayer);
+    fireballsVisible = false;
+  }else{
+    map.addLayer(fireballLayer);
+    fireballsVisible = true;
+  }
 }
 
 function distanceMiles(lat1,lon1,lat2,lon2){
   const R = 3958.8;
   const dLat = deg2rad(lat2-lat1);
   const dLon = deg2rad(lon2-lon1);
-  const x =
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-    Math.sin(dLon/2) * Math.sin(dLon/2);
 
-  return R * 2 * Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+  const a =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) *
+    Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon/2) *
+    Math.sin(dLon/2);
+
+  return R * 2 * Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
 
 function deg2rad(d){
