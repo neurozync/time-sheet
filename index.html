@@ -2,587 +2,495 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Federal ID Intake System</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SKY OPS RADAR</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <style>
 :root{
-  --bg:#070b0f;
-  --panel:#101820;
-  --panel2:#16212c;
-  --line:#2f3e4f;
-  --text:#e6edf3;
-  --muted:#8ea0b3;
-  --green:#21c45a;
-  --yellow:#f6c945;
-  --red:#ff3b3b;
+  --bg:#05080c;
+  --panel:#0d1621;
+  --panel2:#111f2e;
+  --line:#2d4158;
   --blue:#38bdf8;
+  --green:#21c45a;
+  --amber:#f6c945;
+  --red:#ff3b3b;
+  --text:#e8f1f8;
+  --muted:#91a4b8;
 }
 
-*{box-sizing:border-box;font-family:Arial,Helvetica,sans-serif}
+*{box-sizing:border-box}
+
 body{
   margin:0;
-  background:radial-gradient(circle at top,#17212c,#05080c 70%);
+  background:var(--bg);
   color:var(--text);
+  font-family:Arial,Helvetica,sans-serif;
+  overflow:hidden;
 }
 
-header{
-  padding:18px;
-  border-bottom:1px solid var(--line);
-  background:#081018;
-  text-align:center;
-  letter-spacing:2px;
+#map{
+  height:100vh;
+  width:100vw;
+  background:#020407;
 }
 
-header h1{margin:0;font-size:22px}
-header p{margin:6px 0 0;color:var(--muted);font-size:12px}
-
-.container{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
-  padding:16px;
-}
-
-.card{
-  background:linear-gradient(180deg,var(--panel),#0b1118);
+.header{
+  position:absolute;
+  top:10px;
+  left:10px;
+  right:10px;
+  z-index:1000;
+  background:linear-gradient(180deg,#101d2b,#08111b);
   border:1px solid var(--line);
   border-radius:14px;
-  padding:16px;
-  box-shadow:0 0 20px #0008;
+  padding:10px;
+  box-shadow:0 0 25px #000;
 }
 
-.card h2{
-  margin:0 0 12px;
-  font-size:15px;
+.title{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+}
+
+.title h1{
+  margin:0;
+  font-size:16px;
+  letter-spacing:2px;
   color:var(--blue);
-  letter-spacing:1px;
-  border-bottom:1px solid var(--line);
-  padding-bottom:8px;
 }
 
-video,canvas,img{
-  width:100%;
-  border-radius:10px;
-  background:#000;
-  border:1px solid var(--line);
+.status{
+  font-size:10px;
+  color:var(--green);
+  border:1px solid var(--green);
+  padding:4px 7px;
+  border-radius:999px;
+  animation:pulse 1.5s infinite;
 }
 
-.grid{
+@keyframes pulse{
+  0%{opacity:.6}
+  50%{opacity:1}
+  100%{opacity:.6}
+}
+
+.metrics{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  margin-top:8px;
 }
 
-label{
-  font-size:11px;
+.metric{
+  background:#07101a;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:7px;
+  text-align:center;
+}
+
+.metric b{
+  display:block;
+  color:var(--blue);
+  font-size:14px;
+}
+
+.metric span{
   color:var(--muted);
-  text-transform:uppercase;
+  font-size:9px;
 }
 
-input,select,textarea,button{
+.controls{
+  position:absolute;
+  bottom:14px;
+  left:10px;
+  right:10px;
+  z-index:1000;
+  background:linear-gradient(180deg,#101d2b,#08111b);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:10px;
+  box-shadow:0 0 25px #000;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+}
+
+button,select{
   width:100%;
   padding:11px;
-  border-radius:8px;
+  border-radius:10px;
   border:1px solid var(--line);
-  background:#071018;
+  background:#07101a;
   color:var(--text);
-  margin-top:4px;
+  font-weight:bold;
+  letter-spacing:.5px;
 }
-
-input[readonly]{
-  background:#0b141d;
-  color:#d7e2ee;
-  border-color:#26384a;
-}
-
-textarea{min-height:90px;resize:vertical}
 
 button{
   cursor:pointer;
-  font-weight:bold;
-  text-transform:uppercase;
-  letter-spacing:1px;
-  transition:.2s;
 }
 
-button:hover{filter:brightness(1.2)}
-
-.primary{background:#12324a;border-color:#2d8fbd}
-.green{background:#123d24;border-color:#25c46a}
-.red{background:#421616;border-color:#ff4a4a}
-.yellow{background:#403410;border-color:#f6c945}
-
-.status{
-  text-align:center;
-  padding:20px;
-  border-radius:14px;
-  border:2px solid var(--line);
-  font-size:26px;
-  font-weight:900;
-  letter-spacing:2px;
-  animation:pulse 1.4s infinite;
+.primary{
+  border-color:var(--blue);
+  color:var(--blue);
 }
 
-.good{border-color:var(--green);color:var(--green);box-shadow:0 0 25px #21c45a55}
-.review{border-color:var(--yellow);color:var(--yellow);box-shadow:0 0 25px #f6c94555}
-.bad{border-color:var(--red);color:var(--red);box-shadow:0 0 25px #ff3b3b55}
-.neutral{border-color:var(--blue);color:var(--blue)}
-
-@keyframes pulse{
-  0%{opacity:.75}
-  50%{opacity:1}
-  100%{opacity:.75}
+.green{
+  border-color:var(--green);
+  color:var(--green);
 }
 
-.scanline{
-  height:5px;
-  background:linear-gradient(90deg,transparent,var(--green),transparent);
-  animation:scan 2s infinite;
-  margin:12px 0;
+.amber{
+  border-color:var(--amber);
+  color:var(--amber);
 }
 
-@keyframes scan{
-  0%{transform:translateY(0)}
-  50%{transform:translateY(20px)}
-  100%{transform:translateY(0)}
+.aircraft-icon{
+  color:#38bdf8;
+  font-size:24px;
+  text-shadow:0 0 8px #38bdf8;
+  transform-origin:center;
 }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:12px;
+.user-dot{
+  width:18px;
+  height:18px;
+  background:#38bdf8;
+  border:3px solid white;
+  border-radius:50%;
+  box-shadow:0 0 20px #38bdf8;
 }
 
-th,td{
-  border-bottom:1px solid var(--line);
-  padding:8px;
-  text-align:left;
-}
-
-th{color:var(--blue)}
-
-.badge{
-  display:inline-block;
-  padding:4px 8px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:bold;
-}
-
-.notice{
-  color:var(--muted);
+.popup{
   font-size:12px;
   line-height:1.5;
 }
 
-@media(max-width:900px){
-  .container{grid-template-columns:1fr}
+.popup b{
+  color:#38bdf8;
+}
+
+.warning{
+  margin-top:8px;
+  font-size:10px;
+  color:var(--muted);
+  line-height:1.3;
+}
+
+@media(max-width:480px){
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .row{grid-template-columns:1fr 1fr}
+  .title h1{font-size:14px}
 }
 </style>
 </head>
 
 <body>
 
-<header>
-  <h1>FEDERAL-STYLE ID INTAKE / VISITOR CONTROL SYSTEM</h1>
-  <p>Offline Web-Based Security Intake • Local Device Storage • No External APIs</p>
-</header>
+<div id="map"></div>
 
-<div class="container">
+<div class="header">
+  <div class="title">
+    <h1>SKY OPS RADAR</h1>
+    <div class="status" id="systemStatus">STANDBY</div>
+  </div>
 
-  <section class="card">
-    <h2>1. CAMERA CAPTURE</h2>
-    <video id="video" autoplay playsinline></video>
-    <div class="scanline"></div>
-    <div class="grid">
-      <button class="primary" onclick="startCamera()">Start Camera</button>
-      <button class="green" onclick="captureImage()">Capture ID Image</button>
-    </div>
-    <br>
-    <canvas id="canvas" style="display:none"></canvas>
-    <img id="snapshot" alt="Captured ID Preview"/>
-  </section>
+  <div class="metrics">
+    <div class="metric"><b id="aircraftCount">0</b><span>AIRCRAFT</span></div>
+    <div class="metric"><b id="gpsAccuracy">--</b><span>GPS ACCURACY</span></div>
+    <div class="metric"><b id="radiusText">50 MI</b><span>SCAN RADIUS</span></div>
+    <div class="metric"><b id="lastUpdate">--</b><span>LAST UPDATE</span></div>
+  </div>
 
-  <section class="card">
-    <h2>2. SCAN / IMPORT DATA</h2>
-    <p class="notice">
-      Paste raw AAMVA driver-license barcode text or passport MRZ text below.
-      Without external libraries, this system parses pasted barcode/MRZ data and performs risk checks.
-    </p>
-    <textarea id="rawData" placeholder="Paste PDF417 AAMVA data or passport MRZ here..."></textarea>
-    <div class="grid">
-      <button class="primary" onclick="parseAAMVA()">Parse U.S. ID</button>
-      <button class="primary" onclick="parseMRZ()">Parse Passport MRZ</button>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>3. LOCKED IDENTITY FIELDS</h2>
-    <div class="grid">
-      <div><label>Status</label><input id="statusField" readonly></div>
-      <div><label>ID Type</label><input id="idType" readonly></div>
-      <div><label>First Name</label><input id="firstName" readonly></div>
-      <div><label>Last Name</label><input id="lastName" readonly></div>
-      <div><label>Date of Birth</label><input id="dob" readonly></div>
-      <div><label>Age</label><input id="age" readonly></div>
-      <div><label>ID Number</label><input id="idNumber" readonly></div>
-      <div><label>Expiration Date</label><input id="expDate" readonly></div>
-      <div><label>Issuing State/Country</label><input id="issuer" readonly></div>
-      <div><label>Address</label><input id="address" readonly></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>4. SYSTEM DECISION</h2>
-    <div id="statusBox" class="status neutral">AWAITING SCAN</div>
-    <br>
-    <div id="riskNotes" class="notice">No scan completed.</div>
-    <br>
-    <button class="yellow" onclick="runAssessment()">Run Assessment</button>
-  </section>
-
-  <section class="card">
-    <h2>5. VISITOR INTAKE</h2>
-    <div class="grid">
-      <div><label>Reason for Visit</label><input id="reason"></div>
-      <div><label>Company / Agency</label><input id="company"></div>
-      <div><label>Vehicle Plate</label><input id="plate"></div>
-      <div><label>Badge Number</label><input id="badgeNo"></div>
-    </div>
-    <br>
-    <textarea id="notes" placeholder="Officer notes / observations / access-control comments..."></textarea>
-    <br><br>
-    <div class="grid">
-      <button class="green" onclick="saveVisitor()">Save Visitor Log</button>
-      <button class="red" onclick="clearCurrent()">Clear Current</button>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>6. WATCHLIST</h2>
-    <p class="notice">Local-only watchlist. Add names or ID numbers, one per line.</p>
-    <textarea id="watchlist" placeholder="Example: JOHN SMITH&#10;D12345678"></textarea>
-    <button class="primary" onclick="saveWatchlist()">Save Watchlist</button>
-  </section>
-
-  <section class="card" style="grid-column:1/-1">
-    <h2>7. VISITOR LOG</h2>
-    <div class="grid">
-      <button class="primary" onclick="loadLogs()">Refresh Log</button>
-      <button class="primary" onclick="exportCSV()">Export CSV</button>
-    </div>
-    <br>
-    <table>
-      <thead>
-        <tr>
-          <th>Time</th>
-          <th>Name</th>
-          <th>DOB</th>
-          <th>ID</th>
-          <th>Status</th>
-          <th>Reason</th>
-          <th>Company</th>
-        </tr>
-      </thead>
-      <tbody id="logTable"></tbody>
-    </table>
-  </section>
-
+  <div class="warning">
+    Public ADS-B only. Military/government aircraft appear only when broadcasting public position data.
+  </div>
 </div>
 
+<div class="controls">
+  <div class="row">
+    <button class="green" onclick="startSystem()">START GPS</button>
+    <button class="primary" onclick="fetchAircraft()">REFRESH</button>
+    <select id="radius" onchange="updateRadius()">
+      <option value="10">10 MI</option>
+      <option value="25">25 MI</option>
+      <option value="50" selected>50 MI</option>
+      <option value="100">100 MI</option>
+      <option value="200">200 MI</option>
+    </select>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
-let capturedImage = "";
-let currentRecord = {};
+let map;
+let userMarker;
+let accuracyCircle;
+let aircraftLayer;
+let radarRings = [];
+let userLat = 33.4484;
+let userLon = -112.0740;
+let scanRadiusMiles = 50;
+let autoRefresh;
+let watchId;
 
-function $(id){ return document.getElementById(id); }
+function initMap(){
+  map = L.map("map", {
+    zoomControl:false
+  }).setView([userLat,userLon], 9);
 
-async function startCamera(){
-  try{
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video:{ facingMode:"environment" },
-      audio:false
-    });
-    $("video").srcObject = stream;
-  }catch(e){
-    alert("Camera unavailable. Use HTTPS or GitHub Pages.");
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom:19,
+    attribution:"© OpenStreetMap | OpenSky Network"
+  }).addTo(map);
+
+  aircraftLayer = L.layerGroup().addTo(map);
+  L.control.zoom({position:"topright"}).addTo(map);
+  drawUserPosition(userLat,userLon,1000);
+  drawRadarRings();
+}
+
+function startSystem(){
+  document.getElementById("systemStatus").textContent = "ACQUIRING GPS";
+
+  if(!navigator.geolocation){
+    alert("GPS not supported on this device/browser.");
+    return;
+  }
+
+  watchId = navigator.geolocation.watchPosition(pos => {
+    userLat = pos.coords.latitude;
+    userLon = pos.coords.longitude;
+
+    const accuracy = pos.coords.accuracy || 0;
+    document.getElementById("gpsAccuracy").textContent =
+      accuracy < 1609 ? Math.round(accuracy * 3.28084) + " FT" : (accuracy / 1609.34).toFixed(1) + " MI";
+
+    drawUserPosition(userLat,userLon,accuracy);
+    drawRadarRings();
+    map.setView([userLat,userLon], getZoomForRadius(scanRadiusMiles));
+
+    document.getElementById("systemStatus").textContent = "LIVE";
+    fetchAircraft();
+
+    clearInterval(autoRefresh);
+    autoRefresh = setInterval(fetchAircraft, 10000);
+
+  }, err => {
+    alert("GPS permission denied or unavailable. Enable location permission and use HTTPS.");
+    document.getElementById("systemStatus").textContent = "GPS ERROR";
+  }, {
+    enableHighAccuracy:true,
+    maximumAge:0,
+    timeout:15000
+  });
+}
+
+function drawUserPosition(lat,lon,accuracy){
+  const icon = L.divIcon({
+    className:"",
+    html:"<div class='user-dot'></div>",
+    iconSize:[18,18],
+    iconAnchor:[9,9]
+  });
+
+  if(userMarker){
+    userMarker.setLatLng([lat,lon]);
+  }else{
+    userMarker = L.marker([lat,lon],{icon}).addTo(map).bindPopup("YOUR GPS POSITION");
+  }
+
+  if(accuracyCircle){
+    accuracyCircle.setLatLng([lat,lon]);
+    accuracyCircle.setRadius(accuracy);
+  }else{
+    accuracyCircle = L.circle([lat,lon],{
+      radius:accuracy,
+      color:"#38bdf8",
+      fillColor:"#38bdf8",
+      fillOpacity:.12,
+      weight:1
+    }).addTo(map);
   }
 }
 
-function captureImage(){
-  const video = $("video");
-  const canvas = $("canvas");
-  const ctx = canvas.getContext("2d");
-  canvas.width = video.videoWidth || 1280;
-  canvas.height = video.videoHeight || 720;
-  ctx.drawImage(video,0,0,canvas.width,canvas.height);
-  capturedImage = canvas.toDataURL("image/jpeg",0.85);
-  $("snapshot").src = capturedImage;
-}
+function drawRadarRings(){
+  radarRings.forEach(r => map.removeLayer(r));
+  radarRings = [];
 
-function setField(id,val){
-  $(id).value = val || "";
-}
-
-function normalizeDate(v){
-  if(!v) return "";
-  v = String(v).replace(/\D/g,"");
-  if(v.length === 8){
-    if(v.startsWith("19") || v.startsWith("20")){
-      return v.slice(0,4)+"-"+v.slice(4,6)+"-"+v.slice(6,8);
-    } else {
-      return v.slice(4,8)+"-"+v.slice(0,2)+"-"+v.slice(2,4);
+  [5,10,25,50,100].forEach(mi => {
+    if(mi <= scanRadiusMiles){
+      const ring = L.circle([userLat,userLon],{
+        radius:mi * 1609.34,
+        color:"#38bdf8",
+        fill:false,
+        opacity:.35,
+        weight:1,
+        dashArray:"4,8"
+      }).addTo(map);
+      radarRings.push(ring);
     }
-  }
-  if(v.length === 6){
-    let yy = parseInt(v.slice(0,2),10);
-    let year = yy > 40 ? "19"+v.slice(0,2) : "20"+v.slice(0,2);
-    return year+"-"+v.slice(2,4)+"-"+v.slice(4,6);
-  }
-  return v;
+  });
 }
 
-function calcAge(dob){
-  if(!dob) return "";
-  const d = new Date(dob);
-  if(isNaN(d)) return "";
-  const now = new Date();
-  let age = now.getFullYear() - d.getFullYear();
-  const m = now.getMonth() - d.getMonth();
-  if(m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
-  return age;
+function updateRadius(){
+  scanRadiusMiles = Number(document.getElementById("radius").value);
+  document.getElementById("radiusText").textContent = scanRadiusMiles + " MI";
+  drawRadarRings();
+  fetchAircraft();
 }
 
-function isExpired(date){
-  if(!date) return true;
-  const d = new Date(date + "T23:59:59");
-  return isNaN(d) || d < new Date();
+function getZoomForRadius(mi){
+  if(mi <= 10) return 11;
+  if(mi <= 25) return 10;
+  if(mi <= 50) return 9;
+  if(mi <= 100) return 8;
+  return 7;
 }
 
-function parseAAMVA(){
-  const raw = $("rawData").value;
-  if(!raw.trim()){
-    alert("Paste AAMVA/PDF417 data first.");
-    return;
+function milesToDegreesLat(mi){
+  return mi / 69;
+}
+
+function milesToDegreesLon(mi,lat){
+  return mi / (69 * Math.cos(lat * Math.PI / 180));
+}
+
+async function fetchAircraft(){
+  document.getElementById("systemStatus").textContent = "SCANNING";
+
+  const latDelta = milesToDegreesLat(scanRadiusMiles);
+  const lonDelta = milesToDegreesLon(scanRadiusMiles,userLat);
+
+  const lamin = userLat - latDelta;
+  const lamax = userLat + latDelta;
+  const lomin = userLon - lonDelta;
+  const lomax = userLon + lonDelta;
+
+  const url = `https://opensky-network.org/api/states/all?lamin=${lamin}&lomin=${lomin}&lamax=${lamax}&lomax=${lomax}`;
+
+  try{
+    const res = await fetch(url);
+    if(!res.ok) throw new Error("OpenSky request failed");
+    const data = await res.json();
+
+    aircraftLayer.clearLayers();
+
+    const states = data.states || [];
+    let count = 0;
+
+    states.forEach(s => {
+      const aircraft = parseAircraft(s);
+      if(!aircraft.lat || !aircraft.lon) return;
+
+      count++;
+      addAircraftMarker(aircraft);
+    });
+
+    document.getElementById("aircraftCount").textContent = count;
+    document.getElementById("lastUpdate").textContent = new Date().toLocaleTimeString();
+    document.getElementById("systemStatus").textContent = "LIVE";
+
+  }catch(e){
+    document.getElementById("systemStatus").textContent = "API ERROR";
+    console.error(e);
   }
+}
 
-  const get = code => {
-    const match = raw.match(new RegExp(code + "([^\\n\\r]+)"));
-    return match ? match[1].trim() : "";
+function parseAircraft(s){
+  return {
+    icao:s[0],
+    callsign:(s[1] || "UNKNOWN").trim(),
+    country:s[2] || "UNKNOWN",
+    lon:s[5],
+    lat:s[6],
+    baroAlt:s[7],
+    onGround:s[8],
+    velocity:s[9],
+    heading:s[10],
+    verticalRate:s[11],
+    geoAlt:s[13],
+    squawk:s[14],
+    lastContact:s[4]
   };
-
-  const first = get("DAC") || get("DCT");
-  const last = get("DCS");
-  const dob = normalizeDate(get("DBB"));
-  const exp = normalizeDate(get("DBA"));
-  const id = get("DAQ");
-  const street = get("DAG");
-  const city = get("DAI");
-  const state = get("DAJ");
-  const zip = get("DAK");
-
-  currentRecord = {
-    type:"U.S. Driver License / State ID",
-    first:first,
-    last:last,
-    dob:dob,
-    exp:exp,
-    id:id,
-    issuer:state,
-    address:[street,city,state,zip].filter(Boolean).join(", "),
-    source:"AAMVA"
-  };
-
-  fillRecord();
 }
 
-function parseMRZ(){
-  const raw = $("rawData").value.replace(/\s+/g,"\n").trim();
-  const lines = raw.split("\n").filter(x=>x.length>20);
+function classifyAircraft(a){
+  const c = a.callsign.toUpperCase();
 
-  if(lines.length < 2){
-    alert("Paste two MRZ lines from a passport.");
-    return;
-  }
-
-  const l1 = lines[0];
-  const l2 = lines[1];
-
-  let names = l1.substring(5).split("<<");
-  let last = names[0].replace(/</g," ").trim();
-  let first = (names[1] || "").replace(/</g," ").trim();
-
-  let passportNo = l2.substring(0,9).replace(/</g,"");
-  let nationality = l2.substring(10,13).replace(/</g,"");
-  let dob = normalizeDate(l2.substring(13,19));
-  let exp = normalizeDate(l2.substring(21,27));
-
-  currentRecord = {
-    type:"Passport",
-    first:first,
-    last:last,
-    dob:dob,
-    exp:exp,
-    id:passportNo,
-    issuer:nationality,
-    address:"",
-    source:"MRZ"
-  };
-
-  fillRecord();
+  if(c.includes("RCH") || c.includes("REACH") || c.includes("AF") || c.includes("NAVY") || c.includes("ARMY")) return "POSSIBLE MIL/GOV";
+  if(c.includes("LIFE") || c.includes("MEDEVAC") || c.includes("AIRCARE")) return "POSSIBLE MEDICAL";
+  if(c.includes("POL") || c.includes("SHERIFF") || c.includes("DPS")) return "POSSIBLE LAW ENFORCEMENT";
+  if((a.baroAlt || 0) < 6000 && (a.velocity || 0) < 90) return "LOW/SLOW AIRCRAFT";
+  return "PUBLIC ADS-B";
 }
 
-function fillRecord(){
-  setField("idType",currentRecord.type);
-  setField("firstName",currentRecord.first);
-  setField("lastName",currentRecord.last);
-  setField("dob",currentRecord.dob);
-  setField("age",calcAge(currentRecord.dob));
-  setField("idNumber",currentRecord.id);
-  setField("expDate",currentRecord.exp);
-  setField("issuer",currentRecord.issuer);
-  setField("address",currentRecord.address);
-  runAssessment();
+function addAircraftMarker(a){
+  const heading = a.heading || 0;
+  const type = classifyAircraft(a);
+
+  let color = "#38bdf8";
+  if(type.includes("MIL")) color = "#f6c945";
+  if(type.includes("LAW")) color = "#ff3b3b";
+  if(type.includes("MEDICAL")) color = "#21c45a";
+
+  const icon = L.divIcon({
+    className:"",
+    html:`<div class="aircraft-icon" style="color:${color};text-shadow:0 0 8px ${color};transform:rotate(${heading}deg)">✈</div>`,
+    iconSize:[28,28],
+    iconAnchor:[14,14]
+  });
+
+  const distance = distanceMiles(userLat,userLon,a.lat,a.lon).toFixed(1);
+  const altitude = a.geoAlt || a.baroAlt;
+  const altitudeFt = altitude ? Math.round(altitude * 3.28084).toLocaleString() + " FT" : "UNKNOWN";
+  const speedMph = a.velocity ? Math.round(a.velocity * 2.23694) + " MPH" : "UNKNOWN";
+
+  L.marker([a.lat,a.lon],{icon})
+    .addTo(aircraftLayer)
+    .bindPopup(`
+      <div class="popup">
+        <b>${a.callsign || "UNKNOWN"}</b><br>
+        TYPE: ${type}<br>
+        ICAO: ${a.icao}<br>
+        COUNTRY: ${a.country}<br>
+        ALTITUDE: ${altitudeFt}<br>
+        SPEED: ${speedMph}<br>
+        HEADING: ${Math.round(heading)}°<br>
+        DISTANCE: ${distance} MI<br>
+        SQUAWK: ${a.squawk || "N/A"}<br>
+        ON GROUND: ${a.onGround ? "YES" : "NO"}
+      </div>
+    `);
 }
 
-function runAssessment(){
-  let risks = [];
-  let status = "GOOD TO GO";
-  let cls = "good";
+function distanceMiles(lat1,lon1,lat2,lon2){
+  const R = 3958.8;
+  const dLat = deg2rad(lat2-lat1);
+  const dLon = deg2rad(lon2-lon1);
+  const x =
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
 
-  const first = $("firstName").value;
-  const last = $("lastName").value;
-  const dob = $("dob").value;
-  const age = Number($("age").value);
-  const id = $("idNumber").value;
-  const exp = $("expDate").value;
-
-  if(!first || !last || !dob || !id){
-    risks.push("Incomplete identity data. Manual review required.");
-    status = "REVIEW REQUIRED";
-    cls = "review";
-  }
-
-  if(isExpired(exp)){
-    risks.push("ID appears expired or expiration date is unreadable.");
-    status = "EXPIRED / DENY";
-    cls = "bad";
-  }
-
-  if(age && age < 18){
-    risks.push("Subject appears under 18.");
-    status = "REVIEW REQUIRED";
-    cls = "review";
-  }
-
-  const wl = ($("watchlist").value || "").toUpperCase().split(/\n+/).map(x=>x.trim()).filter(Boolean);
-  const fullName = (first + " " + last).toUpperCase();
-  const idUpper = id.toUpperCase();
-
-  if(wl.includes(fullName) || wl.includes(idUpper)){
-    risks.push("WATCHLIST MATCH. Escalate per site policy.");
-    status = "WATCHLIST HIT";
-    cls = "bad";
-  }
-
-  if(!currentRecord.source){
-    risks.push("No barcode/MRZ source confirmed. Document is unverified.");
-    status = "UNVERIFIED";
-    cls = "review";
-  }
-
-  if(risks.length === 0){
-    risks.push("No local risk indicators detected. This is not government authentication.");
-  }
-
-  $("statusField").value = status;
-  $("statusBox").className = "status " + cls;
-  $("statusBox").textContent = status;
-  $("riskNotes").innerHTML = risks.map(r=>"• "+r).join("<br>");
+  return R * 2 * Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
 
-function saveVisitor(){
-  runAssessment();
-
-  const record = {
-    time:new Date().toLocaleString(),
-    first:$("firstName").value,
-    last:$("lastName").value,
-    dob:$("dob").value,
-    age:$("age").value,
-    id:$("idNumber").value,
-    exp:$("expDate").value,
-    type:$("idType").value,
-    issuer:$("issuer").value,
-    address:$("address").value,
-    status:$("statusField").value,
-    reason:$("reason").value,
-    company:$("company").value,
-    plate:$("plate").value,
-    badge:$("badgeNo").value,
-    notes:$("notes").value,
-    image:capturedImage
-  };
-
-  const logs = JSON.parse(localStorage.getItem("visitorLogs") || "[]");
-  logs.unshift(record);
-  localStorage.setItem("visitorLogs",JSON.stringify(logs));
-  loadLogs();
-  alert("Visitor log saved locally.");
+function deg2rad(d){
+  return d * Math.PI / 180;
 }
 
-function loadLogs(){
-  const logs = JSON.parse(localStorage.getItem("visitorLogs") || "[]");
-  $("logTable").innerHTML = logs.map(r=>`
-    <tr>
-      <td>${r.time}</td>
-      <td>${r.first} ${r.last}</td>
-      <td>${r.dob}</td>
-      <td>${r.id}</td>
-      <td><span class="badge">${r.status}</span></td>
-      <td>${r.reason || ""}</td>
-      <td>${r.company || ""}</td>
-    </tr>
-  `).join("");
-}
-
-function exportCSV(){
-  const logs = JSON.parse(localStorage.getItem("visitorLogs") || "[]");
-  const headers = ["Time","First","Last","DOB","Age","ID","Expiration","Type","Issuer","Address","Status","Reason","Company","Plate","Badge","Notes"];
-  const rows = logs.map(r=>[
-    r.time,r.first,r.last,r.dob,r.age,r.id,r.exp,r.type,r.issuer,r.address,r.status,r.reason,r.company,r.plate,r.badge,r.notes
-  ]);
-
-  const csv = [headers,...rows].map(row =>
-    row.map(v => `"${String(v || "").replace(/"/g,'""')}"`).join(",")
-  ).join("\n");
-
-  const blob = new Blob([csv],{type:"text/csv"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "visitor-log.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function saveWatchlist(){
-  localStorage.setItem("watchlist",$("watchlist").value);
-  alert("Watchlist saved locally.");
-}
-
-function clearCurrent(){
-  ["rawData","statusField","idType","firstName","lastName","dob","age","idNumber","expDate","issuer","address","reason","company","plate","badgeNo","notes"].forEach(id=>$(id).value="");
-  $("statusBox").className = "status neutral";
-  $("statusBox").textContent = "AWAITING SCAN";
-  $("riskNotes").textContent = "No scan completed.";
-  currentRecord = {};
-}
-
-window.onload = function(){
-  $("watchlist").value = localStorage.getItem("watchlist") || "";
-  loadLogs();
-};
+initMap();
 </script>
 
 </body>
