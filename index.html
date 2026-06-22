@@ -3,103 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Stories Coming Soon in October</title>
+<title>Stories Coming Soon</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
 
 <style>
-
-html,
-body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#05050a;
-    font-family:sans-serif;
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #05050a;
 }
 
-canvas{
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-    z-index:1;
+body {
+    font-family: sans-serif;
 }
 
-/* --------------------------
-   Halloween Title
---------------------------- */
-
-.overlay{
-    position:absolute;
-    inset:0;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    z-index:2;
-    pointer-events:none;
-    text-align:center;
-    padding:20px;
+canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
 }
 
-.title{
-    font-family:'Creepster', cursive;
-    font-size:clamp(3rem,8vw,8rem);
-    letter-spacing:4px;
+.overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    text-align: center;
+    padding: 20px;
+}
 
-    color:#ff7b00;
-
+.title {
+    font-family: 'Creepster', cursive;
+    font-size: clamp(3rem, 8vw, 8rem);
+    color: #ff7b00;
+    letter-spacing: 4px;
     text-shadow:
-        0 0 10px rgba(255,100,0,.8),
-        0 0 20px rgba(255,80,0,.7),
-        0 0 40px rgba(255,60,0,.5),
-        0 0 80px rgba(255,40,0,.3);
-
-    animation:flicker 8s infinite;
+        0 0 10px rgba(255,120,0,.8),
+        0 0 25px rgba(255,80,0,.7),
+        0 0 50px rgba(255,60,0,.5);
+    animation: flicker 8s infinite;
 }
 
-.subtitle{
-    margin-top:15px;
-
-    font-family:'Creepster', cursive;
-
-    font-size:clamp(1.2rem,3vw,2.4rem);
-
-    color:#d8d8d8;
-
-    letter-spacing:3px;
-
-    text-shadow:
-        0 0 10px rgba(255,255,255,.2),
-        0 0 25px rgba(255,255,255,.15);
+.subtitle {
+    margin-top: 15px;
+    font-family: 'Creepster', cursive;
+    font-size: clamp(1.2rem, 3vw, 2.5rem);
+    color: rgba(255,255,255,.9);
+    letter-spacing: 3px;
 }
 
-@keyframes flicker{
-
-    0%,18%,22%,60%,100%{
-        opacity:1;
-    }
-
-    20%{
-        opacity:.92;
-    }
-
-    21%{
-        opacity:.75;
-    }
-
-    61%{
-        opacity:.88;
-    }
-
-    62%{
-        opacity:1;
-    }
+@keyframes flicker {
+    0%,18%,22%,60%,100% { opacity:1; }
+    20% { opacity:.85; }
+    21% { opacity:.7; }
+    61% { opacity:.9; }
 }
-
 </style>
 </head>
 <body>
@@ -113,15 +80,15 @@ canvas{
 
 <script>
 
-const canvas = document.getElementById("bg");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
 
 function resize() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 }
 resize();
-window.addEventListener("resize", resize);
+window.addEventListener('resize', resize);
 
 let lightning = 0;
 
@@ -147,9 +114,9 @@ for (let i = 0; i < 300; i++) {
     });
 }
 
-/* --------------------------
-   Ghost Face
---------------------------- */
+/* ==========================
+   GHOST FACE
+========================== */
 
 let ghostFace = {
     active: false,
@@ -160,6 +127,33 @@ let ghostFace = {
     timer: 0
 };
 
+/* ==========================
+   WHISPERS
+========================== */
+
+let whisper = {
+    active: false,
+    text: "",
+    x: 0,
+    y: 0,
+    alpha: 0,
+    maxAlpha: 0,
+    timer: 0
+};
+
+const whisperPhrases = [
+    "Look closer...",
+    "Did you see it?",
+    "Still there...",
+    "October...",
+    "Not alone...",
+    "Watch the fog...",
+    "Behind the mist...",
+    "Wake up...",
+    "Something waits...",
+    "Don't blink..."
+];
+
 function drawGhostFace() {
 
     if (!ghostFace.active) {
@@ -168,19 +162,12 @@ function drawGhostFace() {
 
             ghostFace.active = true;
 
-            ghostFace.x =
-                Math.random() * canvas.width;
-
-            ghostFace.y =
-                Math.random() * canvas.height * 0.75;
+            ghostFace.x = Math.random() * canvas.width;
+            ghostFace.y = Math.random() * canvas.height * 0.75;
 
             ghostFace.alpha = 0;
-
-            ghostFace.maxAlpha =
-                0.004 + Math.random() * 0.008;
-
-            ghostFace.timer =
-                400 + Math.random() * 400;
+            ghostFace.maxAlpha = 0.004 + Math.random() * 0.008;
+            ghostFace.timer = 400 + Math.random() * 400;
         }
 
         return;
@@ -189,14 +176,11 @@ function drawGhostFace() {
     ghostFace.timer--;
 
     if (ghostFace.timer > 180) {
-
         ghostFace.alpha = Math.min(
             ghostFace.alpha + 0.00015,
             ghostFace.maxAlpha
         );
-
     } else {
-
         ghostFace.alpha = Math.max(
             ghostFace.alpha - 0.00015,
             0
@@ -215,45 +199,41 @@ function drawGhostFace() {
         ghostFace.y
     );
 
-    const faceGradient =
-        ctx.createRadialGradient(
-            0,0,5,
-            0,0,120
-        );
+    const grad = ctx.createRadialGradient(
+        0,0,5,
+        0,0,120
+    );
 
-    faceGradient.addColorStop(
+    grad.addColorStop(
         0,
         `rgba(255,255,255,${ghostFace.alpha})`
     );
 
-    faceGradient.addColorStop(
+    grad.addColorStop(
         1,
-        `rgba(255,255,255,0)`
+        'rgba(255,255,255,0)'
     );
 
-    ctx.fillStyle = faceGradient;
+    ctx.fillStyle = grad;
 
     ctx.beginPath();
     ctx.ellipse(
-        0,
-        0,
-        75,
-        100,
-        0,
-        0,
-        Math.PI * 2
+        0,0,
+        75,100,
+        0,0,
+        Math.PI*2
     );
     ctx.fill();
 
     ctx.globalCompositeOperation =
-        "destination-out";
+        'destination-out';
 
     ctx.beginPath();
     ctx.ellipse(
         -22,-15,
         12,18,
         0,0,
-        Math.PI * 2
+        Math.PI*2
     );
     ctx.fill();
 
@@ -262,7 +242,7 @@ function drawGhostFace() {
         22,-15,
         12,18,
         0,0,
-        Math.PI * 2
+        Math.PI*2
     );
     ctx.fill();
 
@@ -271,72 +251,145 @@ function drawGhostFace() {
         0,28,
         16,10,
         0,0,
-        Math.PI * 2
+        Math.PI*2
     );
     ctx.fill();
 
     ctx.restore();
 
     ctx.globalCompositeOperation =
-        "source-over";
+        'source-over';
 }
 
-/* --------------------------
-   Background
---------------------------- */
+function drawWhisper() {
 
-function drawGradient(){
+    if (!whisper.active) {
+
+        if (Math.random() > 0.99975) {
+
+            whisper.active = true;
+
+            whisper.text =
+                whisperPhrases[
+                    Math.floor(
+                        Math.random() *
+                        whisperPhrases.length
+                    )
+                ];
+
+            whisper.x =
+                Math.random() *
+                (canvas.width - 300) + 150;
+
+            whisper.y =
+                Math.random() *
+                (canvas.height - 200) + 100;
+
+            whisper.alpha = 0;
+
+            whisper.maxAlpha =
+                0.015 + Math.random() * 0.02;
+
+            whisper.timer =
+                300 + Math.random() * 300;
+        }
+
+        return;
+    }
+
+    whisper.timer--;
+
+    if (whisper.timer > 150) {
+
+        whisper.alpha = Math.min(
+            whisper.alpha + 0.0005,
+            whisper.maxAlpha
+        );
+
+    } else {
+
+        whisper.alpha = Math.max(
+            whisper.alpha - 0.0005,
+            0
+        );
+    }
+
+    if (whisper.timer <= 0) {
+        whisper.active = false;
+        return;
+    }
+
+    ctx.save();
+
+    ctx.font = "22px Creepster";
+    ctx.textAlign = "center";
+
+    ctx.fillStyle =
+        `rgba(255,255,255,${whisper.alpha})`;
+
+    ctx.shadowBlur = 15;
+
+    ctx.shadowColor =
+        `rgba(255,255,255,${whisper.alpha})`;
+
+    ctx.fillText(
+        whisper.text,
+        whisper.x,
+        whisper.y
+    );
+
+    ctx.restore();
+}
+
+/* ==========================
+   BACKGROUND
+========================== */
+
+function drawGradient() {
 
     const g =
         ctx.createLinearGradient(
-            0,
-            0,
-            0,
-            canvas.height
+            0,0,
+            0,canvas.height
         );
 
-    g.addColorStop(0,"#020204");
-    g.addColorStop(.4,"#090816");
-    g.addColorStop(1,"#000000");
+    g.addColorStop(0, "#020204");
+    g.addColorStop(.4, "#090816");
+    g.addColorStop(1, "#000000");
 
     ctx.fillStyle = g;
 
     ctx.fillRect(
-        0,
-        0,
+        0,0,
         canvas.width,
         canvas.height
     );
 }
 
-function drawFog(){
+function drawFog() {
 
-    fog.forEach(f=>{
+    fog.forEach(f => {
 
         f.x += f.dx;
 
-        if(f.x - f.r > canvas.width){
+        if (f.x - f.r > canvas.width) {
             f.x = -f.r;
         }
 
         const grad =
             ctx.createRadialGradient(
-                f.x,
-                f.y,
-                0,
-                f.x,
-                f.y,
-                f.r
+                f.x,f.y,0,
+                f.x,f.y,f.r
             );
 
         grad.addColorStop(
             0,
-            "rgba(170,170,220,.05)"
+            'rgba(170,170,220,.05)'
         );
 
         grad.addColorStop(
             1,
-            "rgba(0,0,0,0)"
+            'rgba(0,0,0,0)'
         );
 
         ctx.fillStyle = grad;
@@ -355,13 +408,13 @@ function drawFog(){
     });
 }
 
-function drawParticles(){
+function drawParticles() {
 
-    particles.forEach(p=>{
+    particles.forEach(p => {
 
         p.y -= p.speed;
 
-        if(p.y < 0){
+        if (p.y < 0) {
             p.y = canvas.height;
             p.x = Math.random() * canvas.width;
         }
@@ -383,7 +436,7 @@ function drawParticles(){
     });
 }
 
-function shadowPulse(time){
+function shadowPulse(time) {
 
     const alpha =
         0.03 +
@@ -393,20 +446,19 @@ function shadowPulse(time){
         `rgba(35,0,50,${alpha})`;
 
     ctx.fillRect(
-        0,
-        0,
+        0,0,
         canvas.width,
         canvas.height
     );
 }
 
-function doLightning(){
+function doLightning() {
 
-    if(Math.random() > 0.9985){
+    if (Math.random() > 0.9985) {
         lightning = 1;
     }
 
-    if(lightning > 0){
+    if (lightning > 0) {
 
         ctx.fillStyle =
             `rgba(255,255,255,${
@@ -414,8 +466,7 @@ function doLightning(){
             })`;
 
         ctx.fillRect(
-            0,
-            0,
+            0,0,
             canvas.width,
             canvas.height
         );
@@ -424,7 +475,7 @@ function doLightning(){
     }
 }
 
-function animate(time){
+function animate(time) {
 
     drawGradient();
 
@@ -433,6 +484,8 @@ function animate(time){
     drawParticles();
 
     drawGhostFace();
+
+    drawWhisper();
 
     shadowPulse(time);
 
