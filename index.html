@@ -265,7 +265,7 @@ function drawWhisper() {
 
     if (!whisper.active) {
 
-        if (Math.random() > 0.99975) {
+        if (Math.random() > 0.9992) {
 
             whisper.active = true;
 
@@ -288,7 +288,7 @@ function drawWhisper() {
             whisper.alpha = 0;
 
             whisper.maxAlpha =
-                0.015 + Math.random() * 0.02;
+                  0.025 + Math.random() * 0.015;
 
             whisper.timer =
                 300 + Math.random() * 300;
