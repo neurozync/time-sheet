@@ -3,22 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Halloween Atmospheric Background</title>
 
 <style>
-
-html, body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#05050a;
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #05050a;
 }
 
-canvas{
-    position:fixed;
-    inset:0;
+canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
 }
-
 </style>
 </head>
 <body>
@@ -30,66 +31,226 @@ canvas{
 const canvas = document.getElementById("bg");
 const ctx = canvas.getContext("2d");
 
-function resize(){
-    canvas.width = innerWidth;
-    canvas.height = innerHeight;
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 }
 resize();
-addEventListener("resize", resize);
+window.addEventListener("resize", resize);
 
 let lightning = 0;
 
 const fog = [];
 const particles = [];
 
-for(let i=0;i<40;i++){
+for (let i = 0; i < 40; i++) {
     fog.push({
-        x:Math.random()*innerWidth,
-        y:Math.random()*innerHeight,
-        r:150+Math.random()*350,
-        dx:0.05+Math.random()*0.2
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: 150 + Math.random() * 350,
+        dx: 0.05 + Math.random() * 0.2
     });
 }
 
-for(let i=0;i<300;i++){
+for (let i = 0; i < 300; i++) {
     particles.push({
-        x:Math.random()*innerWidth,
-        y:Math.random()*innerHeight,
-        size:Math.random()*2,
-        speed:0.05+Math.random()*0.3,
-        alpha:Math.random()*0.4
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        size: Math.random() * 2,
+        speed: 0.05 + Math.random() * 0.3,
+        alpha: Math.random() * 0.4
     });
 }
 
-function drawGradient(){
+/* --------------------------
+   Ghost Face System
+--------------------------- */
 
-    const g = ctx.createLinearGradient(
-        0,0,
-        0,canvas.height
+let ghostFace = {
+    active: false,
+    x: 0,
+    y: 0,
+    alpha: 0,
+    maxAlpha: 0,
+    timer: 0
+};
+
+function drawGhostFace() {
+
+    if (!ghostFace.active) {
+
+        if (Math.random() > 0.9996) {
+
+            ghostFace.active = true;
+
+            ghostFace.x =
+                Math.random() * canvas.width;
+
+            ghostFace.y =
+                Math.random() * canvas.height * 0.75;
+
+            ghostFace.alpha = 0;
+
+            /* Extremely subtle */
+            ghostFace.maxAlpha =
+                0.004 + Math.random() * 0.008;
+
+            ghostFace.timer =
+                400 + Math.random() * 400;
+        }
+
+        return;
+    }
+
+    ghostFace.timer--;
+
+    if (ghostFace.timer > 180) {
+        ghostFace.alpha = Math.min(
+            ghostFace.alpha + 0.00015,
+            ghostFace.maxAlpha
+        );
+    } else {
+        ghostFace.alpha = Math.max(
+            ghostFace.alpha - 0.00015,
+            0
+        );
+    }
+
+    if (ghostFace.timer <= 0) {
+        ghostFace.active = false;
+        return;
+    }
+
+    ctx.save();
+
+    ctx.translate(
+        ghostFace.x,
+        ghostFace.y
     );
 
-    g.addColorStop(0,"#020204");
-    g.addColorStop(.4,"#090816");
-    g.addColorStop(1,"#000000");
+    const faceGradient =
+        ctx.createRadialGradient(
+            0, 0, 5,
+            0, 0, 120
+        );
 
-    ctx.fillStyle=g;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    faceGradient.addColorStop(
+        0,
+        `rgba(255,255,255,${ghostFace.alpha})`
+    );
+
+    faceGradient.addColorStop(
+        1,
+        `rgba(255,255,255,0)`
+    );
+
+    ctx.fillStyle = faceGradient;
+
+    ctx.beginPath();
+    ctx.ellipse(
+        0,
+        0,
+        75,
+        100,
+        0,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.globalCompositeOperation =
+        "destination-out";
+
+    // Left eye
+    ctx.beginPath();
+    ctx.ellipse(
+        -22,
+        -15,
+        12,
+        18,
+        0,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    // Right eye
+    ctx.beginPath();
+    ctx.ellipse(
+        22,
+        -15,
+        12,
+        18,
+        0,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    // Mouth
+    ctx.beginPath();
+    ctx.ellipse(
+        0,
+        28,
+        16,
+        10,
+        0,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+
+    ctx.restore();
+
+    ctx.globalCompositeOperation =
+        "source-over";
 }
 
-function drawFog(){
+/* --------------------------
+   Background
+--------------------------- */
 
-    fog.forEach(f=>{
+function drawGradient() {
+
+    const g = ctx.createLinearGradient(
+        0,
+        0,
+        0,
+        canvas.height
+    );
+
+    g.addColorStop(0, "#020204");
+    g.addColorStop(0.4, "#090816");
+    g.addColorStop(1, "#000000");
+
+    ctx.fillStyle = g;
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+}
+
+function drawFog() {
+
+    fog.forEach(f => {
 
         f.x += f.dx;
 
-        if(f.x-f.r > canvas.width){
+        if (f.x - f.r > canvas.width) {
             f.x = -f.r;
         }
 
-        const grad = ctx.createRadialGradient(
-            f.x,f.y,0,
-            f.x,f.y,f.r
-        );
+        const grad =
+            ctx.createRadialGradient(
+                f.x,
+                f.y,
+                0,
+                f.x,
+                f.y,
+                f.r
+            );
 
         grad.addColorStop(
             0,
@@ -101,27 +262,33 @@ function drawFog(){
             "rgba(0,0,0,0)"
         );
 
-        ctx.fillStyle=grad;
+        ctx.fillStyle = grad;
 
         ctx.beginPath();
-        ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+        ctx.arc(
+            f.x,
+            f.y,
+            f.r,
+            0,
+            Math.PI * 2
+        );
         ctx.fill();
     });
 }
 
-function drawParticles(){
+function drawParticles() {
 
-    particles.forEach(p=>{
+    particles.forEach(p => {
 
         p.y -= p.speed;
 
-        if(p.y < 0){
+        if (p.y < 0) {
             p.y = canvas.height;
-            p.x = Math.random()*canvas.width;
+            p.x = Math.random() * canvas.width;
         }
 
         ctx.fillStyle =
-        `rgba(255,255,255,${p.alpha})`;
+            `rgba(255,255,255,${p.alpha})`;
 
         ctx.beginPath();
         ctx.arc(
@@ -129,20 +296,20 @@ function drawParticles(){
             p.y,
             p.size,
             0,
-            Math.PI*2
+            Math.PI * 2
         );
         ctx.fill();
     });
 }
 
-function shadowPulse(time){
+function shadowPulse(time) {
 
     const alpha =
-    0.03 +
-    Math.sin(time*0.0005)*0.02;
+        0.03 +
+        Math.sin(time * 0.0005) * 0.02;
 
     ctx.fillStyle =
-    `rgba(30,0,40,${alpha})`;
+        `rgba(35,0,50,${alpha})`;
 
     ctx.fillRect(
         0,
@@ -152,16 +319,16 @@ function shadowPulse(time){
     );
 }
 
-function doLightning(){
+function doLightning() {
 
-    if(Math.random() > 0.9985){
+    if (Math.random() > 0.9985) {
         lightning = 1;
     }
 
-    if(lightning > 0){
+    if (lightning > 0) {
 
         ctx.fillStyle =
-        `rgba(255,255,255,${lightning*0.18})`;
+            `rgba(255,255,255,${lightning * 0.15})`;
 
         ctx.fillRect(
             0,
@@ -174,13 +341,16 @@ function doLightning(){
     }
 }
 
-function animate(time){
+function animate(time) {
 
     drawGradient();
 
     drawFog();
 
     drawParticles();
+
+    /* Ghost appears behind fog */
+    drawGhostFace();
 
     shadowPulse(time);
 
