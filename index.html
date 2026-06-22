@@ -3,28 +3,113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Halloween Atmospheric Background</title>
+
+<title>Stories Coming Soon in October</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
 
 <style>
-html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #05050a;
+
+html,
+body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#05050a;
+    font-family:sans-serif;
 }
 
-canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+canvas{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:1;
 }
+
+/* --------------------------
+   Halloween Title
+--------------------------- */
+
+.overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:2;
+    pointer-events:none;
+    text-align:center;
+    padding:20px;
+}
+
+.title{
+    font-family:'Creepster', cursive;
+    font-size:clamp(3rem,8vw,8rem);
+    letter-spacing:4px;
+
+    color:#ff7b00;
+
+    text-shadow:
+        0 0 10px rgba(255,100,0,.8),
+        0 0 20px rgba(255,80,0,.7),
+        0 0 40px rgba(255,60,0,.5),
+        0 0 80px rgba(255,40,0,.3);
+
+    animation:flicker 8s infinite;
+}
+
+.subtitle{
+    margin-top:15px;
+
+    font-family:'Creepster', cursive;
+
+    font-size:clamp(1.2rem,3vw,2.4rem);
+
+    color:#d8d8d8;
+
+    letter-spacing:3px;
+
+    text-shadow:
+        0 0 10px rgba(255,255,255,.2),
+        0 0 25px rgba(255,255,255,.15);
+}
+
+@keyframes flicker{
+
+    0%,18%,22%,60%,100%{
+        opacity:1;
+    }
+
+    20%{
+        opacity:.92;
+    }
+
+    21%{
+        opacity:.75;
+    }
+
+    61%{
+        opacity:.88;
+    }
+
+    62%{
+        opacity:1;
+    }
+}
+
 </style>
 </head>
 <body>
 
 <canvas id="bg"></canvas>
+
+<div class="overlay">
+    <div class="title">Stories Coming Soon</div>
+    <div class="subtitle">October 2026</div>
+</div>
 
 <script>
 
@@ -63,7 +148,7 @@ for (let i = 0; i < 300; i++) {
 }
 
 /* --------------------------
-   Ghost Face System
+   Ghost Face
 --------------------------- */
 
 let ghostFace = {
@@ -91,7 +176,6 @@ function drawGhostFace() {
 
             ghostFace.alpha = 0;
 
-            /* Extremely subtle */
             ghostFace.maxAlpha =
                 0.004 + Math.random() * 0.008;
 
@@ -105,11 +189,14 @@ function drawGhostFace() {
     ghostFace.timer--;
 
     if (ghostFace.timer > 180) {
+
         ghostFace.alpha = Math.min(
             ghostFace.alpha + 0.00015,
             ghostFace.maxAlpha
         );
+
     } else {
+
         ghostFace.alpha = Math.max(
             ghostFace.alpha - 0.00015,
             0
@@ -130,8 +217,8 @@ function drawGhostFace() {
 
     const faceGradient =
         ctx.createRadialGradient(
-            0, 0, 5,
-            0, 0, 120
+            0,0,5,
+            0,0,120
         );
 
     faceGradient.addColorStop(
@@ -161,41 +248,29 @@ function drawGhostFace() {
     ctx.globalCompositeOperation =
         "destination-out";
 
-    // Left eye
     ctx.beginPath();
     ctx.ellipse(
-        -22,
-        -15,
-        12,
-        18,
-        0,
-        0,
+        -22,-15,
+        12,18,
+        0,0,
         Math.PI * 2
     );
     ctx.fill();
 
-    // Right eye
     ctx.beginPath();
     ctx.ellipse(
-        22,
-        -15,
-        12,
-        18,
-        0,
-        0,
+        22,-15,
+        12,18,
+        0,0,
         Math.PI * 2
     );
     ctx.fill();
 
-    // Mouth
     ctx.beginPath();
     ctx.ellipse(
-        0,
-        28,
-        16,
-        10,
-        0,
-        0,
+        0,28,
+        16,10,
+        0,0,
         Math.PI * 2
     );
     ctx.fill();
@@ -210,20 +285,22 @@ function drawGhostFace() {
    Background
 --------------------------- */
 
-function drawGradient() {
+function drawGradient(){
 
-    const g = ctx.createLinearGradient(
-        0,
-        0,
-        0,
-        canvas.height
-    );
+    const g =
+        ctx.createLinearGradient(
+            0,
+            0,
+            0,
+            canvas.height
+        );
 
-    g.addColorStop(0, "#020204");
-    g.addColorStop(0.4, "#090816");
-    g.addColorStop(1, "#000000");
+    g.addColorStop(0,"#020204");
+    g.addColorStop(.4,"#090816");
+    g.addColorStop(1,"#000000");
 
     ctx.fillStyle = g;
+
     ctx.fillRect(
         0,
         0,
@@ -232,13 +309,13 @@ function drawGradient() {
     );
 }
 
-function drawFog() {
+function drawFog(){
 
-    fog.forEach(f => {
+    fog.forEach(f=>{
 
         f.x += f.dx;
 
-        if (f.x - f.r > canvas.width) {
+        if(f.x - f.r > canvas.width){
             f.x = -f.r;
         }
 
@@ -254,7 +331,7 @@ function drawFog() {
 
         grad.addColorStop(
             0,
-            "rgba(170,170,220,0.05)"
+            "rgba(170,170,220,.05)"
         );
 
         grad.addColorStop(
@@ -265,6 +342,7 @@ function drawFog() {
         ctx.fillStyle = grad;
 
         ctx.beginPath();
+
         ctx.arc(
             f.x,
             f.y,
@@ -272,17 +350,18 @@ function drawFog() {
             0,
             Math.PI * 2
         );
+
         ctx.fill();
     });
 }
 
-function drawParticles() {
+function drawParticles(){
 
-    particles.forEach(p => {
+    particles.forEach(p=>{
 
         p.y -= p.speed;
 
-        if (p.y < 0) {
+        if(p.y < 0){
             p.y = canvas.height;
             p.x = Math.random() * canvas.width;
         }
@@ -291,6 +370,7 @@ function drawParticles() {
             `rgba(255,255,255,${p.alpha})`;
 
         ctx.beginPath();
+
         ctx.arc(
             p.x,
             p.y,
@@ -298,11 +378,12 @@ function drawParticles() {
             0,
             Math.PI * 2
         );
+
         ctx.fill();
     });
 }
 
-function shadowPulse(time) {
+function shadowPulse(time){
 
     const alpha =
         0.03 +
@@ -319,16 +400,18 @@ function shadowPulse(time) {
     );
 }
 
-function doLightning() {
+function doLightning(){
 
-    if (Math.random() > 0.9985) {
+    if(Math.random() > 0.9985){
         lightning = 1;
     }
 
-    if (lightning > 0) {
+    if(lightning > 0){
 
         ctx.fillStyle =
-            `rgba(255,255,255,${lightning * 0.15})`;
+            `rgba(255,255,255,${
+                lightning * 0.15
+            })`;
 
         ctx.fillRect(
             0,
@@ -341,7 +424,7 @@ function doLightning() {
     }
 }
 
-function animate(time) {
+function animate(time){
 
     drawGradient();
 
@@ -349,7 +432,6 @@ function animate(time) {
 
     drawParticles();
 
-    /* Ghost appears behind fog */
     drawGhostFace();
 
     shadowPulse(time);
