@@ -1,502 +1,182 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stories Coming Soon</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Office of Anomalous Retail Safety | SCP-3008</title>
 <style>
-html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #05050a;
-}
-
-body {
-    font-family: sans-serif;
-}
-
-canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-.overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    pointer-events: none;
-    text-align: center;
-    padding: 20px;
-}
-
-.title {
-    font-family: 'Creepster', cursive;
-    font-size: clamp(3rem, 8vw, 8rem);
-    color: #ff7b00;
-    letter-spacing: 4px;
-    text-shadow:
-        0 0 10px rgba(255,120,0,.8),
-        0 0 25px rgba(255,80,0,.7),
-        0 0 50px rgba(255,60,0,.5);
-    animation: flicker 8s infinite;
-}
-
-.subtitle {
-    margin-top: 15px;
-    font-family: 'Creepster', cursive;
-    font-size: clamp(1.2rem, 3vw, 2.5rem);
-    color: rgba(255,255,255,.9);
-    letter-spacing: 3px;
-}
-
-@keyframes flicker {
-    0%,18%,22%,60%,100% { opacity:1; }
-    20% { opacity:.85; }
-    21% { opacity:.7; }
-    61% { opacity:.9; }
-}
+:root{--navy:#0b1f33;--blue:#143d63;--gold:#c29b40;--paper:#f5f7f9;--ink:#17212b;--muted:#5e6b78;--danger:#8b1e1e;--border:#ccd3da}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+.classification{position:sticky;top:0;z-index:5;background:#101820;color:white;text-align:center;font-size:.72rem;letter-spacing:.08em;padding:.45rem}
+.agency-header{background:linear-gradient(135deg,var(--navy),var(--blue));color:white;padding:1.1rem 1rem 1.35rem;display:grid;grid-template-columns:64px 1fr;gap:.9rem;align-items:center;border-bottom:5px solid var(--gold)}
+.seal{width:64px;height:64px;border:3px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-weight:800;background:rgba(255,255,255,.08)}
+h1{font-size:1.35rem;line-height:1.1;margin:.1rem 0}
+.eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;margin:0;color:#d7e4ef}
+.subhead{margin:.35rem 0 0;color:#e9f0f7;font-size:.92rem}
+.tabs{display:flex;overflow:auto;background:white;border-bottom:1px solid var(--border);position:sticky;top:29px;z-index:4}
+.tab{flex:1;min-width:92px;border:0;background:white;padding:.85rem .6rem;font-weight:700;color:var(--blue);border-bottom:3px solid transparent}
+.tab.active{border-color:var(--gold);background:#fbfcfd;color:var(--navy)}
+main{padding:1rem;max-width:860px;margin:auto}
+.alert-card,.panel{background:white;border:1px solid var(--border);border-radius:14px;padding:1rem;margin-bottom:1rem;box-shadow:0 3px 12px rgba(11,31,51,.06)}
+.alert-level{background:var(--danger);color:white;display:inline-block;border-radius:999px;padding:.3rem .7rem;font-size:.72rem;font-weight:800;letter-spacing:.05em}
+.grid{display:grid;gap:.7rem}.two{grid-template-columns:1fr 1fr}
+.grid>div{background:#f0f4f8;border-left:4px solid var(--gold);padding:.75rem;border-radius:8px}
+.panel{display:none}.panel.visible{display:block}
+.notice{border:1px solid #dec881;background:#fff8dc;border-radius:10px;padding:.8rem;margin:1rem 0}
+.checklist{padding-left:1.1rem}.checklist li{margin:.45rem 0}
+details{border:1px solid var(--border);border-radius:10px;margin:.65rem 0;background:#fbfcfd}
+summary{padding:.85rem;font-weight:800;cursor:pointer}
+details p,details ol{padding:0 .9rem .9rem}
+label{display:block;font-weight:700;margin:.75rem 0}
+input,textarea{width:100%;margin-top:.3rem;padding:.8rem;border:1px solid var(--border);border-radius:10px;font:inherit;background:white}
+button[type=submit]{width:100%;padding:.9rem;border:0;border-radius:10px;background:var(--blue);color:white;font-weight:800;font-size:1rem}
+.case-output{margin-top:1rem;padding:1rem;border-radius:10px;background:#eef5fb;display:none}
+.record-card{border-left:4px solid var(--blue);background:#f7f9fb;padding:.85rem;margin:.7rem 0;border-radius:8px}
+footer{text-align:center;color:var(--muted);font-size:.78rem;padding:2rem 1rem}
+@media (min-width:700px){h1{font-size:2rem}.agency-header{padding:1.4rem 2rem}.panel,.alert-card{padding:1.3rem}}
 </style>
 </head>
+
 <body>
+<div class="classification">FICTIONAL TRAINING / FAN-MADE PUBLIC SAFETY MOCKUP</div>
 
-<canvas id="bg"></canvas>
+<header class="agency-header">
+  <div class="seal">OARS</div>
+  <div>
+    <p class="eyebrow">Office of Anomalous Retail Safety</p>
+    <h1>SCP-3008 Public Advisory Portal</h1>
+    <p class="subhead">Mobile incident guidance, missing-person reporting, and survival notices for anomalous retail displacement events.</p>
+  </div>
+</header>
 
-<div class="overlay">
-    <div class="title">Stories Coming Soon</div>
-    <div class="subtitle">October 2026</div>
-</div>
+<nav class="tabs">
+  <button class="tab active" data-tab="advisory">Advisory</button>
+  <button class="tab" data-tab="procedures">Procedures</button>
+  <button class="tab" data-tab="report">Report</button>
+  <button class="tab" data-tab="records">Records</button>
+</nav>
+
+<main>
+  <section class="alert-card">
+    <div class="alert-level">ADVISORY STATUS: ELEVATED</div>
+    <h2>Suspected SCP-3008 Entry Event</h2>
+    <p>This is a fictional government-style web page inspired by SCP-3008. It is not a real agency, public warning system, emergency authority, or official SCP Foundation page.</p>
+    <div class="grid two">
+      <div><strong>Object Class:</strong><br>Euclid</div>
+      <div><strong>Known Hazard:</strong><br>Spatial displacement</div>
+    </div>
+  </section>
+
+  <section id="advisory" class="panel visible">
+    <h2>Public Safety Advisory</h2>
+    <p>SCP-3008 is described as a retail unit whose interior leads to SCP-3008-1, a space resembling an IKEA store that extends beyond normal physical limits.</p>
+    <div class="notice">
+      <strong>Priority guidance:</strong> Do not separate from your group, mark your route, conserve battery, identify shelter, and move before low-light periods.
+    </div>
+    <h3>Field Recognition Indicators</h3>
+    <ul class="checklist">
+      <li>Entrance location cannot be reacquired after line-of-sight is broken.</li>
+      <li>Interior floorplan appears larger than the outside structure.</li>
+      <li>Repeated furniture departments, warehouse aisles, and staged living areas.</li>
+      <li>Human survivors forming makeshift settlements.</li>
+    </ul>
+  </section>
+
+  <section id="procedures" class="panel">
+    <h2>Emergency Procedures</h2>
+    <details open>
+      <summary>Immediate Action</summary>
+      <ol>
+        <li>Stop movement and account for all persons.</li>
+        <li>Mark current location with visible, repeatable indicators.</li>
+        <li>Identify water, food, defensible shelter, and low-light risks.</li>
+        <li>Avoid unknown staff-like entities and hostile contact.</li>
+      </ol>
+    </details>
+    <details>
+      <summary>Night Cycle Safety</summary>
+      <p>Relocate to elevated or barricaded shelter before lights-out. Maintain quiet, low profile, and redundant exits.</p>
+    </details>
+    <details>
+      <summary>Group Discipline</summary>
+      <p>Use buddy pairs, check-ins, written route logs, and basic incident command roles: lead, medic, supply, lookout, recorder.</p>
+    </details>
+  </section>
+
+  <section id="report" class="panel">
+    <h2>Missing Person / Entry Report</h2>
+    <form id="incidentForm">
+      <label>Reporter Name<input required name="reporter" autocomplete="name"></label>
+      <label>Last Known Location<input required name="location"></label>
+      <label>Time Last Seen<input type="datetime-local" name="time"></label>
+      <label>Observed Indicators<textarea name="details" rows="4"></textarea></label>
+      <button type="submit">Generate Local Case Summary</button>
+    </form>
+    <div id="caseOutput" class="case-output"></div>
+  </section>
+
+  <section id="records" class="panel">
+    <h2>Records & Attribution</h2>
+    <div class="record-card">
+      <strong>Source Basis</strong>
+      <p>Based on “SCP-3008” from the SCP Foundation Wiki.</p>
+    </div>
+    <div class="record-card">
+      <strong>Licensing Statement</strong>
+      <p>This derivative fan work is released under CC BY-SA 3.0. Attribution: SCP-3008, SCP Foundation Wiki, and original SCP Wiki contributors.</p>
+    </div>
+    <div class="record-card">
+      <strong>Non-Impersonation Notice</strong>
+      <p>This is fictional entertainment material and is not affiliated with IKEA, the SCP Foundation, or any government agency.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Fictional Office of Anomalous Retail Safety • Mobile Public Advisory Portal</p>
+  <p>Not affiliated with IKEA, the SCP Foundation, or any government agency.</p>
+</footer>
 
 <script>
+const tabs=document.querySelectorAll('.tab');
+const panels=document.querySelectorAll('.panel');
 
-const canvas = document.getElementById('bg');
-const ctx = canvas.getContext('2d');
+tabs.forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    tabs.forEach(t=>t.classList.remove('active'));
+    panels.forEach(p=>p.classList.remove('visible'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.tab).classList.add('visible');
+  });
+});
 
-function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+document.getElementById('incidentForm').addEventListener('submit',event=>{
+  event.preventDefault();
+  const data=Object.fromEntries(new FormData(event.target).entries());
+  const caseNo=`OARS-3008-${new Date().getFullYear()}-${Math.floor(Math.random()*9000+1000)}`;
+  const out=document.getElementById('caseOutput');
+  out.style.display='block';
+  out.innerHTML=`
+    <strong>Local Case Summary Generated</strong><br>
+    Case: ${caseNo}<br>
+    Reporter: ${escapeHTML(data.reporter)}<br>
+    Last Known Location: ${escapeHTML(data.location)}<br>
+    Time Last Seen: ${escapeHTML(data.time || 'Not provided')}<br>
+    Indicators: ${escapeHTML(data.details || 'No additional details provided.')}<br><br>
+    Save this locally. This demo does not transmit reports.
+  `;
+});
+
+function escapeHTML(value){
+  return String(value).replace(/[&<>'"]/g,c=>({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    "'":'&#39;',
+    '"':'&quot;'
+  }[c]));
 }
-resize();
-window.addEventListener('resize', resize);
-
-let lightning = 0;
-
-const fog = [];
-const particles = [];
-
-for (let i = 0; i < 40; i++) {
-    fog.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        r: 150 + Math.random() * 350,
-        dx: 0.05 + Math.random() * 0.2
-    });
-}
-
-for (let i = 0; i < 300; i++) {
-    particles.push({
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        size: Math.random() * 2,
-        speed: 0.05 + Math.random() * 0.3,
-        alpha: Math.random() * 0.4
-    });
-}
-
-/* ==========================
-   GHOST FACE
-========================== */
-
-let ghostFace = {
-    active: false,
-    x: 0,
-    y: 0,
-    alpha: 0,
-    maxAlpha: 0,
-    timer: 0
-};
-
-/* ==========================
-   WHISPERS
-========================== */
-
-let whisper = {
-    active: false,
-    text: "",
-    x: 0,
-    y: 0,
-    alpha: 0,
-    maxAlpha: 0,
-    timer: 0
-};
-
-const whisperPhrases = [
-    "Look closer...",
-    "Did you see it?",
-    "Still there...",
-    "October...",
-    "Not alone...",
-    "Watch the fog...",
-    "Behind the mist...",
-    "Wake up...",
-    "Something waits...",
-    "Don't blink..."
-];
-
-function drawGhostFace() {
-
-    if (!ghostFace.active) {
-
-        if (Math.random() > 0.9996) {
-
-            ghostFace.active = true;
-
-            ghostFace.x = Math.random() * canvas.width;
-            ghostFace.y = Math.random() * canvas.height * 0.75;
-
-            ghostFace.alpha = 0;
-            ghostFace.maxAlpha = 0.004 + Math.random() * 0.008;
-            ghostFace.timer = 400 + Math.random() * 400;
-        }
-
-        return;
-    }
-
-    ghostFace.timer--;
-
-    if (ghostFace.timer > 180) {
-        ghostFace.alpha = Math.min(
-            ghostFace.alpha + 0.00015,
-            ghostFace.maxAlpha
-        );
-    } else {
-        ghostFace.alpha = Math.max(
-            ghostFace.alpha - 0.00015,
-            0
-        );
-    }
-
-    if (ghostFace.timer <= 0) {
-        ghostFace.active = false;
-        return;
-    }
-
-    ctx.save();
-
-    ctx.translate(
-        ghostFace.x,
-        ghostFace.y
-    );
-
-    const grad = ctx.createRadialGradient(
-        0,0,5,
-        0,0,120
-    );
-
-    grad.addColorStop(
-        0,
-        `rgba(255,255,255,${ghostFace.alpha})`
-    );
-
-    grad.addColorStop(
-        1,
-        'rgba(255,255,255,0)'
-    );
-
-    ctx.fillStyle = grad;
-
-    ctx.beginPath();
-    ctx.ellipse(
-        0,0,
-        75,100,
-        0,0,
-        Math.PI*2
-    );
-    ctx.fill();
-
-    ctx.globalCompositeOperation =
-        'destination-out';
-
-    ctx.beginPath();
-    ctx.ellipse(
-        -22,-15,
-        12,18,
-        0,0,
-        Math.PI*2
-    );
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.ellipse(
-        22,-15,
-        12,18,
-        0,0,
-        Math.PI*2
-    );
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.ellipse(
-        0,28,
-        16,10,
-        0,0,
-        Math.PI*2
-    );
-    ctx.fill();
-
-    ctx.restore();
-
-    ctx.globalCompositeOperation =
-        'source-over';
-}
-
-function drawWhisper() {
-
-    if (!whisper.active) {
-
-        if (Math.random() > 0.9992) {
-
-            whisper.active = true;
-
-            whisper.text =
-                whisperPhrases[
-                    Math.floor(
-                        Math.random() *
-                        whisperPhrases.length
-                    )
-                ];
-
-            whisper.x =
-                Math.random() *
-                (canvas.width - 300) + 150;
-
-            whisper.y =
-                Math.random() *
-                (canvas.height - 200) + 100;
-
-            whisper.alpha = 0;
-
-            whisper.maxAlpha =
-                  0.025 + Math.random() * 0.015;
-
-            whisper.timer =
-                300 + Math.random() * 300;
-        }
-
-        return;
-    }
-
-    whisper.timer--;
-
-    if (whisper.timer > 150) {
-
-        whisper.alpha = Math.min(
-            whisper.alpha + 0.0005,
-            whisper.maxAlpha
-        );
-
-    } else {
-
-        whisper.alpha = Math.max(
-            whisper.alpha - 0.0005,
-            0
-        );
-    }
-
-    if (whisper.timer <= 0) {
-        whisper.active = false;
-        return;
-    }
-
-    ctx.save();
-
-    ctx.font = "22px Creepster";
-    ctx.textAlign = "center";
-
-    ctx.fillStyle =
-        `rgba(255,255,255,${whisper.alpha})`;
-
-    ctx.shadowBlur = 15;
-
-    ctx.shadowColor =
-        `rgba(255,255,255,${whisper.alpha})`;
-
-    ctx.fillText(
-        whisper.text,
-        whisper.x,
-        whisper.y
-    );
-
-    ctx.restore();
-}
-
-/* ==========================
-   BACKGROUND
-========================== */
-
-function drawGradient() {
-
-    const g =
-        ctx.createLinearGradient(
-            0,0,
-            0,canvas.height
-        );
-
-    g.addColorStop(0, "#020204");
-    g.addColorStop(.4, "#090816");
-    g.addColorStop(1, "#000000");
-
-    ctx.fillStyle = g;
-
-    ctx.fillRect(
-        0,0,
-        canvas.width,
-        canvas.height
-    );
-}
-
-function drawFog() {
-
-    fog.forEach(f => {
-
-        f.x += f.dx;
-
-        if (f.x - f.r > canvas.width) {
-            f.x = -f.r;
-        }
-
-        const grad =
-            ctx.createRadialGradient(
-                f.x,f.y,0,
-                f.x,f.y,f.r
-            );
-
-        grad.addColorStop(
-            0,
-            'rgba(170,170,220,.05)'
-        );
-
-        grad.addColorStop(
-            1,
-            'rgba(0,0,0,0)'
-        );
-
-        ctx.fillStyle = grad;
-
-        ctx.beginPath();
-
-        ctx.arc(
-            f.x,
-            f.y,
-            f.r,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-    });
-}
-
-function drawParticles() {
-
-    particles.forEach(p => {
-
-        p.y -= p.speed;
-
-        if (p.y < 0) {
-            p.y = canvas.height;
-            p.x = Math.random() * canvas.width;
-        }
-
-        ctx.fillStyle =
-            `rgba(255,255,255,${p.alpha})`;
-
-        ctx.beginPath();
-
-        ctx.arc(
-            p.x,
-            p.y,
-            p.size,
-            0,
-            Math.PI * 2
-        );
-
-        ctx.fill();
-    });
-}
-
-function shadowPulse(time) {
-
-    const alpha =
-        0.03 +
-        Math.sin(time * 0.0005) * 0.02;
-
-    ctx.fillStyle =
-        `rgba(35,0,50,${alpha})`;
-
-    ctx.fillRect(
-        0,0,
-        canvas.width,
-        canvas.height
-    );
-}
-
-function doLightning() {
-
-    if (Math.random() > 0.9985) {
-        lightning = 1;
-    }
-
-    if (lightning > 0) {
-
-        ctx.fillStyle =
-            `rgba(255,255,255,${
-                lightning * 0.15
-            })`;
-
-        ctx.fillRect(
-            0,0,
-            canvas.width,
-            canvas.height
-        );
-
-        lightning *= 0.9;
-    }
-}
-
-function animate(time) {
-
-    drawGradient();
-
-    drawFog();
-
-    drawParticles();
-
-    drawGhostFace();
-
-    drawWhisper();
-
-    shadowPulse(time);
-
-    doLightning();
-
-    requestAnimationFrame(animate);
-}
-
-animate();
-
 </script>
-
 </body>
 </html>
