@@ -1,182 +1,2234 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Office of Anomalous Retail Safety | SCP-3008</title>
-<style>
-:root{--navy:#0b1f33;--blue:#143d63;--gold:#c29b40;--paper:#f5f7f9;--ink:#17212b;--muted:#5e6b78;--danger:#8b1e1e;--border:#ccd3da}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
-.classification{position:sticky;top:0;z-index:5;background:#101820;color:white;text-align:center;font-size:.72rem;letter-spacing:.08em;padding:.45rem}
-.agency-header{background:linear-gradient(135deg,var(--navy),var(--blue));color:white;padding:1.1rem 1rem 1.35rem;display:grid;grid-template-columns:64px 1fr;gap:.9rem;align-items:center;border-bottom:5px solid var(--gold)}
-.seal{width:64px;height:64px;border:3px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-weight:800;background:rgba(255,255,255,.08)}
-h1{font-size:1.35rem;line-height:1.1;margin:.1rem 0}
-.eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;margin:0;color:#d7e4ef}
-.subhead{margin:.35rem 0 0;color:#e9f0f7;font-size:.92rem}
-.tabs{display:flex;overflow:auto;background:white;border-bottom:1px solid var(--border);position:sticky;top:29px;z-index:4}
-.tab{flex:1;min-width:92px;border:0;background:white;padding:.85rem .6rem;font-weight:700;color:var(--blue);border-bottom:3px solid transparent}
-.tab.active{border-color:var(--gold);background:#fbfcfd;color:var(--navy)}
-main{padding:1rem;max-width:860px;margin:auto}
-.alert-card,.panel{background:white;border:1px solid var(--border);border-radius:14px;padding:1rem;margin-bottom:1rem;box-shadow:0 3px 12px rgba(11,31,51,.06)}
-.alert-level{background:var(--danger);color:white;display:inline-block;border-radius:999px;padding:.3rem .7rem;font-size:.72rem;font-weight:800;letter-spacing:.05em}
-.grid{display:grid;gap:.7rem}.two{grid-template-columns:1fr 1fr}
-.grid>div{background:#f0f4f8;border-left:4px solid var(--gold);padding:.75rem;border-radius:8px}
-.panel{display:none}.panel.visible{display:block}
-.notice{border:1px solid #dec881;background:#fff8dc;border-radius:10px;padding:.8rem;margin:1rem 0}
-.checklist{padding-left:1.1rem}.checklist li{margin:.45rem 0}
-details{border:1px solid var(--border);border-radius:10px;margin:.65rem 0;background:#fbfcfd}
-summary{padding:.85rem;font-weight:800;cursor:pointer}
-details p,details ol{padding:0 .9rem .9rem}
-label{display:block;font-weight:700;margin:.75rem 0}
-input,textarea{width:100%;margin-top:.3rem;padding:.8rem;border:1px solid var(--border);border-radius:10px;font:inherit;background:white}
-button[type=submit]{width:100%;padding:.9rem;border:0;border-radius:10px;background:var(--blue);color:white;font-weight:800;font-size:1rem}
-.case-output{margin-top:1rem;padding:1rem;border-radius:10px;background:#eef5fb;display:none}
-.record-card{border-left:4px solid var(--blue);background:#f7f9fb;padding:.85rem;margin:.7rem 0;border-radius:8px}
-footer{text-align:center;color:var(--muted);font-size:.78rem;padding:2rem 1rem}
-@media (min-width:700px){h1{font-size:2rem}.agency-header{padding:1.4rem 2rem}.panel,.alert-card{padding:1.3rem}}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0b12" />
+  <title>Clock In</title>
+
+  <!-- Leaflet map -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <style>
+    :root {
+      --bg: #090910;
+      --panel: #12121a;
+      --panel2: #15151f;
+      --border: #2a2a38;
+      --text: #f7f7fb;
+      --muted: #9c9cab;
+      --purple: #7657ec;
+      --purple-light: #b59cff;
+      --teal: #2bd5c5;
+      --danger: #ff668d;
+      --danger-bg: rgba(255, 102, 141, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+    }
+
+    body {
+      background:
+        radial-gradient(
+          circle at top,
+          rgba(118, 87, 236, 0.08),
+          transparent 35%
+        ),
+        var(--bg);
+    }
+
+    .app {
+      width: min(100%, 680px);
+      margin: 0 auto;
+      min-height: 100vh;
+      padding:
+        calc(18px + env(safe-area-inset-top))
+        22px
+        calc(30px + env(safe-area-inset-bottom));
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 22px;
+    }
+
+    .back-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: #12121a;
+      color: white;
+      font-size: 34px;
+      cursor: pointer;
+    }
+
+    .title-area {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .title-area h1 {
+      margin: 0;
+      font-size: 31px;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .top-location {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 17px;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .how-it-works {
+      color: #c5baff;
+      font-size: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    #map {
+      width: 100%;
+      height: 325px;
+      background: #ddd;
+    }
+
+    .location-row {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      min-height: 90px;
+      padding: 18px 20px;
+    }
+
+    .location-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(118, 87, 236, 0.18);
+      color: #9e86ff;
+      flex: 0 0 auto;
+      font-size: 22px;
+    }
+
+    .address-area {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .address-title {
+      font-size: 19px;
+      font-weight: 800;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .address-full {
+      margin-top: 5px;
+      font-size: 14px;
+      line-height: 1.35;
+      color: var(--muted);
+    }
+
+    .refresh-btn {
+      border: 0;
+      background: transparent;
+      color: var(--purple-light);
+      font-size: 17px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .accuracy-line {
+      text-align: center;
+      min-height: 38px;
+      padding-top: 11px;
+      color: #878797;
+      font-size: 13px;
+    }
+
+    .status-card {
+      margin-top: 4px;
+      padding: 25px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: linear-gradient(
+        180deg,
+        #15151e,
+        #12121a
+      );
+    }
+
+    .status-title {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .status-dot {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #646474;
+    }
+
+    .status-dot.active {
+      background: var(--teal);
+      box-shadow:
+        0 0 15px rgba(43, 213, 197, 0.4);
+    }
+
+    .divider {
+      height: 1px;
+      margin: 23px 0;
+      background: #2b2b38;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: 1fr 1px 1fr;
+      gap: 23px;
+    }
+
+    .metric-divider {
+      background: #2b2b38;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    .metric-value {
+      font-size: 30px;
+      font-weight: 850;
+    }
+
+    .metric-note {
+      color: #737382;
+      margin-top: 5px;
+      font-size: 14px;
+    }
+
+    .clock-button {
+      width: 100%;
+      min-height: 84px;
+      margin-top: 24px;
+      border-radius: 23px;
+      border: 2px solid var(--purple);
+      background: rgba(118, 87, 236, 0.13);
+      color: #c9bdff;
+      font-size: 21px;
+      font-weight: 850;
+      cursor: pointer;
+    }
+
+    .clock-button.clocked-in {
+      border-color: var(--danger);
+      background: var(--danger-bg);
+      color: #ff9ab6;
+    }
+
+    .clock-button:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    .timeline-card {
+      margin-top: 24px;
+      padding: 25px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--panel);
+    }
+
+    .section-title {
+      margin: 0 0 22px;
+      font-size: 22px;
+      font-weight: 850;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 20px 1fr auto;
+      gap: 13px;
+      position: relative;
+      align-items: start;
+    }
+
+    .timeline-item + .timeline-item {
+      margin-top: 27px;
+    }
+
+    .timeline-dot {
+      width: 15px;
+      height: 15px;
+      margin-top: 6px;
+      border-radius: 50%;
+      background: var(--purple);
+    }
+
+    .timeline-dot.inactive {
+      background: transparent;
+      border: 2px solid #343444;
+    }
+
+    .timeline-line {
+      position: absolute;
+      width: 2px;
+      height: 56px;
+      left: 6px;
+      top: 21px;
+      background: #2b2b38;
+    }
+
+    .timeline-main {
+      font-size: 19px;
+      font-weight: 800;
+    }
+
+    .timeline-sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.35;
+    }
+
+    .timeline-time {
+      font-size: 17px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .notice-card {
+      display: flex;
+      gap: 15px;
+      align-items: flex-start;
+      margin-top: 24px;
+      padding: 22px;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: var(--panel);
+    }
+
+    .notice-icon {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: #967fff;
+      background: rgba(118, 87, 236, 0.15);
+    }
+
+    .notice-title {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .notice-text {
+      margin-top: 5px;
+      color: #b1b1bf;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .user-marker {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #704fe9;
+      border: 5px solid white;
+      box-shadow:
+        0 0 0 5px rgba(112, 79, 233, 0.25),
+        0 3px 14px rgba(0, 0, 0, 0.4);
+    }
+
+    .leaflet-control-zoom {
+      display: none;
+    }
+
+    .leaflet-control-attribution {
+      font-size: 9px !important;
+    }
+
+    @media (max-width: 520px) {
+      .app {
+        padding-left: 15px;
+        padding-right: 15px;
+      }
+
+      .title-area h1 {
+        font-size: 27px;
+      }
+
+      .how-it-works {
+        font-size: 14px;
+      }
+
+      #map {
+        height: 285px;
+      }
+
+      .location-row {
+        padding: 16px;
+      }
+
+      .metric-value {
+        font-size: 27px;
+      }
+
+      .status-card,
+      .timeline-card {
+        padding: 21px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-<div class="classification">FICTIONAL TRAINING / FAN-MADE PUBLIC SAFETY MOCKUP</div>
+  <div class="app">
 
-<header class="agency-header">
-  <div class="seal">OARS</div>
-  <div>
-    <p class="eyebrow">Office of Anomalous Retail Safety</p>
-    <h1>SCP-3008 Public Advisory Portal</h1>
-    <p class="subhead">Mobile incident guidance, missing-person reporting, and survival notices for anomalous retail displacement events.</p>
+    <header class="topbar">
+      <button class="back-btn" onclick="history.back()">‹</button>
+
+      <div class="title-area">
+        <h1>Clock in</h1>
+        <div class="top-location" id="topLocation">
+          Locating…
+        </div>
+      </div>
+
+      <div class="how-it-works">
+        ⓘ How it works
+      </div>
+    </header>
+
+
+    <section class="card">
+
+      <div id="map"></div>
+
+      <div class="location-row">
+
+        <div class="location-icon">
+          ●
+        </div>
+
+        <div class="address-area">
+          <div
+            class="address-title"
+            id="addressTitle"
+          >
+            Finding your address…
+          </div>
+
+          <div
+            class="address-full"
+            id="addressFull"
+          >
+            Waiting for precise location
+          </div>
+        </div>
+
+        <button
+          class="refresh-btn"
+          id="refreshLocation"
+        >
+          Refresh
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <div
+      class="accuracy-line"
+      id="accuracyText"
+    ></div>
+
+
+    <section class="status-card">
+
+      <div class="status-title">
+
+        <div
+          class="status-dot"
+          id="statusDot"
+        ></div>
+
+        <div id="statusText">
+          You are currently not clocked in
+        </div>
+
+      </div>
+
+
+      <div class="divider"></div>
+
+
+      <div class="metrics">
+
+        <div>
+
+          <div class="metric-label">
+            Clocked in at
+          </div>
+
+          <div
+            class="metric-value"
+            id="clockedInAt"
+          >
+            —
+          </div>
+
+          <div class="metric-note">
+            Today
+          </div>
+
+        </div>
+
+
+        <div class="metric-divider"></div>
+
+
+        <div>
+
+          <div class="metric-label">
+            Total time
+          </div>
+
+          <div
+            class="metric-value"
+            id="totalTime"
+          >
+            0m 0s
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <button
+      class="clock-button"
+      id="clockButton"
+    >
+      ● Clock in
+    </button>
+
+
+    <section class="timeline-card">
+
+      <h2 class="section-title">
+        Today's timeline
+      </h2>
+
+
+      <div class="timeline-item">
+
+        <div class="timeline-line"></div>
+
+        <div class="timeline-dot"></div>
+
+        <div>
+
+          <div class="timeline-main">
+            Clocked in
+          </div>
+
+          <div
+            class="timeline-sub"
+            id="timelineClockInLocation"
+          >
+            Not yet clocked in
+          </div>
+
+        </div>
+
+        <div
+          class="timeline-time"
+          id="timelineClockInTime"
+        >
+          —
+        </div>
+
+      </div>
+
+
+      <div class="timeline-item">
+
+        <div class="timeline-dot inactive"></div>
+
+        <div>
+
+          <div class="timeline-main">
+            Clock out
+          </div>
+
+          <div
+            class="timeline-sub"
+            id="timelineClockOutLocation"
+          >
+            Not yet clocked out
+          </div>
+
+        </div>
+
+        <div
+          class="timeline-time"
+          id="timelineClockOutTime"
+        >
+          —
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <section class="notice-card">
+
+      <div class="notice-icon">
+        ◇
+      </div>
+
+      <div>
+
+        <div class="notice-title">
+          Location required
+        </div>
+
+        <div
+          class="notice-text"
+          id="locationNotice"
+        >
+          Precise location permission is required
+          to clock in or out.
+        </div>
+
+      </div>
+
+    </section>
+
   </div>
-</header>
 
-<nav class="tabs">
-  <button class="tab active" data-tab="advisory">Advisory</button>
-  <button class="tab" data-tab="procedures">Procedures</button>
-  <button class="tab" data-tab="report">Report</button>
-  <button class="tab" data-tab="records">Records</button>
-</nav>
-
-<main>
-  <section class="alert-card">
-    <div class="alert-level">ADVISORY STATUS: ELEVATED</div>
-    <h2>Suspected SCP-3008 Entry Event</h2>
-    <p>This is a fictional government-style web page inspired by SCP-3008. It is not a real agency, public warning system, emergency authority, or official SCP Foundation page.</p>
-    <div class="grid two">
-      <div><strong>Object Class:</strong><br>Euclid</div>
-      <div><strong>Known Hazard:</strong><br>Spatial displacement</div>
-    </div>
-  </section>
-
-  <section id="advisory" class="panel visible">
-    <h2>Public Safety Advisory</h2>
-    <p>SCP-3008 is described as a retail unit whose interior leads to SCP-3008-1, a space resembling an IKEA store that extends beyond normal physical limits.</p>
-    <div class="notice">
-      <strong>Priority guidance:</strong> Do not separate from your group, mark your route, conserve battery, identify shelter, and move before low-light periods.
-    </div>
-    <h3>Field Recognition Indicators</h3>
-    <ul class="checklist">
-      <li>Entrance location cannot be reacquired after line-of-sight is broken.</li>
-      <li>Interior floorplan appears larger than the outside structure.</li>
-      <li>Repeated furniture departments, warehouse aisles, and staged living areas.</li>
-      <li>Human survivors forming makeshift settlements.</li>
-    </ul>
-  </section>
-
-  <section id="procedures" class="panel">
-    <h2>Emergency Procedures</h2>
-    <details open>
-      <summary>Immediate Action</summary>
-      <ol>
-        <li>Stop movement and account for all persons.</li>
-        <li>Mark current location with visible, repeatable indicators.</li>
-        <li>Identify water, food, defensible shelter, and low-light risks.</li>
-        <li>Avoid unknown staff-like entities and hostile contact.</li>
-      </ol>
-    </details>
-    <details>
-      <summary>Night Cycle Safety</summary>
-      <p>Relocate to elevated or barricaded shelter before lights-out. Maintain quiet, low profile, and redundant exits.</p>
-    </details>
-    <details>
-      <summary>Group Discipline</summary>
-      <p>Use buddy pairs, check-ins, written route logs, and basic incident command roles: lead, medic, supply, lookout, recorder.</p>
-    </details>
-  </section>
-
-  <section id="report" class="panel">
-    <h2>Missing Person / Entry Report</h2>
-    <form id="incidentForm">
-      <label>Reporter Name<input required name="reporter" autocomplete="name"></label>
-      <label>Last Known Location<input required name="location"></label>
-      <label>Time Last Seen<input type="datetime-local" name="time"></label>
-      <label>Observed Indicators<textarea name="details" rows="4"></textarea></label>
-      <button type="submit">Generate Local Case Summary</button>
-    </form>
-    <div id="caseOutput" class="case-output"></div>
-  </section>
-
-  <section id="records" class="panel">
-    <h2>Records & Attribution</h2>
-    <div class="record-card">
-      <strong>Source Basis</strong>
-      <p>Based on “SCP-3008” from the SCP Foundation Wiki.</p>
-    </div>
-    <div class="record-card">
-      <strong>Licensing Statement</strong>
-      <p>This derivative fan work is released under CC BY-SA 3.0. Attribution: SCP-3008, SCP Foundation Wiki, and original SCP Wiki contributors.</p>
-    </div>
-    <div class="record-card">
-      <strong>Non-Impersonation Notice</strong>
-      <p>This is fictional entertainment material and is not affiliated with IKEA, the SCP Foundation, or any government agency.</p>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <p>Fictional Office of Anomalous Retail Safety • Mobile Public Advisory Portal</p>
-  <p>Not affiliated with IKEA, the SCP Foundation, or any government agency.</p>
-</footer>
 
 <script>
-const tabs=document.querySelectorAll('.tab');
-const panels=document.querySelectorAll('.panel');
+(function () {
 
-tabs.forEach(tab=>{
-  tab.addEventListener('click',()=>{
-    tabs.forEach(t=>t.classList.remove('active'));
-    panels.forEach(p=>p.classList.remove('visible'));
-    tab.classList.add('active');
-    document.getElementById(tab.dataset.tab).classList.add('visible');
-  });
-});
+  "use strict";
 
-document.getElementById('incidentForm').addEventListener('submit',event=>{
-  event.preventDefault();
-  const data=Object.fromEntries(new FormData(event.target).entries());
-  const caseNo=`OARS-3008-${new Date().getFullYear()}-${Math.floor(Math.random()*9000+1000)}`;
-  const out=document.getElementById('caseOutput');
-  out.style.display='block';
-  out.innerHTML=`
-    <strong>Local Case Summary Generated</strong><br>
-    Case: ${caseNo}<br>
-    Reporter: ${escapeHTML(data.reporter)}<br>
-    Last Known Location: ${escapeHTML(data.location)}<br>
-    Time Last Seen: ${escapeHTML(data.time || 'Not provided')}<br>
-    Indicators: ${escapeHTML(data.details || 'No additional details provided.')}<br><br>
-    Save this locally. This demo does not transmit reports.
-  `;
-});
 
-function escapeHTML(value){
-  return String(value).replace(/[&<>'"]/g,c=>({
-    '&':'&amp;',
-    '<':'&lt;',
-    '>':'&gt;',
-    "'":'&#39;',
-    '"':'&quot;'
-  }[c]));
-}
+  /*
+  ==========================================================
+  CONFIGURATION
+  ==========================================================
+  */
+
+  const CONFIG = {
+
+    desiredAccuracyMeters: 20,
+
+    locationSamplingTime: 10000,
+
+    reverseGeocodeURL(lat, lon) {
+
+      return (
+        "https://nominatim.openstreetmap.org/reverse" +
+        "?format=jsonv2" +
+        "&lat=" +
+        encodeURIComponent(lat) +
+        "&lon=" +
+        encodeURIComponent(lon) +
+        "&zoom=18" +
+        "&addressdetails=1"
+      );
+
+    }
+
+  };
+
+
+  /*
+  ==========================================================
+  PERSISTENT STORAGE
+  ==========================================================
+
+  localStorage survives:
+
+  - page refresh
+  - browser tab close
+  - browser app close
+  - reopening the page later
+
+  The clock is NOT based on a JavaScript interval counter.
+
+  Instead, the exact timestamp is saved.
+
+  Example:
+
+  clockInTimestamp = 1770000000000
+
+  When the user reopens the site:
+
+  elapsed =
+  current time - clockInTimestamp
+
+  Therefore the timer continues correctly even while
+  the browser is closed.
+  ==========================================================
+  */
+
+  const STORAGE_KEY =
+    "clockInApplicationState_v1";
+
+
+  const defaultState = {
+
+    clockedIn: false,
+
+    clockInTimestamp: null,
+
+    clockOutTimestamp: null,
+
+    lastLatitude: null,
+
+    lastLongitude: null,
+
+    lastAccuracy: null,
+
+    lastAddress: "",
+
+    lastShortAddress: "",
+
+    clockInAddress: "",
+
+    clockOutAddress: "",
+
+    clockInLatitude: null,
+
+    clockInLongitude: null,
+
+    clockInAccuracy: null,
+
+    clockOutLatitude: null,
+
+    clockOutLongitude: null,
+
+    clockOutAccuracy: null
+
+  };
+
+
+  function loadState() {
+
+    try {
+
+      const saved =
+        localStorage.getItem(STORAGE_KEY);
+
+      if (!saved) {
+        return { ...defaultState };
+      }
+
+      return {
+        ...defaultState,
+        ...JSON.parse(saved)
+      };
+
+    }
+
+    catch (error) {
+
+      console.warn(
+        "Unable to load saved state.",
+        error
+      );
+
+      return { ...defaultState };
+
+    }
+
+  }
+
+
+  function saveState() {
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(state)
+    );
+
+  }
+
+
+  let state = loadState();
+
+
+  /*
+  ==========================================================
+  DOM REFERENCES
+  ==========================================================
+  */
+
+  const elements = {
+
+    topLocation:
+      document.getElementById(
+        "topLocation"
+      ),
+
+    addressTitle:
+      document.getElementById(
+        "addressTitle"
+      ),
+
+    addressFull:
+      document.getElementById(
+        "addressFull"
+      ),
+
+    accuracyText:
+      document.getElementById(
+        "accuracyText"
+      ),
+
+    statusDot:
+      document.getElementById(
+        "statusDot"
+      ),
+
+    statusText:
+      document.getElementById(
+        "statusText"
+      ),
+
+    clockedInAt:
+      document.getElementById(
+        "clockedInAt"
+      ),
+
+    totalTime:
+      document.getElementById(
+        "totalTime"
+      ),
+
+    clockButton:
+      document.getElementById(
+        "clockButton"
+      ),
+
+    timelineClockInLocation:
+      document.getElementById(
+        "timelineClockInLocation"
+      ),
+
+    timelineClockInTime:
+      document.getElementById(
+        "timelineClockInTime"
+      ),
+
+    timelineClockOutLocation:
+      document.getElementById(
+        "timelineClockOutLocation"
+      ),
+
+    timelineClockOutTime:
+      document.getElementById(
+        "timelineClockOutTime"
+      ),
+
+    locationNotice:
+      document.getElementById(
+        "locationNotice"
+      ),
+
+    refreshLocation:
+      document.getElementById(
+        "refreshLocation"
+      )
+
+  };
+
+
+  /*
+  ==========================================================
+  MAP INITIALIZATION
+  ==========================================================
+  */
+
+  const fallbackLatitude =
+    33.4484;
+
+  const fallbackLongitude =
+    -112.0740;
+
+
+  const initialLatitude =
+    Number.isFinite(state.lastLatitude)
+      ? state.lastLatitude
+      : fallbackLatitude;
+
+
+  const initialLongitude =
+    Number.isFinite(state.lastLongitude)
+      ? state.lastLongitude
+      : fallbackLongitude;
+
+
+  const map =
+    L.map(
+      "map",
+      {
+        zoomControl: false,
+        scrollWheelZoom: false
+      }
+    );
+
+
+  map.setView(
+    [
+      initialLatitude,
+      initialLongitude
+    ],
+    state.lastLatitude !== null
+      ? 18
+      : 13
+  );
+
+
+  L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+
+      maxZoom: 20,
+
+      attribution:
+        "&copy; OpenStreetMap contributors"
+
+    }
+  ).addTo(map);
+
+
+  const userIcon =
+    L.divIcon({
+
+      className: "",
+
+      html:
+        '<div class="user-marker"></div>',
+
+      iconSize:
+        [26, 26],
+
+      iconAnchor:
+        [13, 13]
+
+    });
+
+
+  const userMarker =
+    L.marker(
+      [
+        initialLatitude,
+        initialLongitude
+      ],
+      {
+        icon: userIcon
+      }
+    )
+    .addTo(map);
+
+
+  const accuracyCircle =
+    L.circle(
+      [
+        initialLatitude,
+        initialLongitude
+      ],
+      {
+
+        radius:
+          state.lastAccuracy || 0,
+
+        color:
+          "#7657ec",
+
+        fillColor:
+          "#7657ec",
+
+        fillOpacity:
+          0.12,
+
+        weight:
+          2
+
+      }
+    )
+    .addTo(map);
+
+
+  /*
+  ==========================================================
+  GPS / GEOLOCATION
+  ==========================================================
+  */
+
+  let bestPosition = null;
+
+  let watchID = null;
+
+  let geocodeTimer = null;
+
+
+  function getAccuracy(position) {
+
+    if (
+      !position ||
+      !position.coords
+    ) {
+      return Infinity;
+    }
+
+    return position.coords.accuracy;
+
+  }
+
+
+  function processPosition(
+    position,
+    recenterMap
+  ) {
+
+    if (
+      !position ||
+      !position.coords
+    ) {
+      return;
+    }
+
+
+    /*
+    Keep the most accurate position
+    received during this sampling session.
+    */
+
+    if (
+      !bestPosition ||
+      getAccuracy(position) <
+      getAccuracy(bestPosition)
+    ) {
+
+      bestPosition =
+        position;
+
+    }
+
+
+    const selectedPosition =
+      bestPosition || position;
+
+
+    const latitude =
+      selectedPosition.coords.latitude;
+
+
+    const longitude =
+      selectedPosition.coords.longitude;
+
+
+    const accuracy =
+      selectedPosition.coords.accuracy;
+
+
+    state.lastLatitude =
+      latitude;
+
+    state.lastLongitude =
+      longitude;
+
+    state.lastAccuracy =
+      accuracy;
+
+
+    saveState();
+
+
+    /*
+    Update map marker.
+    */
+
+    userMarker.setLatLng(
+      [
+        latitude,
+        longitude
+      ]
+    );
+
+
+    accuracyCircle
+      .setLatLng(
+        [
+          latitude,
+          longitude
+        ]
+      )
+      .setRadius(
+        accuracy
+      );
+
+
+    if (
+      recenterMap ||
+      map.getZoom() < 16
+    ) {
+
+      let zoomLevel = 17;
+
+      if (accuracy <= 20) {
+        zoomLevel = 19;
+      }
+
+      else if (accuracy <= 50) {
+        zoomLevel = 18;
+      }
+
+
+      map.setView(
+        [
+          latitude,
+          longitude
+        ],
+        zoomLevel,
+        {
+          animate: true
+        }
+      );
+
+    }
+
+
+    /*
+    Show reported device accuracy.
+    */
+
+    let accuracyMessage =
+      "Location accuracy: approximately ±" +
+      Math.round(accuracy) +
+      " meters";
+
+
+    if (
+      accuracy <=
+      CONFIG.desiredAccuracyMeters
+    ) {
+
+      accuracyMessage +=
+        " • high-accuracy fix";
+
+    }
+
+    else {
+
+      accuracyMessage +=
+        " • refining location…";
+
+    }
+
+
+    elements.accuracyText.textContent =
+      accuracyMessage;
+
+
+    elements.locationNotice.textContent =
+      "Precise location is active. " +
+      "Reported browser accuracy is approximately ±" +
+      Math.round(accuracy) +
+      " meters.";
+
+
+    /*
+    Reverse geocode the coordinates.
+
+    We delay slightly because GPS positions
+    can arrive rapidly.
+
+    This prevents unnecessary requests.
+    */
+
+    clearTimeout(
+      geocodeTimer
+    );
+
+
+    geocodeTimer =
+      setTimeout(
+        function () {
+
+          reverseGeocode(
+            latitude,
+            longitude
+          );
+
+        },
+        700
+      );
+
+  }
+
+
+  function handleLocationError(error) {
+
+    let message =
+      "Unable to determine your location.";
+
+
+    if (error.code === 1) {
+
+      message =
+        "Location permission was denied. " +
+        "Enable location access and Precise Location " +
+        "for this website.";
+
+    }
+
+
+    else if (error.code === 2) {
+
+      message =
+        "Your device could not determine a position. " +
+        "Try moving where GPS, Wi-Fi, or cellular " +
+        "signals are stronger.";
+
+    }
+
+
+    else if (error.code === 3) {
+
+      message =
+        "The location request timed out. " +
+        "Tap Refresh to try again.";
+
+    }
+
+
+    elements.locationNotice.textContent =
+      message;
+
+
+    elements.accuracyText.textContent =
+      "Live location unavailable";
+
+  }
+
+
+  /*
+  ==========================================================
+  HIGH ACCURACY LOCATION COLLECTION
+  ==========================================================
+
+  Web browsers do not expose a setting that guarantees
+  GPS hardware specifically.
+
+  enableHighAccuracy tells the browser/device:
+
+  "Use the highest accuracy location source available."
+
+  On mobile phones this may use:
+
+  - GNSS / GPS
+  - Wi-Fi positioning
+  - cell tower positioning
+  - sensor fusion
+  - assisted GPS
+
+  ==========================================================
+  */
+
+  function startLocationTracking(
+    recenterMap = true
+  ) {
+
+    if (
+      !navigator.geolocation
+    ) {
+
+      elements.locationNotice.textContent =
+        "This browser does not support geolocation.";
+
+      return;
+
+    }
+
+
+    bestPosition =
+      null;
+
+
+    /*
+    First immediate position request.
+    */
+
+    navigator.geolocation.getCurrentPosition(
+
+      function (position) {
+
+        processPosition(
+          position,
+          recenterMap
+        );
+
+      },
+
+      handleLocationError,
+
+      {
+
+        enableHighAccuracy:
+          true,
+
+        maximumAge:
+          0,
+
+        timeout:
+          20000
+
+      }
+
+    );
+
+
+    /*
+    Then continuously sample for several seconds.
+
+    Phones sometimes initially return a rough location,
+    followed by increasingly accurate GPS fixes.
+    */
+
+    if (
+      watchID !== null
+    ) {
+
+      navigator.geolocation.clearWatch(
+        watchID
+      );
+
+    }
+
+
+    watchID =
+      navigator.geolocation.watchPosition(
+
+        function (position) {
+
+          processPosition(
+            position,
+            false
+          );
+
+        },
+
+        handleLocationError,
+
+        {
+
+          enableHighAccuracy:
+            true,
+
+          maximumAge:
+            0,
+
+          timeout:
+            20000
+
+        }
+
+      );
+
+
+    /*
+    Stop continuous GPS sampling after
+    the configured period.
+
+    This reduces battery usage.
+    */
+
+    setTimeout(
+      function () {
+
+        if (
+          watchID !== null
+        ) {
+
+          navigator.geolocation.clearWatch(
+            watchID
+          );
+
+          watchID =
+            null;
+
+        }
+
+      },
+
+      CONFIG.locationSamplingTime
+
+    );
+
+  }
+
+
+  /*
+  ==========================================================
+  ADDRESS LOOKUP / REVERSE GEOCODING
+  ==========================================================
+  */
+
+  async function reverseGeocode(
+    latitude,
+    longitude
+  ) {
+
+    try {
+
+      const response =
+        await fetch(
+          CONFIG.reverseGeocodeURL(
+            latitude,
+            longitude
+          ),
+          {
+            headers: {
+              "Accept":
+                "application/json"
+            }
+          }
+        );
+
+
+      if (
+        !response.ok
+      ) {
+
+        throw new Error(
+          "Reverse geocoding failed."
+        );
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      const address =
+        data.address || {};
+
+
+      const houseNumber =
+        address.house_number || "";
+
+
+      const road =
+        address.road ||
+        address.pedestrian ||
+        address.residential ||
+        address.footway ||
+        "";
+
+
+      const city =
+        address.city ||
+        address.town ||
+        address.village ||
+        address.hamlet ||
+        "";
+
+
+      const stateName =
+        address.state || "";
+
+
+      const postalCode =
+        address.postcode || "";
+
+
+      const shortAddress =
+        [
+          houseNumber,
+          road
+        ]
+        .filter(Boolean)
+        .join(" ")
+        ||
+        data.name
+        ||
+        city
+        ||
+        "Current location";
+
+
+      const fullAddress =
+        data.display_name
+        ||
+        [
+          shortAddress,
+          city,
+          stateName,
+          postalCode
+        ]
+        .filter(Boolean)
+        .join(", ");
+
+
+      state.lastAddress =
+        fullAddress;
+
+
+      state.lastShortAddress =
+        shortAddress;
+
+
+      saveState();
+
+
+      elements.addressTitle.textContent =
+        shortAddress;
+
+
+      elements.addressFull.textContent =
+        fullAddress;
+
+
+      elements.topLocation.textContent =
+        shortAddress;
+
+    }
+
+
+    catch (error) {
+
+      console.warn(
+        "Address lookup failed:",
+        error
+      );
+
+
+      /*
+      Do not replace a previously saved address
+      with raw latitude/longitude.
+
+      This keeps the interface displaying an
+      actual address whenever possible.
+      */
+
+      if (
+        !state.lastAddress
+      ) {
+
+        elements.addressTitle.textContent =
+          "Current location";
+
+
+        elements.addressFull.textContent =
+          "Physical address lookup unavailable.";
+
+
+        elements.topLocation.textContent =
+          "Current location";
+
+      }
+
+    }
+
+  }
+
+
+  /*
+  ==========================================================
+  CLOCK FUNCTIONS
+  ==========================================================
+  */
+
+  function formatTime(
+    timestamp
+  ) {
+
+    if (!timestamp) {
+      return "—";
+    }
+
+
+    return new Date(
+      timestamp
+    )
+    .toLocaleTimeString(
+      [],
+      {
+
+        hour:
+          "numeric",
+
+        minute:
+          "2-digit"
+
+      }
+    );
+
+  }
+
+
+  function formatElapsed(
+    milliseconds
+  ) {
+
+    if (
+      !Number.isFinite(milliseconds) ||
+      milliseconds < 0
+    ) {
+
+      milliseconds = 0;
+
+    }
+
+
+    const totalSeconds =
+      Math.floor(
+        milliseconds / 1000
+      );
+
+
+    const hours =
+      Math.floor(
+        totalSeconds / 3600
+      );
+
+
+    const minutes =
+      Math.floor(
+        (totalSeconds % 3600) / 60
+      );
+
+
+    const seconds =
+      totalSeconds % 60;
+
+
+    if (
+      hours > 0
+    ) {
+
+      return (
+        hours +
+        "h " +
+        minutes +
+        "m " +
+        seconds +
+        "s"
+      );
+
+    }
+
+
+    return (
+      minutes +
+      "m " +
+      seconds +
+      "s"
+    );
+
+  }
+
+
+  function renderClock() {
+
+    if (
+      state.clockedIn &&
+      state.clockInTimestamp
+    ) {
+
+      const elapsed =
+        Date.now() -
+        state.clockInTimestamp;
+
+
+      elements.statusDot.classList.add(
+        "active"
+      );
+
+
+      elements.statusText.textContent =
+        "You are currently clocked in";
+
+
+      elements.clockedInAt.textContent =
+        formatTime(
+          state.clockInTimestamp
+        );
+
+
+      elements.totalTime.textContent =
+        formatElapsed(
+          elapsed
+        );
+
+
+      elements.clockButton
+        .classList.add(
+          "clocked-in"
+        );
+
+
+      elements.clockButton.textContent =
+        "■ Clock out · " +
+        formatElapsed(
+          elapsed
+        );
+
+
+      elements.timelineClockInLocation.textContent =
+        state.clockInAddress ||
+        state.lastShortAddress ||
+        "Current location";
+
+
+      elements.timelineClockInTime.textContent =
+        formatTime(
+          state.clockInTimestamp
+        );
+
+
+      elements.timelineClockOutLocation.textContent =
+        "Not yet clocked out";
+
+
+      elements.timelineClockOutTime.textContent =
+        "—";
+
+    }
+
+
+    else {
+
+      elements.statusDot.classList.remove(
+        "active"
+      );
+
+
+      elements.statusText.textContent =
+        "You are currently not clocked in";
+
+
+      elements.clockButton
+        .classList.remove(
+          "clocked-in"
+        );
+
+
+      elements.clockButton.textContent =
+        "● Clock in";
+
+
+      if (
+        state.clockInTimestamp
+      ) {
+
+        elements.clockedInAt.textContent =
+          formatTime(
+            state.clockInTimestamp
+          );
+
+      }
+
+      else {
+
+        elements.clockedInAt.textContent =
+          "—";
+
+      }
+
+
+      if (
+        state.clockInTimestamp &&
+        state.clockOutTimestamp
+      ) {
+
+        const duration =
+          state.clockOutTimestamp -
+          state.clockInTimestamp;
+
+
+        elements.totalTime.textContent =
+          formatElapsed(
+            duration
+          );
+
+      }
+
+      else {
+
+        elements.totalTime.textContent =
+          "0m 0s";
+
+      }
+
+
+      if (
+        state.clockInTimestamp
+      ) {
+
+        elements.timelineClockInLocation.textContent =
+          state.clockInAddress ||
+          "Clock-in location saved";
+
+
+        elements.timelineClockInTime.textContent =
+          formatTime(
+            state.clockInTimestamp
+          );
+
+      }
+
+      else {
+
+        elements.timelineClockInLocation.textContent =
+          "Not yet clocked in";
+
+
+        elements.timelineClockInTime.textContent =
+          "—";
+
+      }
+
+
+      if (
+        state.clockOutTimestamp
+      ) {
+
+        elements.timelineClockOutLocation.textContent =
+          state.clockOutAddress ||
+          "Clock-out location saved";
+
+
+        elements.timelineClockOutTime.textContent =
+          formatTime(
+            state.clockOutTimestamp
+          );
+
+      }
+
+      else {
+
+        elements.timelineClockOutLocation.textContent =
+          "Not yet clocked out";
+
+
+        elements.timelineClockOutTime.textContent =
+          "—";
+
+      }
+
+    }
+
+  }
+
+
+  /*
+  ==========================================================
+  REQUIRE FRESH LOCATION FOR CLOCK ACTION
+  ==========================================================
+  */
+
+  function getFreshPosition() {
+
+    return new Promise(
+      function (
+        resolve,
+        reject
+      ) {
+
+        if (
+          !navigator.geolocation
+        ) {
+
+          reject(
+            new Error(
+              "Geolocation unavailable."
+            )
+          );
+
+          return;
+
+        }
+
+
+        navigator.geolocation.getCurrentPosition(
+
+          function (position) {
+
+            bestPosition =
+              position;
+
+
+            processPosition(
+              position,
+              true
+            );
+
+
+            resolve(
+              position
+            );
+
+          },
+
+          reject,
+
+          {
+
+            enableHighAccuracy:
+              true,
+
+            maximumAge:
+              0,
+
+            timeout:
+              20000
+
+          }
+
+        );
+
+      }
+    );
+
+  }
+
+
+  /*
+  ==========================================================
+  CLOCK IN / CLOCK OUT
+  ==========================================================
+  */
+
+  elements.clockButton.addEventListener(
+    "click",
+    async function () {
+
+      /*
+      Force a fresh location request
+      immediately before recording
+      clock-in or clock-out.
+      */
+
+      elements.clockButton.disabled =
+        true;
+
+
+      elements.clockButton.textContent =
+        "Getting precise location…";
+
+
+      let position;
+
+
+      try {
+
+        position =
+          await getFreshPosition();
+
+      }
+
+
+      catch (error) {
+
+        elements.locationNotice.textContent =
+          "A current location fix is required " +
+          "before clocking in or out. " +
+          "Check your location permissions.";
+
+
+        elements.clockButton.disabled =
+          false;
+
+
+        renderClock();
+
+        return;
+
+      }
+
+
+      const now =
+        Date.now();
+
+
+      const latitude =
+        position.coords.latitude;
+
+
+      const longitude =
+        position.coords.longitude;
+
+
+      const accuracy =
+        position.coords.accuracy;
+
+
+      /*
+      CLOCK IN
+      */
+
+      if (
+        !state.clockedIn
+      ) {
+
+        state.clockedIn =
+          true;
+
+
+        state.clockInTimestamp =
+          now;
+
+
+        state.clockOutTimestamp =
+          null;
+
+
+        state.clockInAddress =
+          state.lastAddress ||
+          state.lastShortAddress ||
+          "Current location";
+
+
+        state.clockInLatitude =
+          latitude;
+
+
+        state.clockInLongitude =
+          longitude;
+
+
+        state.clockInAccuracy =
+          accuracy;
+
+
+        state.clockOutAddress =
+          "";
+
+
+        state.clockOutLatitude =
+          null;
+
+
+        state.clockOutLongitude =
+          null;
+
+
+        state.clockOutAccuracy =
+          null;
+
+      }
+
+
+      /*
+      CLOCK OUT
+      */
+
+      else {
+
+        state.clockedIn =
+          false;
+
+
+        state.clockOutTimestamp =
+          now;
+
+
+        state.clockOutAddress =
+          state.lastAddress ||
+          state.lastShortAddress ||
+          "Current location";
+
+
+        state.clockOutLatitude =
+          latitude;
+
+
+        state.clockOutLongitude =
+          longitude;
+
+
+        state.clockOutAccuracy =
+          accuracy;
+
+      }
+
+
+      saveState();
+
+
+      elements.clockButton.disabled =
+        false;
+
+
+      renderClock();
+
+    }
+  );
+
+
+  /*
+  ==========================================================
+  MANUAL GPS REFRESH
+  ==========================================================
+  */
+
+  elements.refreshLocation.addEventListener(
+    "click",
+    function () {
+
+      startLocationTracking(
+        true
+      );
+
+    }
+  );
+
+
+  /*
+  ==========================================================
+  RESTORE SAVED ADDRESS ON PAGE LOAD
+  ==========================================================
+  */
+
+  if (
+    state.lastAddress
+  ) {
+
+    elements.addressTitle.textContent =
+      state.lastShortAddress ||
+      "Current location";
+
+
+    elements.addressFull.textContent =
+      state.lastAddress;
+
+
+    elements.topLocation.textContent =
+      state.lastShortAddress ||
+      "Current location";
+
+  }
+
+
+  /*
+  ==========================================================
+  UPDATE TIMER ON SCREEN
+  ==========================================================
+  */
+
+  setInterval(
+    renderClock,
+    1000
+  );
+
+
+  /*
+  ==========================================================
+  WHEN USER RETURNS TO BROWSER
+  ==========================================================
+
+  If Safari or Chrome was in the background and
+  the user returns to the page, request another
+  precise position.
+
+  The clock state itself was preserved in
+  localStorage the entire time.
+  ==========================================================
+  */
+
+  document.addEventListener(
+    "visibilitychange",
+    function () {
+
+      if (
+        !document.hidden
+      ) {
+
+        startLocationTracking(
+          false
+        );
+
+      }
+
+    }
+  );
+
+
+  /*
+  ==========================================================
+  INITIAL STARTUP
+  ==========================================================
+  */
+
+  renderClock();
+
+
+  startLocationTracking(
+    true
+  );
+
+
+})();
 </script>
+
 </body>
 </html>
