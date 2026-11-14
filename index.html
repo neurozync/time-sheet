@@ -8,9 +8,9 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
-<title>Field Incident Mapper</title>
+<title>Field Observation Mapper</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
@@ -18,345 +18,151 @@
 
 <style>
 
-:root {
+:root{
 
-  --bg:#091321;
+ --bg:#080f19;--panel:#111e2d;--edge:#34465b;
 
-  --panel:#142338;
+ --fg:#edf5ff;--muted:#9fb2c8;--blue:#37a5ff;
 
-  --border:#33465e;
-
-  --text:#f3f7fc;
-
-  --muted:#aebdd0;
-
-  --blue:#2389ff;
-
-  --red:#ef4444;
-
-  --green:#18b977;
+ --red:#ff5262;--green:#30d6a0
 
 }
 
-* { box-sizing:border-box; }
+*{box-sizing:border-box}
 
-body {
+body{margin:0;background:var(--bg);color:var(--fg);
 
-  margin:0;
+ font:14px system-ui,-apple-system,sans-serif}
 
-  background:var(--bg);
+header{background:#0d1928;border-bottom:1px solid var(--edge);
 
-  color:var(--text);
+ padding:16px}
 
-  font-family:Arial,Helvetica,sans-serif;
+h1{font-size:19px;letter-spacing:1.4px;margin:0}
+
+.sub{color:var(--muted);font-size:11px;margin-top:5px;
+
+ letter-spacing:1px}
+
+main{max-width:1100px;margin:auto;padding:12px}
+
+.card{background:var(--panel);border:1px solid var(--edge);
+
+ border-radius:12px;padding:13px;margin-bottom:12px}
+
+h2{font-size:14px;text-transform:uppercase;
+
+ letter-spacing:1px;margin:0 0 12px}
+
+#map{height:43vh;min-height:300px;border-radius:8px;
+
+ background:#172b3d;z-index:1}
+
+.tools{display:grid;grid-template-columns:1fr 1fr;
+
+ gap:8px;margin-top:10px}
+
+button{background:#223750;border:1px solid #45617d;
+
+ border-radius:7px;color:white;padding:12px 7px;
+
+ font-weight:650;font-size:12px;cursor:pointer}
+
+button:active{background:#365a7c}
+
+.primary{background:#1266ad}
+
+.success{background:#087d63}
+
+.danger{background:#73303b}
+
+label{display:block;color:#b9cbdf;font-size:11px;
+
+ text-transform:uppercase;letter-spacing:.6px;
+
+ font-weight:700;margin:13px 0 6px}
+
+input,textarea{width:100%;background:#091624;
+
+ border:1px solid #405671;border-radius:7px;
+
+ padding:11px;color:white;font:14px system-ui}
+
+textarea{min-height:90px;resize:vertical}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.info{background:#0b1827;border:1px solid #30455b;
+
+ border-radius:8px;padding:11px;margin-top:10px;
+
+ font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+
+.info b{color:#72c7ff;display:block;margin-top:8px}
+
+.info b:first-child{margin-top:0}
+
+.status{color:var(--muted);font-size:12px;
+
+ margin-top:10px;line-height:1.5}
+
+.legend{display:flex;gap:15px;flex-wrap:wrap;
+
+ font-size:11px;color:var(--muted);margin-top:9px}
+
+.dot{display:inline-block;width:9px;height:9px;
+
+ border-radius:50%;margin-right:5px}
+
+.actions{display:grid;gap:8px}
+
+#preview{display:none}
+
+.paper{background:white;color:#15263b;border-radius:7px;
+
+ padding:18px;overflow-wrap:anywhere}
+
+.paper h2{font-size:20px;border-bottom:3px solid #17334f;
+
+ padding-bottom:12px}
+
+.line{padding:9px 0;border-bottom:1px solid #dce4ed;
+
+ white-space:pre-wrap;font-size:13px;line-height:1.5}
+
+.line b{display:block;color:#52647a;font-size:11px;
+
+ text-transform:uppercase}
+
+#reportMap{height:270px;margin-top:12px;background:#e2e8f0}
+
+.notice{font-size:11px;color:#52647a;margin-top:12px}
+
+.leaflet-container{font-family:system-ui}
+
+@media(min-width:800px){
+
+ .layout{display:grid;grid-template-columns:1.1fr 1fr;
+
+ gap:12px;align-items:start}
+
+ #map{height:520px}
 
 }
 
-header {
+@media print{
 
-  padding:14px 16px;
+ body{background:white}
 
-  background:#101f33;
+ header,.layout,.actions,#previewTools{display:none!important}
 
-  border-bottom:1px solid var(--border);
+ main{padding:0}
 
-}
+ #preview{display:block!important;border:0;padding:0}
 
-header h1 { font-size:20px; margin:0 0 5px; }
+ .paper{padding:0}
 
-header small { color:var(--muted); }
-
-main { max-width:1100px; margin:auto; padding:12px; }
-
-.card {
-
-  background:var(--panel);
-
-  border:1px solid var(--border);
-
-  border-radius:12px;
-
-  padding:13px;
-
-  margin-bottom:12px;
-
-}
-
-h2 { font-size:16px; margin:0 0 12px; }
-
-#map {
-
-  height:43vh;
-
-  min-height:290px;
-
-  border-radius:9px;
-
-  z-index:1;
-
-  background:#24384d;
-
-}
-
-.toolbar {
-
-  display:grid;
-
-  grid-template-columns:repeat(2,1fr);
-
-  gap:8px;
-
-  margin-top:10px;
-
-}
-
-button {
-
-  border:1px solid #52647c;
-
-  background:#22364e;
-
-  color:white;
-
-  padding:12px 9px;
-
-  border-radius:8px;
-
-  font-weight:bold;
-
-  font-size:13px;
-
-  cursor:pointer;
-
-  touch-action:manipulation;
-
-}
-
-button.primary { background:var(--blue); border-color:var(--blue); }
-
-button.success { background:var(--green); border-color:var(--green); }
-
-button.danger { background:#913039; border-color:#b94751; }
-
-button:disabled { opacity:.5; }
-
-label {
-
-  display:block;
-
-  font-size:12px;
-
-  font-weight:bold;
-
-  color:#cbd8e8;
-
-  margin:12px 0 6px;
-
-}
-
-input,select,textarea {
-
-  display:block;
-
-  width:100%;
-
-  padding:11px;
-
-  border:1px solid #465a72;
-
-  background:#0c192a;
-
-  color:white;
-
-  border-radius:7px;
-
-  font-size:15px;
-
-}
-
-textarea { resize:vertical; min-height:85px; }
-
-.grid {
-
-  display:grid;
-
-  grid-template-columns:1fr 1fr;
-
-  gap:10px;
-
-}
-
-.status {
-
-  color:var(--muted);
-
-  font-size:12px;
-
-  margin-top:10px;
-
-  line-height:1.5;
-
-}
-
-.info {
-
-  background:#0d1a2c;
-
-  padding:10px;
-
-  border-radius:8px;
-
-  border:1px solid #314760;
-
-  margin-top:10px;
-
-  font-size:13px;
-
-  line-height:1.6;
-
-  overflow-wrap:anywhere;
-
-}
-
-.info strong { color:#eaf2ff; }
-
-.actions { display:grid; gap:8px; }
-
-#reportPreview { display:none; }
-
-.report-paper {
-
-  background:white;
-
-  color:#142033;
-
-  padding:18px;
-
-  border-radius:7px;
-
-  font-family:Arial,sans-serif;
-
-  overflow-wrap:anywhere;
-
-}
-
-.report-paper h2 {
-
-  font-size:21px;
-
-  border-bottom:3px solid #172b45;
-
-  padding-bottom:10px;
-
-}
-
-.report-paper .line {
-
-  padding:8px 0;
-
-  border-bottom:1px solid #d9e1e9;
-
-  font-size:13px;
-
-  line-height:1.5;
-
-}
-
-.report-paper .line b { display:block; color:#42546b; }
-
-.report-paper .narrative { white-space:pre-wrap; }
-
-.report-paper .notice {
-
-  background:#eef2f7;
-
-  padding:10px;
-
-  font-size:11px;
-
-  margin-top:14px;
-
-}
-
-#reportMap {
-
-  width:100%;
-
-  height:260px;
-
-  border:1px solid #cbd5e1;
-
-  margin:10px 0;
-
-  background:#e4eaf0;
-
-}
-
-.legend {
-
-  display:flex;
-
-  gap:12px;
-
-  flex-wrap:wrap;
-
-  font-size:12px;
-
-  color:var(--muted);
-
-  margin-top:9px;
-
-}
-
-.dot {
-
-  display:inline-block;
-
-  width:10px;
-
-  height:10px;
-
-  border-radius:50%;
-
-  margin-right:4px;
-
-}
-
-.leaflet-container { font-family:Arial,sans-serif; }
-
-@media(min-width:800px) {
-
-  .layout {
-
-    display:grid;
-
-    grid-template-columns:1.1fr 1fr;
-
-    gap:12px;
-
-    align-items:start;
-
-  }
-
-  #map { height:520px; }
-
-}
-
-@media print {
-
-  body { background:white; }
-
-  header,main > .layout,main > .actions,
-
-  #previewButtons,.status { display:none!important; }
-
-  main { padding:0; max-width:none; }
-
-  #reportPreview { display:block!important; border:0; padding:0; }
-
-  .report-paper { padding:0; }
-
-  #reportMap { height:350px; }
+ #reportMap{height:360px}
 
 }
 
@@ -368,9 +174,9 @@ textarea { resize:vertical; min-height:85px; }
 
 <header>
 
-  <h1>FIELD INCIDENT MAPPER</h1>
+<h1>FIELD OBSERVATION MAPPER</h1>
 
-  <small>Locate • Mark • Document • Generate Report</small>
+<div class="sub">GEOSPATIAL DOCUMENTATION SYSTEM</div>
 
 </header>
 
@@ -380,173 +186,125 @@ textarea { resize:vertical; min-height:85px; }
 
 <section class="card">
 
-  <h2>1. Interactive Incident Map</h2>
+<h2>01 / Geographic Operations Map</h2>
 
-  <div id="map"></div>
+<div id="map"></div>
 
-  <div class="legend">
+<div class="legend">
 
-    <span><i class="dot" style="background:#2389ff"></i>Your GPS</span>
+<span><i class="dot" style="background:#37a5ff"></i>
 
-    <span><i class="dot" style="background:#ef4444"></i>Incident</span>
+Device GPS</span>
 
-  </div>
+<span><i class="dot" style="background:#ff5262"></i>
 
-  <div class="toolbar">
+Reported activity</span>
 
-    <button class="primary" onclick="locateMe()">◎ Locate Me</button>
+</div>
 
-    <button onclick="toggleMap()">▧ Satellite / Street</button>
+<div class="tools">
 
-    <button onclick="setMode('pin')">📍 Drop Pin</button>
+<button class="primary" onclick="locateMe()">
 
-    <button onclick="setMode('circle')">◯ Circle Area</button>
+◎ Acquire GPS</button>
 
-    <button onclick="setMode('polygon')">⬡ Draw Boundary</button>
+<button onclick="toggleMap()">Satellite / Street</button>
 
-    <button class="danger" onclick="clearArea()">Clear Area</button>
+<button onclick="setMode('pin')">Drop Pin</button>
 
-  </div>
+<button onclick="setMode('circle')">Circle Area</button>
 
-  <div id="mapStatus" class="status">
+<button onclick="setMode('polygon')">Draw Boundary</button>
 
-    Select Locate Me, then choose an incident location.
+<button class="danger" onclick="clearArea()">Clear Area</button>
 
-  </div>
+</div>
 
-  <div class="info">
+<div class="status" id="status">
 
-    <strong>Reporting Person GPS</strong>
+Ready. Select GPS or choose a map location.
 
-    <div id="gpsText">Not acquired</div>
+</div>
 
-    <strong>Selected Incident Coordinates</strong>
+<div class="info">
 
-    <div id="incidentCoords">Not selected</div>
+<b>DEVICE LOCATION / GPS</b>
 
-    <strong>Selected Area</strong>
+<div id="gps">Not acquired</div>
 
-    <div id="areaText">No boundary selected</div>
+<b>GPS ACCURACY</b>
 
-  </div>
+<div id="accuracy">Unknown</div>
+
+<b>REPORTED ACTIVITY COORDINATES</b>
+
+<div id="coords">Not selected</div>
+
+<b>SELECTED GEOGRAPHIC AREA</b>
+
+<div id="area">No boundary selected</div>
+
+</div>
 
 </section>
 
 <section class="card">
 
-  <h2>2. Incident Documentation</h2>
+<h2>02 / Observation Documentation</h2>
 
-  <div class="grid">
+<div class="grid">
 
-    <div>
+<div>
 
-      <label for="incidentType">Incident Type</label>
+<label for="date">Date</label>
 
-      <select id="incidentType">
+<input type="date" id="date">
 
-        <option>Suspicious Activity</option>
+</div>
 
-        <option>Trespassing</option>
+<div>
 
-        <option>Vehicle Incident</option>
+<label for="time">Time</label>
 
-        <option>Property Damage</option>
+<input type="time" id="time">
 
-        <option>Theft / Larceny</option>
+</div>
 
-        <option>Disturbance</option>
+</div>
 
-        <option>Medical Emergency</option>
+<label for="address">Selected Location Address</label>
 
-        <option>Fire / Smoke</option>
+<input id="address"
 
-        <option>Safety Hazard</option>
+ placeholder="Select a location on the map">
 
-        <option>Other</option>
+<button style="width:100%;margin-top:8px"
 
-      </select>
+ onclick="lookupAddress()">Refresh Address Lookup</button>
 
-    </div>
+<div class="status" id="addressStatus">
 
-    <div>
+Address must be verified before official use.
 
-      <label for="priority">Priority</label>
+</div>
 
-      <select id="priority">
+<label for="description">Geographic Area Description</label>
 
-        <option>Low</option>
+<textarea id="description"
 
-        <option selected>Medium</option>
+ placeholder="Location description appears here."></textarea>
 
-        <option>High</option>
+<label for="narrative">Observation Narrative</label>
 
-        <option>Critical</option>
+<textarea id="narrative" style="min-height:150px"
 
-      </select>
+ placeholder="Document observations, conditions, sequence of events and relevant safety information."></textarea>
 
-    </div>
+<div class="status" id="saveStatus">
 
-  </div>
+Draft not saved.
 
-  <div class="grid">
-
-    <div>
-
-      <label for="incidentDate">Incident Date</label>
-
-      <input id="incidentDate" type="date">
-
-    </div>
-
-    <div>
-
-      <label for="incidentTime">Incident Time</label>
-
-      <input id="incidentTime" type="time">
-
-    </div>
-
-  </div>
-
-  <label for="reporter">Reporting Person / Officer</label>
-
-  <input id="reporter" placeholder="Name or identifier">
-
-  <label for="address">Selected Incident Address</label>
-
-  <input id="address" placeholder="Automatically retrieved; verify or edit">
-
-  <button style="width:100%;margin-top:8px"
-
-    onclick="lookupAddress()">
-
-    ↻ Refresh Incident Address
-
-  </button>
-
-  <label for="areaDescription">Geographic Area Description</label>
-
-  <textarea id="areaDescription"
-
-    placeholder="Automatically generated geographic description. Review and edit."></textarea>
-
-  <label for="narrative">Incident Narrative</label>
-
-  <textarea id="narrative" style="min-height:130px"
-
-    placeholder="Describe observations, people involved, sequence of events, and relevant circumstances."></textarea>
-
-  <label for="actionsTaken">Actions Taken</label>
-
-  <textarea id="actionsTaken"
-
-    placeholder="Document notifications, response, protective measures, and disposition."></textarea>
-
-  <div class="status" id="saveStatus">
-
-    Draft not saved.
-
-  </div>
+</div>
 
 </section>
 
@@ -554,47 +312,45 @@ textarea { resize:vertical; min-height:85px; }
 
 <div class="actions">
 
-  <button onclick="saveDraft()">Save Draft on Device</button>
+<button onclick="saveDraft()">Save Local Draft</button>
 
-  <button class="success" onclick="generateReport()">
+<button class="success" onclick="generateReport()">
 
-    Generate Professional Incident Report
+Generate Observation Report
 
-  </button>
+</button>
 
 </div>
 
-<section class="card" id="reportPreview">
+<section class="card" id="preview">
 
-  <div id="previewButtons" class="toolbar" style="margin-bottom:12px">
+<div class="tools" id="previewTools">
 
-    <button onclick="window.print()">Print / Save PDF</button>
+<button onclick="window.print()">Print / Save PDF</button>
 
-    <button onclick="captureReport()">Export Report PNG</button>
+<button onclick="exportPNG()">Export PNG</button>
 
-  </div>
+</div>
 
-  <div id="reportContent" class="report-paper">
+<div class="paper" id="reportContent">
 
-    <h2>FIELD INCIDENT REPORT</h2>
+<h2>GEOGRAPHIC OBSERVATION REPORT</h2>
 
-    <div id="reportDetails"></div>
+<div id="reportDetails"></div>
 
-    <div id="reportMap"></div>
+<div id="reportMap"></div>
 
-    <div class="notice">
+<div class="notice">
 
-      Map positions and reverse-geocoded addresses
+Geographic positions and mapped addresses are subject
 
-      are subject to source accuracy. The reporting
+to source accuracy and must be verified. This document
 
-      person must verify the incident location.
+is an observation record, not an emergency notification.
 
-      This report is not an emergency dispatch notification.
+</div>
 
-    </div>
-
-  </div>
+</div>
 
 </section>
 
@@ -610,1041 +366,709 @@ textarea { resize:vertical; min-height:85px; }
 
 "use strict";
 
-const $ = id => document.getElementById(id);
+const el=id=>document.getElementById(id);
 
-function escapeHTML(value) {
+const status=s=>el("status").textContent=s;
 
-  return String(value ?? "").replace(/[&<>"']/g, c => ({
+const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({
 
-    "&":"&amp;","<":"&lt;",">":"&gt;",
+ "&":"&amp;","<":"&lt;",">":"&gt;",
 
-    '"':"&quot;","'":"&#39;"
+ '"':"&quot;","'":"&#39;"
 
-  })[c]);
+})[c]);
+
+const satelliteURL=
+
+ "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+
+const streetURL=
+
+ "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+
+function tiles(sat){
+
+ return L.tileLayer(sat?satelliteURL:streetURL,{
+
+  maxZoom:19,
+
+  crossOrigin:true,
+
+  attribution:sat?
+
+   "Imagery © Esri and providers":
+
+   "© OpenStreetMap contributors"
+
+ });
 
 }
 
-function setStatus(message) {
+const map=L.map("map").setView([33.4484,-112.0740],15);
 
-  $("mapStatus").textContent = message;
+let satelliteMode=true;
+
+let base=tiles(true).addTo(map);
+
+let gpsMarker=null,accuracyCircle=null;
+
+let point=null,pin=null,areaLayer=null;
+
+let mode="pin",reportMap=null;
+
+let gpsWatch=null,lastAccuracy=Infinity;
+
+let lastLookup=0,lookupSerial=0;
+
+const shapes=L.featureGroup().addTo(map);
+
+const drawCircle=new L.Draw.Circle(map,{
+
+ shapeOptions:{
+
+  color:"#ff5262",weight:3,
+
+  fillColor:"#ff5262",fillOpacity:.17
+
+ }
+
+});
+
+const drawPolygon=new L.Draw.Polygon(map,{
+
+ allowIntersection:false,
+
+ showArea:true,
+
+ shapeOptions:{
+
+  color:"#ff5262",weight:3,
+
+  fillColor:"#ff5262",fillOpacity:.17
+
+ }
+
+});
+
+function toggleMap(){
+
+ map.removeLayer(base);
+
+ satelliteMode=!satelliteMode;
+
+ base=tiles(satelliteMode).addTo(map);
+
+ base.bringToBack();
 
 }
 
-const street = L.tileLayer(
+function locateMe(){
 
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+ if(!navigator.geolocation){
+
+  status("GPS not supported by this browser.");
+
+  return;
+
+ }
+
+ if(gpsWatch!==null){
+
+  navigator.geolocation.clearWatch(gpsWatch);
+
+ }
+
+ lastAccuracy=Infinity;
+
+ status("Acquiring high-accuracy GPS readings...");
+
+ gpsWatch=navigator.geolocation.watchPosition(
+
+  p=>{
+
+   const {latitude:lat,longitude:lng,
+
+          accuracy:acc}=p.coords;
+
+   if(!Number.isFinite(acc))return;
+
+   // Use improving readings for the displayed fix.
+
+   if(acc>lastAccuracy && acc>20)return;
+
+   lastAccuracy=acc;
+
+   const pos=[lat,lng];
+
+   if(gpsMarker)map.removeLayer(gpsMarker);
+
+   if(accuracyCircle)map.removeLayer(accuracyCircle);
+
+   accuracyCircle=L.circle(pos,{
+
+    radius:acc,color:"#37a5ff",
+
+    weight:1,fillOpacity:.08
+
+   }).addTo(map);
+
+   gpsMarker=L.circleMarker(pos,{
+
+    radius:8,color:"white",weight:3,
+
+    fillColor:"#37a5ff",fillOpacity:1
+
+   }).addTo(map);
+
+   gpsMarker.bindPopup("Device GPS location");
+
+   map.setView(pos,18);
+
+   el("gps").textContent=
+
+    lat.toFixed(6)+", "+lng.toFixed(6);
+
+   el("accuracy").textContent=
+
+    "Estimated horizontal accuracy: ±"+
+
+    Math.round(acc)+" meters";
+
+   status("GPS acquired. Select the separate reported activity location.");
+
+  },
+
+  error=>status("GPS unavailable: "+error.message),
 
   {
 
-    maxZoom:19,
+   enableHighAccuracy:true,
 
-    attribution:"© OpenStreetMap contributors",
+   maximumAge:0,
 
-    crossOrigin:true
-
-  }
-
-);
-
-const satellite = L.tileLayer(
-
-  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-
-  {
-
-    maxZoom:19,
-
-    attribution:"Imagery © Esri and its providers",
-
-    crossOrigin:true
+   timeout:20000
 
   }
 
-);
-
-const map = L.map("map",{
-
-  center:[33.4484,-112.0740],
-
-  zoom:15,
-
-  layers:[satellite],
-
-  zoomControl:true
-
-});
-
-let satelliteActive = true;
-
-let gpsMarker = null;
-
-let gpsAccuracyCircle = null;
-
-let incidentMarker = null;
-
-let incidentPoint = null;
-
-let selectedArea = null;
-
-let currentMode = "pin";
-
-let reportMapInstance = null;
-
-let addressRequest = 0;
-
-let lastAddressLookup = 0;
-
-const drawnItems = new L.FeatureGroup();
-
-map.addLayer(drawnItems);
-
-const drawCircle = new L.Draw.Circle(map,{
-
-  shapeOptions:{
-
-    color:"#ef4444",
-
-    weight:3,
-
-    fillColor:"#ef4444",
-
-    fillOpacity:0.18
-
-  }
-
-});
-
-const drawPolygon = new L.Draw.Polygon(map,{
-
-  allowIntersection:false,
-
-  showArea:true,
-
-  shapeOptions:{
-
-    color:"#ef4444",
-
-    weight:3,
-
-    fillColor:"#ef4444",
-
-    fillOpacity:0.18
-
-  }
-
-});
-
-function toggleMap() {
-
-  if(satelliteActive) {
-
-    map.removeLayer(satellite);
-
-    street.addTo(map);
-
-    satelliteActive = false;
-
-  } else {
-
-    map.removeLayer(street);
-
-    satellite.addTo(map);
-
-    satelliteActive = true;
-
-  }
+ );
 
 }
 
-function locateMe() {
+function setMode(m){
 
-  if(!navigator.geolocation) {
+ drawCircle.disable();
 
-    setStatus("Geolocation is not supported.");
+ drawPolygon.disable();
 
-    return;
+ mode=m;
 
-  }
+ if(m==="circle"){
 
-  setStatus("Requesting phone GPS location...");
+  drawCircle.enable();
 
-  navigator.geolocation.getCurrentPosition(
+  status("Drag to draw a circular geographic area.");
 
-    position => {
+ }else if(m==="polygon"){
 
-      const lat = position.coords.latitude;
+  drawPolygon.enable();
 
-      const lng = position.coords.longitude;
+  status("Tap boundary vertices to draw the area.");
 
-      const accuracy = position.coords.accuracy;
+ }else{
 
-      const point = [lat,lng];
+  status("Tap the map to select a reported activity location.");
 
-      if(gpsMarker) map.removeLayer(gpsMarker);
-
-      if(gpsAccuracyCircle) map.removeLayer(gpsAccuracyCircle);
-
-      gpsAccuracyCircle = L.circle(point,{
-
-        radius:accuracy,
-
-        color:"#2389ff",
-
-        fillColor:"#2389ff",
-
-        fillOpacity:0.08,
-
-        weight:1
-
-      }).addTo(map);
-
-      gpsMarker = L.circleMarker(point,{
-
-        radius:8,
-
-        color:"#ffffff",
-
-        weight:3,
-
-        fillColor:"#2389ff",
-
-        fillOpacity:1
-
-      }).addTo(map);
-
-      gpsMarker.bindPopup("Reporting person's GPS location");
-
-      map.setView(point,18);
-
-      $("gpsText").textContent =
-
-        lat.toFixed(6)+", "+lng.toFixed(6)+
-
-        " | Reported accuracy ±"+
-
-        Math.round(accuracy)+" m";
-
-      setStatus(
-
-        "GPS acquired. Tap the incident location, "+
-
-        "even if it is across the street."
-
-      );
-
-    },
-
-    error => {
-
-      setStatus("GPS unavailable: "+error.message+
-
-        ". You can still select an incident manually.");
-
-    },
-
-    {
-
-      enableHighAccuracy:true,
-
-      timeout:15000,
-
-      maximumAge:0
-
-    }
-
-  );
+ }
 
 }
 
-function setMode(mode) {
+map.on("click",e=>{
 
-  currentMode = mode;
-
-  drawCircle.disable();
-
-  drawPolygon.disable();
-
-  if(mode==="circle") {
-
-    drawCircle.enable();
-
-    setStatus("Drag on the map to draw an incident circle.");
-
-  } else if(mode==="polygon") {
-
-    drawPolygon.enable();
-
-    setStatus("Tap boundary corners, then tap the first point to finish.");
-
-  } else {
-
-    setStatus("Tap the map to place the incident marker.");
-
-  }
-
-}
-
-map.on("click",event=>{
-
-  if(currentMode==="pin") {
-
-    setIncidentPoint(event.latlng);
-
-  }
+ if(mode==="pin")setPoint(e.latlng);
 
 });
 
-function setIncidentPoint(latlng) {
+function setPoint(latlng,refresh=true){
 
-  incidentPoint = L.latLng(latlng);
+ point=L.latLng(latlng);
 
-  if(incidentMarker) {
+ if(pin)pin.setLatLng(point);
 
-    incidentMarker.setLatLng(incidentPoint);
+ else{
 
-  } else {
+  pin=L.marker(point,{draggable:true}).addTo(map);
 
-    incidentMarker = L.marker(incidentPoint,{
+  pin.on("dragend",()=>setPoint(pin.getLatLng()));
 
-      draggable:true
+ }
 
-    }).addTo(map);
+ el("coords").textContent=
 
-    incidentMarker.bindPopup("Selected incident location");
+  point.lat.toFixed(6)+", "+point.lng.toFixed(6);
 
-    incidentMarker.on("dragend",()=>{
+ if(refresh){
 
-      setIncidentPoint(incidentMarker.getLatLng());
-
-    });
-
-  }
-
-  $("incidentCoords").textContent =
-
-    incidentPoint.lat.toFixed(6)+", "+
-
-    incidentPoint.lng.toFixed(6);
-
-  $("address").value = "";
-
-  updateAreaDescription();
+  el("address").value="";
 
   lookupAddress();
 
-  setStatus("Incident location selected independently of GPS.");
+ }
+
+ describeArea();
 
 }
 
-map.on(L.Draw.Event.CREATED,event=>{
+map.on(L.Draw.Event.CREATED,e=>{
 
-  drawnItems.clearLayers();
+ shapes.clearLayers();
 
-  selectedArea = event.layer;
+ areaLayer=e.layer;
 
-  drawnItems.addLayer(selectedArea);
+ shapes.addLayer(areaLayer);
 
-  if(event.layerType==="circle") {
+ const center=e.layerType==="circle"?
 
-    const center = selectedArea.getLatLng();
+  areaLayer.getLatLng():
 
-    setIncidentPoint(center);
+  areaLayer.getBounds().getCenter();
 
-    const radius = selectedArea.getRadius();
+ setPoint(center);
 
-    $("areaText").textContent =
+ updateArea();
 
-      "Circular area | Radius: "+
-
-      Math.round(radius)+" meters | Approx. area: "+
-
-      (Math.PI*radius*radius/10000).toFixed(2)+" hectares";
-
-  } else {
-
-    const center = selectedArea.getBounds().getCenter();
-
-    setIncidentPoint(center);
-
-    $("areaText").textContent =
-
-      "Custom polygon boundary selected";
-
-  }
-
-  updateAreaDescription();
-
-  currentMode = "pin";
+ mode="pin";
 
 });
 
-function clearArea() {
+function updateArea(){
 
-  drawnItems.clearLayers();
+ if(areaLayer instanceof L.Circle){
 
-  selectedArea = null;
+  const r=areaLayer.getRadius();
 
-  $("areaText").textContent = "No boundary selected";
+  el("area").textContent=
 
-  updateAreaDescription();
+   "Circle | Radius "+Math.round(r)+
 
-  setStatus("Selected boundary cleared.");
+   " m | Approx. "+(Math.PI*r*r/10000).toFixed(2)+
 
-}
+   " hectares";
 
-function updateAreaDescription() {
+ }else if(areaLayer){
 
-  if(!incidentPoint) return;
+  el("area").textContent=
 
-  let description =
+   "Custom geographic boundary";
 
-    "The reported incident location is identified "+
+ }else{
 
-    "by a map marker at latitude "+
+  el("area").textContent="No boundary selected";
 
-    incidentPoint.lat.toFixed(6)+
+ }
 
-    " and longitude "+
-
-    incidentPoint.lng.toFixed(6)+". ";
-
-  if(selectedArea instanceof L.Circle) {
-
-    description +=
-
-      "The highlighted incident area is a circular "+
-
-      "geographic selection with an approximate radius of "+
-
-      Math.round(selectedArea.getRadius())+
-
-      " meters. ";
-
-  } else if(selectedArea) {
-
-    description +=
-
-      "A custom geographic boundary identifies "+
-
-      "the reported incident area. ";
-
-  }
-
-  description +=
-
-    "The selected location is independent of the "+
-
-    "reporting person's GPS position. "+
-
-    "The mapped address and actual incident site "+
-
-    "should be verified by the reporting person.";
-
-  $("areaDescription").value = description;
+ describeArea();
 
 }
 
-async function lookupAddress() {
+function clearArea(){
 
-  if(!incidentPoint) {
+ shapes.clearLayers();
 
-    setStatus("Select an incident point first.");
+ areaLayer=null;
 
-    return;
+ updateArea();
 
-  }
-
-  // Public Nominatim is intended for limited testing,
-
-  // not high-volume production address lookup.
-
-  const elapsed = Date.now()-lastAddressLookup;
-
-  if(elapsed<1100) {
-
-    await new Promise(resolve=>
-
-      setTimeout(resolve,1100-elapsed)
-
-    );
-
-  }
-
-  const requestId = ++addressRequest;
-
-  lastAddressLookup = Date.now();
-
-  const lat = incidentPoint.lat;
-
-  const lng = incidentPoint.lng;
-
-  setStatus("Looking up the selected incident address...");
-
-  const url =
-
-    "https://nominatim.openstreetmap.org/reverse"+
-
-    "?format=jsonv2&addressdetails=1"+
-
-    "&zoom=18"+
-
-    "&lat="+encodeURIComponent(lat)+
-
-    "&lon="+encodeURIComponent(lng);
-
-  try {
-
-    const response = await fetch(url,{
-
-      headers:{"Accept":"application/json"}
-
-    });
-
-    if(!response.ok) {
-
-      throw new Error("Address service returned "+response.status);
-
-    }
-
-    const data = await response.json();
-
-    if(requestId!==addressRequest) return;
-
-    const a = data.address || {};
-
-    const streetName = [
-
-      a.house_number,
-
-      a.road || a.pedestrian || a.footway
-
-    ].filter(Boolean).join(" ");
-
-    const locality =
-
-      a.city || a.town || a.village ||
-
-      a.hamlet || a.county || "";
-
-    const region = a.state || "";
-
-    const postal = a.postcode || "";
-
-    const formatted = [
-
-      streetName || data.name,
-
-      locality,
-
-      [region,postal].filter(Boolean).join(" ")
-
-    ].filter(Boolean).join(", ");
-
-    $("address").value =
-
-      formatted || data.display_name ||
-
-      "Address not identified";
-
-    setStatus(
-
-      "Nearest mapped address retrieved. "+
-
-      "Confirm that it belongs to the incident property."
-
-    );
-
-  } catch(error) {
-
-    if(requestId!==addressRequest) return;
-
-    setStatus(
-
-      "Automatic address lookup failed. "+
-
-      "Enter the address manually. "+error.message
-
-    );
-
-  }
+ status("Boundary cleared.");
 
 }
 
-function localDateAndTime() {
+function describeArea(){
 
-  const now = new Date();
+ if(!point)return;
 
-  const pad = n=>String(n).padStart(2,"0");
+ let text=
 
-  $("incidentDate").value =
+  "Selected map position: "+
 
-    now.getFullYear()+"-"+
+  point.lat.toFixed(6)+", "+
 
-    pad(now.getMonth()+1)+"-"+
+  point.lng.toFixed(6)+". ";
 
-    pad(now.getDate());
+ if(areaLayer instanceof L.Circle){
 
-  $("incidentTime").value =
+  text+="A circular area with an approximate "+
 
-    pad(now.getHours())+":"+pad(now.getMinutes());
+   Math.round(areaLayer.getRadius())+
+
+   "-meter radius is highlighted. ";
+
+ }else if(areaLayer){
+
+  text+="A custom geographic boundary is highlighted. ";
+
+ }
+
+ text+="The map marker identifies the reported "+
+
+  "activity location, separate from device GPS. "+
+
+  "Confirm the mapped property address and "+
+
+  "geographic details before use.";
+
+ el("description").value=text;
 
 }
 
-localDateAndTime();
+async function lookupAddress(){
 
-const fieldIds = [
+ if(!point)return;
 
-  "incidentType","priority","incidentDate",
+ const id=++lookupSerial;
 
-  "incidentTime","reporter","address",
+ const lat=point.lat,lng=point.lng;
 
-  "areaDescription","narrative","actionsTaken"
+ const delay=Math.max(0,1100-(Date.now()-lastLookup));
 
-];
+ if(delay)await new Promise(r=>setTimeout(r,delay));
 
-function saveDraft() {
+ if(id!==lookupSerial)return;
 
-  const data = {};
+ lastLookup=Date.now();
 
-  fieldIds.forEach(id=>{
+ el("addressStatus").textContent="Searching mapped addresses...";
 
-    data[id] = $(id).value;
+ try{
+
+  const url=
+
+   "https://nominatim.openstreetmap.org/reverse"+
+
+   "?format=jsonv2&addressdetails=1&zoom=18"+
+
+   "&lat="+encodeURIComponent(lat)+
+
+   "&lon="+encodeURIComponent(lng);
+
+  const response=await fetch(url,{
+
+   headers:{"Accept":"application/json"}
 
   });
 
-  if(incidentPoint) {
+  if(!response.ok)throw Error("HTTP "+response.status);
 
-    data.incidentPoint = {
+  const data=await response.json();
 
-      lat:incidentPoint.lat,
+  if(id!==lookupSerial)return;
 
-      lng:incidentPoint.lng
+  const a=data.address||{};
 
-    };
+  const street=[a.house_number,a.road].filter(Boolean).join(" ");
 
-  }
+  const city=a.city||a.town||a.village||a.county||"";
 
-  if(selectedArea) {
+  const region=[a.state,a.postcode].filter(Boolean).join(" ");
 
-    if(selectedArea instanceof L.Circle) {
+  el("address").value=
 
-      data.area = {
+   [street||data.name,city,region]
 
-        type:"circle",
+    .filter(Boolean).join(", ")||
 
-        center:selectedArea.getLatLng(),
+   data.display_name||"No mapped address found";
 
-        radius:selectedArea.getRadius()
+  el("addressStatus").textContent=
 
-      };
+   "Nearest mapped address. Verify the correct property; "+
 
-    } else {
+   "a pin does not guarantee a rooftop-level address.";
 
-      data.area = {
+ }catch(err){
 
-        type:"polygon",
+  if(id!==lookupSerial)return;
 
-        coordinates:selectedArea.getLatLngs()
+  el("addressStatus").textContent=
 
-      };
+   "Lookup unavailable. Enter the address manually.";
 
-    }
-
-  }
-
-  try {
-
-    localStorage.setItem(
-
-      "fieldIncidentDraftV1",
-
-      JSON.stringify(data)
-
-    );
-
-    $("saveStatus").textContent =
-
-      "Draft saved locally on this device.";
-
-  } catch(error) {
-
-    $("saveStatus").textContent =
-
-      "Could not save draft: "+error.message;
-
-  }
+ }
 
 }
 
-function restoreDraft() {
+function initDate(){
 
-  try {
+ const d=new Date(),pad=n=>String(n).padStart(2,"0");
 
-    const raw = localStorage.getItem("fieldIncidentDraftV1");
+ el("date").value=d.getFullYear()+"-"+
 
-    if(!raw) return;
+  pad(d.getMonth()+1)+"-"+pad(d.getDate());
 
-    const data = JSON.parse(raw);
+ el("time").value=pad(d.getHours())+":"+pad(d.getMinutes());
 
-    fieldIds.forEach(id=>{
+}
 
-      if(data[id]!==undefined) {
+initDate();
 
-        $(id).value = data[id];
+const fields=["date","time","address","description","narrative"];
 
-      }
+function saveDraft(){
+
+ const data={};
+
+ fields.forEach(f=>data[f]=el(f).value);
+
+ if(point)data.point={lat:point.lat,lng:point.lng};
+
+ if(areaLayer instanceof L.Circle){
+
+  data.area={
+
+   type:"circle",
+
+   center:areaLayer.getLatLng(),
+
+   radius:areaLayer.getRadius()
+
+  };
+
+ }else if(areaLayer){
+
+  data.area={
+
+   type:"polygon",
+
+   coordinates:areaLayer.getLatLngs()
+
+  };
+
+ }
+
+ try{
+
+  localStorage.setItem("observationDraftV2",
+
+   JSON.stringify(data));
+
+  el("saveStatus").textContent="Draft saved on this device.";
+
+ }catch(err){
+
+  el("saveStatus").textContent="Local saving unavailable.";
+
+ }
+
+}
+
+function restoreDraft(){
+
+ try{
+
+  const raw=localStorage.getItem("observationDraftV2");
+
+  if(!raw)return;
+
+  const d=JSON.parse(raw);
+
+  if(d.point){
+
+   setPoint(d.point,false);
+
+   map.setView(d.point,17);
+
+  }
+
+  if(d.area){
+
+   if(d.area.type==="circle"){
+
+    areaLayer=L.circle(d.area.center,{
+
+     radius:d.area.radius,color:"#ff5262",
+
+     fillColor:"#ff5262",fillOpacity:.17
 
     });
 
-    if(data.incidentPoint) {
+   }else{
 
-      setIncidentPoint(data.incidentPoint);
+    areaLayer=L.polygon(d.area.coordinates,{
 
-      map.setView(data.incidentPoint,18);
+     color:"#ff5262",
 
-    }
-
-    if(data.area) {
-
-      if(data.area.type==="circle") {
-
-        selectedArea = L.circle(
-
-          data.area.center,{
-
-            radius:data.area.radius,
-
-            color:"#ef4444",
-
-            fillColor:"#ef4444",
-
-            fillOpacity:0.18
-
-          }
-
-        );
-
-        $("areaText").textContent =
-
-          "Circle radius: "+
-
-          Math.round(data.area.radius)+" meters";
-
-      } else {
-
-        selectedArea = L.polygon(
-
-          data.area.coordinates,{
-
-            color:"#ef4444",
-
-            fillColor:"#ef4444",
-
-            fillOpacity:0.18
-
-          }
-
-        );
-
-        $("areaText").textContent =
-
-          "Custom polygon boundary restored";
-
-      }
-
-      drawnItems.addLayer(selectedArea);
-
-    }
-
-    // Preserve the saved, user-edited descriptions.
-
-    fieldIds.forEach(id=>{
-
-      if(data[id]!==undefined) {
-
-        $(id).value = data[id];
-
-      }
+     fillColor:"#ff5262",fillOpacity:.17
 
     });
 
-    $("saveStatus").textContent =
+   }
 
-      "Previously saved draft restored.";
+   shapes.addLayer(areaLayer);
 
-  } catch(error) {
-
-    $("saveStatus").textContent =
-
-      "Saved draft could not be restored.";
+   updateArea();
 
   }
 
-}
+  fields.forEach(f=>{
 
-function reportLine(label,value) {
-
-  return '<div class="line"><b>'+
-
-    escapeHTML(label)+'</b>'+
-
-    escapeHTML(value || "Not provided")+
-
-    '</div>';
-
-}
-
-function generateReport() {
-
-  if(!incidentPoint) {
-
-    alert("Select an incident location on the map first.");
-
-    return;
-
-  }
-
-  const reportNumber =
-
-    "IR-"+new Date().getFullYear()+"-"+
-
-    Date.now().toString().slice(-8);
-
-  let html = "";
-
-  html += reportLine("Report Number",reportNumber);
-
-  html += reportLine("Incident Type",$("incidentType").value);
-
-  html += reportLine("Priority",$("priority").value);
-
-  html += reportLine(
-
-    "Incident Date / Time",
-
-    $("incidentDate").value+" "+$("incidentTime").value
-
-  );
-
-  html += reportLine("Reporting Person",$("reporter").value);
-
-  html += reportLine("Incident Address",$("address").value);
-
-  html += reportLine(
-
-    "Incident Coordinates",
-
-    incidentPoint.lat.toFixed(6)+", "+
-
-    incidentPoint.lng.toFixed(6)
-
-  );
-
-  html += reportLine(
-
-    "Geographic Area Description",
-
-    $("areaDescription").value
-
-  );
-
-  html += reportLine(
-
-    "Incident Narrative",
-
-    $("narrative").value
-
-  );
-
-  html += reportLine(
-
-    "Actions Taken",
-
-    $("actionsTaken").value
-
-  );
-
-  $("reportDetails").innerHTML = html;
-
-  $("reportPreview").style.display = "block";
-
-  if(reportMapInstance) {
-
-    reportMapInstance.remove();
-
-    reportMapInstance = null;
-
-  }
-
-  reportMapInstance = L.map("reportMap",{
-
-    center:incidentPoint,
-
-    zoom:17,
-
-    zoomControl:false,
-
-    attributionControl:true,
-
-    dragging:false,
-
-    scrollWheelZoom:false,
-
-    doubleClickZoom:false,
-
-    touchZoom:false
+   if(d[f]!==undefined)el(f).value=d[f];
 
   });
 
-  const reportTiles = satelliteActive ?
+  el("saveStatus").textContent="Saved draft restored.";
 
-    L.tileLayer(
+ }catch(err){
 
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{x}/{y}.png",
+  el("saveStatus").textContent="Draft restoration failed.";
 
-      {maxZoom:19,attribution:"Imagery © Esri and its providers"}
-
-    ) :
-
-    L.tileLayer(
-
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-
-      {maxZoom:19,attribution:"© OpenStreetMap contributors"}
-
-    );
-
-  reportTiles.addTo(reportMapInstance);
-
-  L.marker(incidentPoint)
-
-    .addTo(reportMapInstance)
-
-    .bindPopup("Incident location");
-
-  if(selectedArea) {
-
-    let copy;
-
-    if(selectedArea instanceof L.Circle) {
-
-      copy = L.circle(selectedArea.getLatLng(),{
-
-        radius:selectedArea.getRadius(),
-
-        color:"#ef4444",
-
-        fillColor:"#ef4444",
-
-        fillOpacity:0.18,
-
-        weight:3
-
-      });
-
-    } else {
-
-      copy = L.polygon(selectedArea.getLatLngs(),{
-
-        color:"#ef4444",
-
-        fillColor:"#ef4444",
-
-        fillOpacity:0.18,
-
-        weight:3
-
-      });
-
-    }
-
-    copy.addTo(reportMapInstance);
-
-    reportMapInstance.fitBounds(copy.getBounds(),{
-
-      padding:[25,25],
-
-      maxZoom:18
-
-    });
-
-  }
-
-  setTimeout(()=>{
-
-    reportMapInstance.invalidateSize();
-
-    $("reportPreview").scrollIntoView({
-
-      behavior:"smooth",
-
-      block:"start"
-
-    });
-
-  },250);
+ }
 
 }
 
-async function captureReport() {
+function line(name,value){
 
-  const element = $("reportContent");
+ return '<div class="line"><b>'+safe(name)+
 
-  try {
+  '</b>'+safe(value||"Not provided")+'</div>';
 
-    const canvas = await html2canvas(element,{
+}
 
-      scale:2,
+function generateReport(){
 
-      backgroundColor:"#ffffff",
+ if(!point){
 
-      useCORS:true,
+  alert("Select a location on the map first.");
 
-      logging:false
+  return;
 
-    });
+ }
 
-    canvas.toBlob(blob=>{
+ const number="OBS-"+Date.now().toString(36).toUpperCase();
 
-      if(!blob) {
+ let html="";
 
-        alert("Image export was blocked by map imagery permissions.");
+ html+=line("Reference Number",number);
 
-        return;
+ html+=line("Observation Date",el("date").value);
 
-      }
+ html+=line("Observation Time",el("time").value);
 
-      const url = URL.createObjectURL(blob);
+ html+=line("Selected Address",el("address").value);
 
-      const link = document.createElement("a");
+ html+=line("Map Coordinates",
 
-      link.href = url;
+  point.lat.toFixed(6)+", "+point.lng.toFixed(6));
 
-      link.download = "field-incident-report.png";
+ html+=line("Selected Area",el("area").textContent);
 
-      document.body.appendChild(link);
+ html+=line("Geographic Description",el("description").value);
 
-      link.click();
+ html+=line("Observation Narrative",el("narrative").value);
 
-      link.remove();
+ el("reportDetails").innerHTML=html;
 
-      setTimeout(()=>URL.revokeObjectURL(url),5000);
+ el("preview").style.display="block";
 
-    },"image/png");
+ if(reportMap)reportMap.remove();
 
-  } catch(error) {
+ reportMap=L.map("reportMap",{
 
-    alert(
+  center:point,zoom:17,
 
-      "Image export failed. Some map providers restrict "+
+  zoomControl:false,
 
-      "cross-origin image capture. Try Print / Save PDF. "+
+  dragging:false,
 
-      error.message
+  scrollWheelZoom:false,
 
-    );
+  doubleClickZoom:false,
+
+  touchZoom:false
+
+ });
+
+ tiles(satelliteMode).addTo(reportMap);
+
+ L.marker(point).addTo(reportMap);
+
+ if(areaLayer){
+
+  let copy;
+
+  if(areaLayer instanceof L.Circle){
+
+   copy=L.circle(areaLayer.getLatLng(),{
+
+    radius:areaLayer.getRadius(),
+
+    color:"#ff5262",fillOpacity:.17
+
+   });
+
+  }else{
+
+   copy=L.polygon(areaLayer.getLatLngs(),{
+
+    color:"#ff5262",fillOpacity:.17
+
+   });
 
   }
+
+  copy.addTo(reportMap);
+
+  reportMap.fitBounds(copy.getBounds(),{
+
+   padding:[25,25],maxZoom:18
+
+  });
+
+ }
+
+ setTimeout(()=>{
+
+  reportMap.invalidateSize();
+
+  el("preview").scrollIntoView({behavior:"smooth"});
+
+ },300);
+
+}
+
+async function exportPNG(){
+
+ try{
+
+  const canvas=await html2canvas(el("reportContent"),{
+
+   scale:2,useCORS:true,backgroundColor:"#ffffff"
+
+  });
+
+  canvas.toBlob(blob=>{
+
+   if(!blob)throw Error("PNG unavailable");
+
+   const url=URL.createObjectURL(blob);
+
+   const a=document.createElement("a");
+
+   a.href=url;
+
+   a.download="observation-report.png";
+
+   a.click();
+
+   setTimeout(()=>URL.revokeObjectURL(url),5000);
+
+  },"image/png");
+
+ }catch(err){
+
+  alert("Map imagery may restrict image export. "+
+
+   "Try Print / Save PDF instead.");
+
+ }
 
 }
 
